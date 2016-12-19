@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#353841"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="5dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dp_28"
+            android:src="@color/colorGarySix"/>
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="@dimen/dp_10"
+            android:src="@drawable/icon_19"/>
+        <TextView
+            android:id="@+id/tv_barcode_name"
+            android:layout_toRightOf="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_20"
+            android:text="商品条码: "
+            android:textSize="@dimen/sp_16"/>
+        <TextView
+            android:id="@+id/tv_barcode_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_20"
+            android:layout_toRightOf="@+id/tv_barcode_name"
+            android:textSize="@dimen/sp_16"
+            android:textColor="@color/colorWhite"/>
+
+        <TextView
+            android:id="@+id/tv_name_tag"
+            android:layout_toRightOf="@+id/icon"
+            android:layout_below="@+id/tv_barcode_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="商品名称: "
+            android:textSize="@dimen/sp_16"/>
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_toRightOf="@+id/tv_name_tag"
+            android:layout_below="@+id/tv_barcode_num"
+            android:maxLines="1"
+            android:textSize="@dimen/sp_16"
+            android:textColor="@color/colorWhite"/>
+        <TextView
+            android:id="@+id/tv_store_stock"
+            android:layout_toRightOf="@+id/icon"
+            android:layout_below="@+id/tv_name_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="仓库系统库存: "
+            android:textSize="@dimen/sp_16"/>
+
+        <TextView
+            android:id="@+id/tv_mart_stock"
+            android:layout_toRightOf="@+id/icon"
+            android:layout_below="@+id/et_store_stock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="卖场系统库存: "
+            android:textSize="@dimen/sp_16"/>
+
+        <TextView
+            android:id="@+id/tv_mart_tag"
+            android:layout_toRightOf="@+id/icon"
+            android:layout_below="@+id/et_mart_stock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="卖场数量: "
+            android:layout_marginBottom="@dimen/dp_10"
+            android:textSize="@dimen/sp_16"/>
+        <EditText
+            android:id="@+id/et_mart_num"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_toRightOf="@+id/tv_mart_tag"
+            android:layout_below="@+id/et_mart_stock"
+            android:inputType="number"
+            android:background="@color/colorBlackBg"
+            android:textColorHint="@color/colorWhite"/>
+
+        <TextView
+            android:id="@+id/tv_stork_tag"
+            android:layout_toRightOf="@+id/icon"
+            android:layout_below="@+id/et_mart_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="仓库数量: "
+            android:layout_marginBottom="@dimen/dp_10"
+            android:textSize="@dimen/sp_16"/>
+        <EditText
+            android:id="@+id/et_stork_num"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_toRightOf="@+id/tv_stork_tag"
+            android:layout_below="@+id/et_mart_num"
+            android:inputType="number"
+            android:background="@color/colorBlackBg"
+            android:textColorHint="@color/colorWhite"/>
+
+
+        <TextView
+            android:id="@+id/et_store_stock"
+            android:layout_width="40dp"
+            android:layout_height="20dp"
+            android:textColorHint="@color/colorWhite"
+            android:inputType="number"
+            android:hint="0"
+            android:gravity="center"
+            android:background="@color/colorBlackBg"
+            android:layout_alignTop="@+id/tv_store_stock"
+            android:layout_toEndOf="@+id/tv_store_stock" />
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/delete_3"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/dp_10"
+            android:layout_margin="@dimen/dp_5"/>
+
+        <TextView
+            android:id="@+id/et_mart_stock"
+            android:layout_width="40dp"
+            android:layout_height="20dp"
+            android:inputType="number"
+            android:hint="0"
+            android:gravity="center"
+            android:textColorHint="@color/colorWhite"
+            android:background="@color/colorBlackBg"
+            android:layout_alignTop="@+id/tv_mart_stock"
+            android:layout_toEndOf="@+id/tv_mart_stock" />
+
+    </RelativeLayout>
+
+</LinearLayout>

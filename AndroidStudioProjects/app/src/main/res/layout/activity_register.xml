@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@drawable/bg"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+<LinearLayout
+        android:layout_width="match_parent"
+        android:background="@drawable/bg"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal"
+            android:textSize="@dimen/textSizeX"
+            android:textColor="@color/colorWhite"
+            android:text="慧屏下单"/>
+    </RelativeLayout>
+    <!--<RelativeLayout-->
+        <!--android:layout_width="100dp"-->
+        <!--android:layout_height="100dp"-->
+        <!--android:layout_marginTop="@dimen/paddingM"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:gravity="center"-->
+        <!--android:background="@drawable/header_out">-->
+        <!--<TextView-->
+            <!--android:id="@+id/tv_upload_photo"-->
+            <!--android:layout_width="90dp"-->
+            <!--android:layout_height="90dp"-->
+            <!--android:textColor="@color/colorBlack"-->
+            <!--android:background="@drawable/header_in"-->
+            <!--android:layout_gravity="center_horizontal"-->
+            <!--android:alpha="100"-->
+            <!--android:text="上传\n图片"-->
+            <!--android:textSize="@dimen/paddingL"-->
+            <!--android:gravity="center" />-->
+    <!--</RelativeLayout>-->
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/et_register_user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/paddingM"
+                android:padding="@dimen/paddingS"
+                android:layout_marginRight="@dimen/padding"
+                android:layout_marginLeft="@dimen/padding"
+                android:textColorHint="@color/colorWhite"
+                android:background="@drawable/login_bg_normal"
+                android:gravity="center"
+                android:hint=" 输入手机号"
+                android:inputType="number"
+                android:textSize="@dimen/textSizeL"
+                android:layout_centerInParent="true" />
+            <Button
+                android:id="@+id/btn_send_security_code"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:textColor="@color/colorWhite"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/paddingL"
+                android:background="@color/coloDrakrRed"
+                android:textSize="@dimen/paddingM"
+                android:text="发送验证码"/>
+        </RelativeLayout>
+
+    <EditText
+        android:id="@+id/et_register_security_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/paddingM"
+        android:padding="@dimen/paddingS"
+        android:layout_marginRight="@dimen/paddingM"
+        android:layout_marginLeft="@dimen/paddingM"
+        android:textColorHint="@color/colorWhite"
+        android:background="@drawable/login_bg_normal"
+        android:gravity="center"
+        android:hint=" 输入验证码"
+        android:textSize="@dimen/textSizeL"
+        android:layout_centerInParent="true" />
+    <EditText
+        android:id="@+id/et_register_psw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/paddingM"
+        android:padding="@dimen/paddingS"
+        android:layout_marginRight="@dimen/padding"
+        android:layout_marginLeft="@dimen/padding"
+        android:textColorHint="@color/colorWhite"
+        android:background="@drawable/login_bg_normal"
+        android:gravity="center"
+        android:hint=" 输入密码"
+        android:inputType="textPassword"
+        android:textSize="@dimen/textSizeL"
+        android:layout_centerInParent="true" />
+    <EditText
+        android:id="@+id/et_register_psw_agin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/paddingM"
+        android:padding="@dimen/paddingS"
+        android:layout_marginRight="@dimen/padding"
+        android:layout_marginLeft="@dimen/padding"
+        android:textColorHint="@color/colorWhite"
+        android:background="@drawable/login_bg_normal"
+        android:gravity="center"
+        android:hint=" 确认密码"
+        android:inputType="textPassword"
+        android:textSize="@dimen/textSizeL"
+        android:layout_centerInParent="true" />
+    <EditText
+        android:id="@+id/et_register_nick"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/paddingM"
+        android:padding="@dimen/paddingS"
+        android:layout_marginRight="@dimen/paddingM"
+        android:layout_marginLeft="@dimen/paddingM"
+        android:textColorHint="@color/colorWhite"
+        android:background="@drawable/login_bg_normal"
+        android:gravity="center"
+        android:hint=" 输入昵称"
+        android:textSize="@dimen/textSizeL"
+        android:layout_centerInParent="true" />
+    <Button
+        android:onClick="register_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/colorWhite"
+        android:text="注册"
+        android:textSize="@dimen/textSizeL"
+        android:layout_marginLeft="@dimen/paddingM"
+        android:layout_marginRight="@dimen/paddingM"
+        android:background="@drawable/register_confirm_selector"/>
+    </LinearLayout>
+</ScrollView>

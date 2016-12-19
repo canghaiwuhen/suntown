@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorGary"
+            android:textSize="@dimen/textSizeL"
+            android:padding="@dimen/padding"
+            android:text="标  签  IP:"/>
+        <TextView
+            android:id="@+id/tv_tag_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorRed"
+            android:textSize="@dimen/textSizeL"
+            android:layout_margin="@dimen/padding"
+            android:layout_toRightOf="@+id/tv_tag"
+            android:text="0.0.0.1"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_bind_goods"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorGary"
+            android:textSize="@dimen/textSizeL"
+            android:padding="@dimen/padding"
+            android:text="绑定商品:"/>
+        <TextView
+            android:id="@+id/tv_goods_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorGary"
+            android:textSize="@dimen/textSizeL"
+            android:layout_margin="@dimen/padding"
+            android:layout_toRightOf="@+id/tv_bind_goods"
+            android:text=""/>
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#ddce"/>
+</LinearLayout>

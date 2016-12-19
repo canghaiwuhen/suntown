@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/dp_2"
+    android:background="@color/colorYellowIcon">
+
+    <TextView
+        android:id="@+id/tv_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:layout_marginTop="@dimen/dp_10"
+        android:text="123"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/dp_16" />
+
+    <TextView
+        android:id="@+id/tv_barcode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_tag"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:text="123"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/dp_16" />
+
+    <TextView
+        android:id="@+id/tv_gname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_barcode"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:lines="1"
+        android:text="123"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/dp_16" />
+
+    <ImageView
+        android:id="@+id/iv_delete"
+        android:layout_width="@dimen/dp_10"
+        android:layout_height="@dimen/dp_10"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/dp_2"
+        android:src="@drawable/delete1" />
+</RelativeLayout>

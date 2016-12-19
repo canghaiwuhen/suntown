@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorBlackBg">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@color/colorWhite"
+            android:padding="15dp"
+            android:textSize="@dimen/sp_24"
+            android:text="密码修改"/>
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/arrow_l"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_centerVertical="true" />
+        <!--<TextView-->
+            <!--android:id="@+id/tv_save"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="取消"-->
+            <!--android:textColor="@color/colorWhite"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_marginRight="@dimen/dp_10"-->
+            <!--android:layout_centerVertical="true" />-->
+    </RelativeLayout>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20">
+
+        <EditText
+            android:id="@+id/et_old_psw"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="请输入密码"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <!--<View-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_marginRight="@dimen/dp_20"-->
+        <!--android:layout_marginLeft="@dimen/dp_20"-->
+        <!--android:background="@color/colorGary"-->
+        <!--android:layout_height="1dp"/>-->
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20">
+
+        <EditText
+            android:id="@+id/et_new_psw"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="输入新密码"/>
+    </android.support.design.widget.TextInputLayout>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20">
+
+        <EditText
+            android:id="@+id/et_confirm_psw"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="确认新密码"/>
+    </android.support.design.widget.TextInputLayout>
+    <View
+    android:layout_width="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_marginRight="@dimen/dp_20"
+    android:layout_marginLeft="@dimen/dp_20"
+    android:background="@color/colorGaryBg"
+    android:layout_height="1dp"/>
+
+
+    <Button
+        android:id="@+id/btn_confirm_update"
+        android:layout_below="@+id/ll_psw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_60"
+        android:layout_marginLeft="@dimen/dp_36"
+        android:layout_marginRight="@dimen/dp_36"
+        android:background="@color/colorViolet"
+        android:textSize="@dimen/dp_18"
+        android:text="@string/confirm"/>
+
+</LinearLayout>

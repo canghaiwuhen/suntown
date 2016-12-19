@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBlackBg"
+    android:id="@+id/rl_main">
+
+   <ScrollView
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           android:orientation="vertical"
+           android:layout_alignParentTop="true"
+           android:layout_alignParentStart="true">
+           <LinearLayout
+               android:id="@+id/activity_query"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:background="@color/colorBlackBg"
+               android:orientation="vertical">
+
+               <RelativeLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="60dp">
+
+                   <TextView
+                       android:id="@+id/iv_back"
+                       android:layout_width="30dp"
+                       android:layout_height="30dp"
+                       android:layout_centerVertical="true"
+                       android:layout_margin="@dimen/dp_10"
+                       android:background="@drawable/arrow_l" />
+
+                   <TextView
+                       android:id="@+id/tv_search"
+                       android:layout_width="120dp"
+                       android:layout_height="wrap_content"
+                       android:layout_centerInParent="true"
+                       android:gravity="center_horizontal"
+                       android:lines="1"
+                       android:text="选择门店"
+                       android:textSize="@dimen/sp_24" />
+
+                   <ImageView
+                       android:id="@+id/iv_arrow"
+                       android:layout_width="15dp"
+                       android:layout_height="15dp"
+                       android:layout_centerVertical="true"
+                       android:layout_toRightOf="@+id/tv_search"
+                       android:src="@drawable/arrow_03"
+                       android:visibility="gone"/>
+
+                   <TextView
+                       android:id="@+id/tv_filtrate"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_alignParentEnd="true"
+                       android:layout_centerVertical="true"
+                       android:layout_marginRight="@dimen/dp_10"
+                       android:text="历史"
+                       android:textColor="@color/iconRed"
+                       android:textSize="@dimen/sp_18" />
+               </RelativeLayout>
+
+               <EditText
+                   android:id="@+id/et_serach"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:layout_marginLeft="@dimen/dp_20"
+                   android:layout_marginRight="@dimen/dp_20"
+                   android:background="@drawable/edittext_bg_orl"
+                   android:gravity="center_horizontal"
+                   android:maxLines="1"
+                   android:inputType="text"
+                   android:hint="请输入你要搜索的标签或者商品条码"
+                   android:padding="@dimen/dp_5" />
+
+           </LinearLayout>
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:layout_alignParentStart="true"
+               android:layout_alignParentTop="true"
+               android:orientation="vertical">
+
+               <RelativeLayout
+                   android:id="@+id/rl_tag_title"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:padding="@dimen/dp_10"
+                   android:visibility="gone">
+
+                   <TextView
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:padding="@dimen/dp_4"
+                       android:text="标签信息"
+                       android:textSize="@dimen/sp_16" />
+
+                   <TextView
+                       android:id="@+id/tv_close"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_alignParentRight="true"
+                       android:background="@drawable/item_bg"
+                       android:padding="@dimen/dp_4"
+                       android:text="关机"
+                       android:textColor="@color/colorYellow"
+                       android:textSize="@dimen/sp_16" />
+
+                   <TextView
+                       android:id="@+id/tv_clear"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_marginRight="@dimen/dp_10"
+                       android:layout_toLeftOf="@+id/tv_close"
+                       android:padding="@dimen/dp_4"
+                       android:text="清空"
+                       android:textColor="@color/colorYellow"
+                       android:textSize="@dimen/sp_16" />
+               </RelativeLayout>
+
+               <com.suntown.scannerproject.weight.NestedListView
+                   android:id="@+id/lv_old_data"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:visibility="gone"/>
+
+               <RelativeLayout
+                   android:id="@+id/rl_goods_title"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:padding="@dimen/dp_10"
+                   android:visibility="gone">
+
+                   <TextView
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:padding="@dimen/dp_4"
+                       android:text="商品信息"
+                       android:textSize="@dimen/sp_16" />
+
+                   <TextView
+                       android:id="@+id/tv_close_goods"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_alignParentTop="true"
+                       android:layout_marginEnd="12dp"
+                       android:layout_marginRight="@dimen/dp_10"
+                       android:layout_toStartOf="@+id/tv_lose_goods"
+                       android:padding="@dimen/dp_4"
+                       android:text="清空"
+                       android:textColor="@color/colorYellow"
+                       android:textSize="@dimen/sp_16" />
+
+                   <TextView
+                       android:id="@+id/tv_lose_goods"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_alignParentRight="true"
+                       android:background="@drawable/item_bg"
+                       android:padding="@dimen/dp_4"
+                       android:text="缺货"
+                       android:textColor="@color/colorYellow"
+                       android:textSize="@dimen/sp_16" />
+               </RelativeLayout>
+
+               <com.suntown.scannerproject.weight.NestedListView
+                   android:id="@+id/lv_goods"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:visibility="gone"/>
+           </LinearLayout>
+       </LinearLayout>
+   </ScrollView>
+    <!--<include-->
+        <!--android:id="@+id/tv_scanner"-->
+        <!--layout="@layout/fab_scanner" />-->
+</RelativeLayout>

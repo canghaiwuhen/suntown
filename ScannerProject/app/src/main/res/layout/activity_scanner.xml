@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_scanner"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBlackBg"
+    android:orientation="vertical">
+
+    <include android:id="@+id/rl_title" layout="@layout/title_item" />
+
+    <TextView
+        android:id="@+id/tv_has_goods"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorWhite"
+        android:layout_marginTop="@dimen/dp_100"
+        android:layout_marginLeft="@dimen/dp_60"
+        android:layout_marginRight="@dimen/dp_60"
+        android:background="@drawable/waitpad_selector"
+        android:textSize="@dimen/sp_20"
+        android:padding="@dimen/dp_10"
+        android:gravity="center_horizontal"
+        android:text="有货架数据采集"/>
+
+    <TextView
+        android:id="@+id/tv_no_goods"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorWhite"
+        android:layout_marginLeft="@dimen/dp_60"
+        android:layout_marginRight="@dimen/dp_60"
+        android:background="@drawable/waitpad_selector"
+        android:layout_marginTop="@dimen/dp_60"
+        android:textSize="@dimen/sp_20"
+        android:padding="@dimen/dp_10"
+        android:gravity="center_horizontal"
+        android:text="无货架数据采集"/>
+
+    <!--<TextView-->
+        <!--android:id="@+id/tv_input_setting"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginLeft="@dimen/dp_60"-->
+        <!--android:layout_marginRight="@dimen/dp_60"-->
+        <!--android:background="@drawable/waitpad_selector"-->
+        <!--android:textColor="@color/colorWhite"-->
+        <!--android:layout_marginTop="@dimen/dp_30"-->
+        <!--android:textSize="@dimen/sp_20"-->
+        <!--android:padding="@dimen/dp_10"-->
+        <!--android:gravity="center_horizontal"-->
+        <!--android:text="进销存管理"/>-->
+</LinearLayout>

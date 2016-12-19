@@ -1,0 +1,20 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ExpandableListView
+        android:id="@+id/rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="#000000"
+        android:groupIndicator="@null" />
+
+    <include
+        android:id="@+id/tv_fab"
+        layout="@layout/fab_icon"
+        android:visibility="gone"/>
+    <include
+        android:id="@+id/ll_normal"
+        layout="@layout/normal_item" />
+
+</RelativeLayout>

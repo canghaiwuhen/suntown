@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
+    android:background="@drawable/form_gb_selector"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentBottom="true"
+    android:textColor="@color/colorWhite"
+    android:clickable="true"
+    android:text="工单"
+    android:textSize="@dimen/sp_18"
+    android:gravity="center"
+    android:layout_margin="@dimen/dp_16" />

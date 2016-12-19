@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/rl_bind"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/arrow_r" />
+
+        <TextView
+            android:id="@+id/tv_1"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:padding="@dimen/dp_16"
+            android:text="绑定状态"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/iv_state_01" />
+
+        <ImageView
+            android:id="@+id/iv_state_01"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:src="@drawable/tag_state_01"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorBgGary"/>
+    <RelativeLayout
+        android:id="@+id/rl_regist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10">
+
+        <TextView
+            android:id="@+id/tv_store_name"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:padding="@dimen/dp_16"
+            android:layout_toRightOf="@+id/iv_state_02"
+            android:text="注册状态"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20" />
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/arrow_r" />
+
+        <ImageView
+            android:id="@+id/iv_state_02"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:src="@drawable/tag_state_02"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorBgGary"/>
+    <RelativeLayout
+        android:id="@+id/rl_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10">
+        <ImageView
+            android:id="@+id/iv_state_03"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:src="@drawable/tag_state_03"/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/arrow_r" />
+
+        <TextView
+            android:id="@+id/tv_type"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:padding="@dimen/dp_16"
+            android:text="图形类型"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/iv_state_03" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorBgGary"/>
+    <RelativeLayout
+        android:id="@+id/rl_tag_task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10">
+        <ImageView
+            android:id="@+id/iv_state_4"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:src="@drawable/tag_state_4"/>
+        <TextView
+            android:id="@+id/tv_task"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:padding="@dimen/dp_16"
+            android:layout_toRightOf="@+id/iv_state_4"
+            android:text="标签任务"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20" />
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/arrow_r" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorBgGary"/>
+    <RelativeLayout
+        android:id="@+id/rl_tag_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10">
+        <ImageView
+            android:id="@+id/iv_state_5"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:src="@drawable/tag_state_5"/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/arrow_r" />
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:padding="@dimen/dp_16"
+            android:text="标签模板"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/iv_state_5"
+            android:id="@+id/textView" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorBgGary"/>
+    <RelativeLayout
+        android:id="@+id/rl_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10">
+        <ImageView
+            android:id="@+id/iv_state_6"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:src="@drawable/tag_state_6"/>
+        <TextView
+            android:id="@+id/tv_send"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:padding="@dimen/dp_16"
+            android:textColor="@color/colorWhite"
+            android:layout_toRightOf="@+id/iv_state_6"
+            android:text="发送状态"
+            android:textSize="@dimen/sp_20" />
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/arrow_r" />
+    </RelativeLayout>
+
+</LinearLayout>

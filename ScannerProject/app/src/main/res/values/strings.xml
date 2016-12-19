@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">SuntPDA</string>
+    <string name="versionName">1.0</string>
+    <string name="versionCode">1.0</string>
+    <string name="username">用户名</string>
+    <string name="password">输入密码</string>
+    <string name="logo">杭州升腾科技</string>
+    <string name="login">登录</string>
+    <string name="confirm">确认</string>
+    <string name="icon1">扫描</string>
+    <string name="icon2">更换</string>
+    <string name="icon3">查询</string>
+    <string name="icon4">新品上架</string>
+    <string name="icon5">陈列维护</string>
+    <string name="icon6">进销存管理</string>
+    <string name="setting">服务器地址设置</string>
+    <string name="title_activity_base">BaseActivity</string>
+</resources>

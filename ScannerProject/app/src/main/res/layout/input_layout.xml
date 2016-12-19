@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rl_main"
+    android:clickable="true"
+    android:background="@color/colorBlackBg">
+
+    <include
+        android:id="@+id/ll_normal"
+        layout="@layout/normal_item"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/ll_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:id="@+id/rl_title"
+            android:clickable="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:background="@color/colorGarySix">
+
+            <TextView
+                android:id="@+id/tv_num_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/dp_10"
+                android:text="入库单号:"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/tv_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/tv_num_title"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/tv_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/dp_5"
+                android:layout_toLeftOf="@+id/tv_commit"
+                android:background="@drawable/item_bg"
+                android:padding="@dimen/dp_5"
+                android:textColor="@color/colorYellow"
+                android:text="删除" />
+
+            <TextView
+                android:id="@+id/tv_commit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/dp_5"
+                android:background="@drawable/item_bg"
+                android:padding="@dimen/dp_5"
+                android:textColor="@color/colorYellow"
+                android:text="提交" />
+        </RelativeLayout>
+
+        <!--<android.support.v7.widget.RecyclerView-->
+        <ListView
+            android:id="@+id/lv_item"
+            android:layout_width="match_parent"
+            android:layout_marginRight="@dimen/dp_10"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:visibility="gone"
+            android:descendantFocusability="beforeDescendants"
+            android:layout_height="wrap_content"/>
+
+        <ListView
+            android:id="@+id/lv_old_item"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+    <!--<include-->
+    <!--android:id="@+id/fab_saoyisao"-->
+    <!--layout="@layout/fab_scanner"/>-->
+</RelativeLayout>

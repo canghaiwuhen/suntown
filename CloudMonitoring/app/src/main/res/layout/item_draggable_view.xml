@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_bg">
+    <TextView
+        android:id="@+id/tv_text"
+        android:layout_margin="@dimen/dp_5"
+        android:lines="1"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:textSize="@dimen/sp_16"
+        android:textColor="@color/colorYellow"
+        android:text="杭州" />
+    <ImageView
+        android:layout_toRightOf="@+id/tv_text"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:layout_marginRight="@dimen/dp_4"
+        android:src="@drawable/delete"
+        android:layout_centerVertical="true"
+        android:layout_width="10dp"
+        android:layout_height="10dp" />
+</RelativeLayout>
