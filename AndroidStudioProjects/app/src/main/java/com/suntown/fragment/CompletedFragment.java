@@ -19,9 +19,13 @@ import com.suntown.R;
 import com.suntown.activity.CompletedActivity;
 import com.suntown.activity.DeviceListActivity;
 import com.suntown.adapter.CompletedAdapter;
+import com.suntown.api.ApiService;
+import com.suntown.bean.AddressBean;
+import com.suntown.bean.BaseBean;
 import com.suntown.bean.LoginBean;
 import com.suntown.bean.UserInfoBean;
 import com.suntown.bean.WaitConfirmBean;
+import com.suntown.netUtils.RxSchedulers;
 import com.suntown.utils.Constant;
 import com.suntown.utils.DateUtils;
 import com.suntown.utils.SPUtils;
@@ -35,7 +39,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -44,11 +50,16 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.functions.Action1;
 
 /**
  * Created by Administrator on 2016/8/24.
  */
 public class CompletedFragment extends Fragment {
+    private static final String TAG = "CompletedFragment";
     private View inflate;
     private OkHttpClient client;
     private LinearLayout llLoad;
@@ -61,29 +72,7 @@ public class CompletedFragment extends Fragment {
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what==1){
-                record = (List<WaitConfirmBean.RECORDBean>) msg.obj;
-                Log.i("test","record:"+ record);
-                if (record ==null){
-                    noOrder.setVisibility(View.VISIBLE);
-                }
-                recordBeanList.addAll(record);
-                Collections.sort(recordBeanList, (lhs, rhs) -> {
-                    Date date1 = DateUtils.stringToDate(lhs.getADDDATE());
-                    Date date2 = DateUtils.stringToDate(rhs.getADDDATE());
-                    // 对日期字段进行升序，如果欲降序可采用after方法
-                    if (date1.before(date2)) {
-                        return 1;
-                    }
-                    return -1;
-                });
-                completedAdapter = new CompletedAdapter(getActivity(), recordBeanList);
-                Log.i("test","list:"+record.size()+","+"recordList:"+recordBeanList.size());
-                noOrder.setVisibility(View.GONE);
-                lvFragment.setAdapter(completedAdapter);
-                completedAdapter.notifyDataSetChanged();
-                completedAdapter.setCompletedAdapterCallBack(completedCallBack);
-            }
+            if (msg.what==1)
             llLoad.setVisibility(View.GONE);
         }
     };
@@ -116,8 +105,12 @@ public class CompletedFragment extends Fragment {
         lvFragment = (ListView) inflate.findViewById(R.id.lv_fragment);
         noOrder = (LinearLayout)inflate.findViewById(R.id.ll_no_device);
         startDevice = (Button)inflate.findViewById(R.id.btn_connDevice);
-        getUserInfo(ssid,memid);
         startDevice.setOnClickListener(v -> startActivity(new Intent(getActivity(), DeviceListActivity.class)));
+//        getUserInfo(ssid,memid);
+        requestData(memid);
+        completedAdapter = new CompletedAdapter(getActivity(),recordBeanList);
+        lvFragment.setAdapter(completedAdapter);
+        completedAdapter.setCompletedAdapterCallBack(completedCallBack);
         swipeRefresh = (SwipeRefreshLayout) inflate.findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(android.R.color.holo_blue_bright, android.R.color.holo_green_light,
                 android.R.color.holo_orange_light, android.R.color.holo_red_light);
@@ -127,7 +120,8 @@ public class CompletedFragment extends Fragment {
         swipeRefresh.setOnRefreshListener(() -> {
                 recordBeanList.clear();
                 memidList.clear();
-                getUserInfo(ssid,memid);
+//                getUserInfo(ssid,memid);
+            requestData(memid);
                 new Handler().postDelayed(() -> {
                     {
                         // 停止刷新
@@ -138,94 +132,49 @@ public class CompletedFragment extends Fragment {
         new Handler().postDelayed(() -> llLoad.setVisibility(View.GONE), 2000);
     }
 
-    private void getUserInfo(final String ssid, final String memid) {
-        new Thread(() -> {
-            {
-                FormBody body = new FormBody.Builder()
-                        //待修改
-//                     .add("arg0", bssid)
-                        .add("arg0",ssid).add("arg1",memid)
-                        .build();
-                Request reques = new Request.Builder().post(body).url(Constant.BASE_HOST+"GetMemUsers").build();
-                client.newCall(reques).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Utils.showToast(getActivity(),"请检查网络");
-                    }
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        InputStream is = response.body().byteStream();
-                        String json;
-                        try {
-                            json = new Xml2Json(is).Pull2Xml();
-                            UserInfoBean userInfoBean = new Gson().fromJson(json, UserInfoBean.class);
-                            int rows = userInfoBean.getROWS();
-                            if (rows>0){
-                                List<UserInfoBean.RECORDBean> record1 = userInfoBean.getRECORD();
-                                for (UserInfoBean.RECORDBean recordBean : record1) {
-                                    String memid1 = recordBean.getMEMID();
-                                    memidList.add(memid1);
-                                    Log.i("test",memidList.toString());
-                                }
-                                if (memidList!=null){
-                                    for (int i = 0; i < memidList.size(); i++) {
-                                        requestData(memidList.get(i));
-                                    }
-                                }
-                            }
-                        } catch (XmlPullParserException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        }).start();
-    }
-
     private void requestData(String memid) {
-        Log.i("test","memid:"+memid);
-        RequestBody formBody = new FormBody.Builder()
-                .add("arg0",memid)//TODO 待修改
-//                .add("arg0","1070")
-                .add("arg1","1")
-                .build();
-        final Request request = new Request.Builder()
-                .url(Constant.BASE_HOST+"getHistoryOrder")
-                .post(formBody)
-                .build();
-        new Thread(() -> {
-            {
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Utils.showToast(getActivity(),"网络连接失败，请检查网络");
+        //TODO 同一WIFI 环境下所有订单
+        Map<String, String> params = new HashMap<>();
+        params.put(Constant.ARG0, memid);
+        params.put(Constant.ARG1, "1");
+        String ip = Constant.BASE_HOST;
+        Retrofit retrofit = new Retrofit.Builder().
+                addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+        retrofit.create(ApiService.class).getHistoryOrderNew(params).compose(RxSchedulers.io_main()).subscribe(s -> {
+            Log.i(TAG, "s:" + s);
+            String json = s.replace("<ns:getHistoryOrderNewResponse xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
+            json = json.replace("</ns:return></ns:getHistoryOrderNewResponse>", "");
+            WaitConfirmBean waitConfirmBean = new Gson().fromJson(json, WaitConfirmBean.class);
+            List<WaitConfirmBean.RECORDBean> record = waitConfirmBean.getRECORD();
+            String result = waitConfirmBean.getRESULT();
+            if ("0".equals(result)) {
+                llLoad.setVisibility(View.GONE);
+                if (record == null) {
+                    noOrder.setVisibility(View.VISIBLE);
+                }
+                recordBeanList.addAll(record);
+                Collections.sort(recordBeanList, (lhs, rhs) -> {
+                    Date date1 = DateUtils.stringToDate(lhs.getADDDATE());
+                    Date date2 = DateUtils.stringToDate(rhs.getADDDATE());
+                    // 对日期字段进行升序，如果欲降序可采用after方法
+                    if (date1.before(date2)) {
+                        return 1;
                     }
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        InputStream is = response.body().byteStream();
-                        String json;
-                        try {
-                            json = new Xml2Json(is).Pull2Xml();
-                            WaitConfirmBean waitConfirmBean = new Gson().fromJson(json, WaitConfirmBean.class);
-                            String result = waitConfirmBean.getRESULT();
-                            if("0".equals(result)){
-                                List<WaitConfirmBean.RECORDBean> record1 = waitConfirmBean.getRECORD();
-                                Message msg = new Message();
-                                msg.obj= record1;
-                                msg.what=1;
-                                handler.sendMessage(msg);
-                            }else{
-                                Message msg = new Message();
-                                msg.what=2;
-                                handler.sendMessage(msg);
-                            }
-                        } catch (XmlPullParserException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    return -1;
                 });
+                Log.i("test", "list:" + record.size() + "," + "recordList:" + recordBeanList.size());
+                noOrder.setVisibility(View.GONE);
+                completedAdapter.notifyDataSetChanged();
+            } else {
+                if(0==recordBeanList.size()){
+                    noOrder.setVisibility(View.VISIBLE);
+                }
             }
-        }).start();
+        }, throwable -> {
+            Log.i(TAG, "throwable:" + throwable);
+            noOrder.setVisibility(View.VISIBLE);
+        });
     }
     private CompletedAdapter.CompletedAdapterCallBack completedCallBack = new CompletedAdapter.CompletedAdapterCallBack() {
         @Override

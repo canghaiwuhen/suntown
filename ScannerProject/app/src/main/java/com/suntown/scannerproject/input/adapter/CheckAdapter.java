@@ -91,11 +91,17 @@ public class CheckAdapter extends BaseAdapter{
         if (istoogleon){
             viewHolder.etMartNum.setEnabled(true);
             viewHolder.etStorkNum.setEnabled(false);
+            if (i==0){
+                viewHolder.etMartNum.requestFocus();
+            }
             viewHolder.etMartNum.setBackgroundResource(R.color.colorGary);
             viewHolder.etStorkNum.setBackgroundResource(R.color.colorBlackBg);
         }else{
             viewHolder.etMartNum.setEnabled(false);
             viewHolder.etStorkNum.setEnabled(true);
+            if (i==0){
+                viewHolder.etStorkNum.requestFocus();
+            }
             viewHolder.etStorkNum.setBackgroundResource(R.color.colorGary);
             viewHolder.etMartNum.setBackgroundResource(R.color.colorBlackBg);
         }
@@ -128,8 +134,8 @@ public class CheckAdapter extends BaseAdapter{
     class ViewHolder {
         TextView barcode;
         TextView gname;
-        EditText etMartStock;
-        EditText etStoreStock;
+//        EditText etMartStock;
+//        EditText etStoreStock;
         EditText etMartNum;
         EditText etStorkNum;
         ImageView ivDelete;
@@ -141,8 +147,8 @@ public class CheckAdapter extends BaseAdapter{
             gname = (TextView) itemView.findViewById(R.id.tv_name);
             ivDelete = (ImageView) itemView.findViewById(R.id.iv_delete);
             //卖场库存
-            etMartStock = (EditText) itemView.findViewById(R.id.et_mart_stock);
-            etStoreStock = (EditText) itemView.findViewById(R.id.et_store_stock);
+//            etMartStock = (EditText) itemView.findViewById(R.id.et_mart_stock);
+//            etStoreStock = (EditText) itemView.findViewById(R.id.et_store_stock);
             //卖场数量，仓库数量
             etMartNum = (EditText) itemView.findViewById(R.id.et_mart_num);
             etStorkNum = (EditText) itemView.findViewById(R.id.et_stork_num);

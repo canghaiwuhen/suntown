@@ -1,6 +1,5 @@
 package com.suntown.activity;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -21,10 +19,9 @@ import android.widget.ImageView;
 import com.suntown.R;
 import com.suntown.utils.Constant;
 import com.suntown.utils.SPUtils;
-import com.suntown.utils.StatusBarCompat;
 import com.suntown.utils.Utils;
 
-public class NetWifiActivity extends Activity implements View.OnClickListener {
+public class NetWifiActivity extends BaseActivity implements View.OnClickListener {
 
     private ImageView iv_back;
     private boolean mIsConncting = false;
@@ -38,7 +35,6 @@ public class NetWifiActivity extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_net_wifi);
-        StatusBarCompat.compat(this);
     }
 
     @Override

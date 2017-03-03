@@ -7,6 +7,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 import com.suntown.cloudmonitoring.R;
 import com.suntown.cloudmonitoring.bean.MessageBean;
 
@@ -16,54 +18,18 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/11/8.
  */
-public class QuickAdapter extends BaseAdapter {
-    Context context;
-    List<MessageBean> beanList;
-    public QuickAdapter(Context context, List<MessageBean> beanList) {
-        this.context=context;
-        this.beanList=beanList;
-    }
-
-
-    @Override
-    public int getCount() {
-        return beanList.size()==0?0:beanList.size();
+public class QuickAdapter extends BaseQuickAdapter<MessageBean,BaseViewHolder> {
+    public QuickAdapter(int layoutResId, List<MessageBean> data) {
+        super(layoutResId, data);
     }
 
     @Override
-    public Object getItem(int i) {
-        return beanList.get(i);
+    protected void convert(BaseViewHolder holder, MessageBean messageBean) {
+        holder.setText(R.id.tv_time,messageBean.sendTimeStr).setText(R.id.tv_content,messageBean.content);
+        ImageView ivMassage = holder.getView(R.id.iv_message);
+        ivMassage.setVisibility(messageBean.lookstatus==0?View.VISIBLE:View.INVISIBLE);
     }
 
-    @Override
-    public long getItemId(int i) {
-        return i;
-    }
 
-    @Override
-    public View getView(int i, View convertView, ViewGroup viewGroup) {
-        ViewHolder viewHolder;
-        MessageBean messageBean = beanList.get(i);
-        if (convertView==null){
-            viewHolder = new ViewHolder();
-            convertView = View.inflate(context,R.layout.message_item,null);
-            viewHolder.tvTime = (TextView) convertView.findViewById(R.id.tv_time);
-            viewHolder.tvContent = (TextView) convertView.findViewById(R.id.tv_content);
-            viewHolder.ivMassage = (ImageView) convertView.findViewById(R.id.iv_message);
-            convertView.setTag(viewHolder);
-        }else{
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-        viewHolder.tvTime.setText( messageBean.sendTimeStr);
-        viewHolder.tvContent.setText(messageBean.content);
-        viewHolder.ivMassage.setVisibility(messageBean.lookstatus==0?View.VISIBLE:View.INVISIBLE);
-        return convertView;
-    }
-
-    class ViewHolder{
-        TextView tvTime;
-        TextView tvContent;
-        ImageView ivMassage;
-    }
 
 }

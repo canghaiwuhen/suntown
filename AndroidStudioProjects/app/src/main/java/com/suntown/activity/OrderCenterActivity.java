@@ -5,28 +5,42 @@ import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.suntown.R;
+import com.suntown.api.ApiService;
+import com.suntown.bean.BaseBean;
 import com.suntown.fragment.CompletedFragment;
 import com.suntown.fragment.UndoneFragment;
 import com.suntown.fragment.WaitFragment;
+import com.suntown.netUtils.RxSchedulers;
 import com.suntown.utils.Constant;
 import com.suntown.utils.SPUtils;
-import com.suntown.utils.StatusBarCompat;
+import com.suntown.utils.Xml2String;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.functions.Action1;
 
 public class OrderCenterActivity extends FragmentActivity implements View.OnClickListener {
 
+    private static final String TAG = "OrderCenterActivity";
     private LinearLayout llLoad;
     private ImageView ivBack;
     private LinearLayout llNoDevice;
@@ -43,12 +57,15 @@ public class OrderCenterActivity extends FragmentActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_center);
-        StatusBarCompat.compat(this);
         memid = SPUtils.getString(this, Constant.MEMID);
         ssid = SPUtils.getString(this, Constant.WIFI_SSID);
         client = new OkHttpClient();
+        //TODO 发送服务器推送信息清空
+        resetPushNUM();
         init();
     }
+
+
 
     private void init() {
         getUserInfo();
@@ -97,7 +114,7 @@ public class OrderCenterActivity extends FragmentActivity implements View.OnClic
                 case R.id.tv_undone:
                     tvWaitPay.setBackgroundResource(R.color.colorWhite);
                     tvWaitPay.setTextColor(Color.GRAY);
-                    tvUndone.setBackgroundResource(R.color.coloDrakrRed);
+                    tvUndone.setBackgroundResource(R.color.colorYello);
                     tvUndone.setTextColor(Color.WHITE);
                     tvCompeted.setBackgroundResource(R.color.colorWhite);
                     tvCompeted.setTextColor(Color.GRAY);
@@ -111,7 +128,7 @@ public class OrderCenterActivity extends FragmentActivity implements View.OnClic
                     tvWaitPay.setTextColor(Color.GRAY);
                     tvUndone.setBackgroundResource(R.color.colorWhite);
                     tvUndone.setTextColor(Color.GRAY);
-                    tvCompeted.setBackgroundResource(R.color.coloDrakrRed);
+                    tvCompeted.setBackgroundResource(R.color.colorYello);
                     tvCompeted.setTextColor(Color.WHITE);
                     //TODO
                     transaction = fragmentManager.beginTransaction();
@@ -127,7 +144,7 @@ public class OrderCenterActivity extends FragmentActivity implements View.OnClic
 //        finish();
 //    }
     private void changeTitle() {
-        tvWaitPay.setBackgroundResource(R.color.coloDrakrRed);
+        tvWaitPay.setBackgroundResource(R.color.colorYello);
         tvWaitPay.setTextColor(Color.WHITE);
         tvUndone.setBackgroundResource(R.color.colorWhite);
         tvUndone.setTextColor(Color.GRAY);
@@ -142,5 +159,31 @@ public class OrderCenterActivity extends FragmentActivity implements View.OnClic
                 finish();
             break;
         }
+    }
+    //清空推送消息
+    private void resetPushNUM() {
+        Map<String, String> params = new HashMap<>();
+        params.put(Constant.ARG0, memid);
+        params.put(Constant.ARG1, "1");
+        String ip = Constant.BASE_HOST;
+        Retrofit retrofit = new Retrofit.Builder().
+        addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+        retrofit.create(ApiService.class).resetPushNUM(params).compose(RxSchedulers.io_main()).subscribe(s -> {
+            try {
+                String json = new Xml2String(s).Pull2Xml();
+                BaseBean baseBean = new Gson().fromJson(json, BaseBean.class);
+                if ("0".equals(baseBean.RESULT)) {
+                    Log.i(TAG,"PUSHNUM 重置成功");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            }
+        }, throwable -> {
+
+        });
     }
 }

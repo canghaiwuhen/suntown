@@ -6,9 +6,20 @@
     <dimen name="textSizeL">20sp</dimen>
     <dimen name="textSizeX">24sp</dimen>
     <dimen name="textSizeXXL">28sp</dimen>
+    <dimen name="sp16">16sp</dimen>
+    <dimen name="sp18">18sp</dimen>
+    <dimen name="sp20">20sp</dimen>
+    <dimen name="dp5">5dp</dimen>
+    <dimen name="dp10">10dp</dimen>
+    <dimen name="dp15">15dp</dimen>
+    <dimen name="dp20">20dp</dimen>
     <dimen name="padding">15dp</dimen>
     <dimen name="paddingM">10dp</dimen>
     <dimen name="paddingS">5dp</dimen>
     <dimen name="paddingL">20dp</dimen>
+    <dimen name="dp30">30dp</dimen>
+    <dimen name="dp40">40dp</dimen>
+    <dimen name="dp50">50dp</dimen>
     <dimen name="item_padding">60dp</dimen>
+    <dimen name="dp70">70dp</dimen>
 </resources>

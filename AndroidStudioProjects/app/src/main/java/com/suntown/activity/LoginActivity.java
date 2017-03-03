@@ -1,26 +1,23 @@
 package com.suntown.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.suntown.R;
 import com.suntown.bean.LoginBean;
 import com.suntown.utils.Constant;
-import com.suntown.utils.Contacts;
 import com.suntown.utils.PhoneNumUtils;
 import com.suntown.utils.SPUtils;
-import com.suntown.utils.StatusBarCompat;
 import com.suntown.utils.String2MD5;
 import com.suntown.utils.Utils;
 import com.suntown.utils.Xml2Json;
@@ -45,12 +42,15 @@ import okhttp3.Response;
  * Created by Administrator on 2016/7/28.
  */
 public class LoginActivity extends BaseActivity {
+    private static final String TAG = "LoginActivity";
     @BindView(R.id.et_login_username)
     EditText etLoginUsername;
     @BindView(R.id.et_login_psw)
     EditText etLoginPsw;
     @BindView(R.id.tv_register)
     TextView tvRegister;
+    @BindView(R.id.tv_version)
+    TextView tvVersion;
     private OkHttpClient client;
     private String loginuserName;
     private String nickName;
@@ -64,6 +64,21 @@ public class LoginActivity extends BaseActivity {
         client = new OkHttpClient();
         ButterKnife.bind(this);
         systemService = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        getVersionName();
+    }
+
+    private void getVersionName() {
+        try {
+            PackageManager manager = this.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
+            String version = info.versionName;
+//            int version = info.versionCode;
+            Log.i(TAG,"version:"+version);
+            tvVersion.setText("v"+version);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -73,17 +88,17 @@ public class LoginActivity extends BaseActivity {
         String loginPsw = etLoginPsw.getText().toString();
         boolean sequence = PhoneNumUtils.isPhoneNumberValid(loginuserName);
         pwd = String2MD5.MD5(loginPsw);
-        Log.i("pwd", pwd +"");
-        if(!sequence){
+        Log.i("pwd", pwd + "");
+        if (!sequence) {
             Utils.showToast(LoginActivity.this, "此号码不存在，请重新输入");
         }
-        if (loginuserName.equals("")|| loginPsw.equals("")){
-            Utils.showToast(LoginActivity.this,"账号或密码不能为空");
+        if (loginuserName.equals("") || loginPsw.equals("")) {
+            Utils.showToast(LoginActivity.this, "账号或密码不能为空");
             return;
         }
         if (Utils.isFastClick()) {
 //            Utils.showToast(LoginActivity.this,"点击太过频繁");
-            return ;
+            return;
         }
         RequestBody formBody = new FormBody.Builder()
                 .add("type", "0")
@@ -97,64 +112,76 @@ public class LoginActivity extends BaseActivity {
                 .build();
         try {
             new Thread(() -> {
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Utils.showToast(LoginActivity.this,"登陆失败，请检查网络");
-                        }
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            InputStream is = response.body().byteStream();
-                            String json = null;
-                            try {
-                                json = new Xml2Json(is).Pull2Xml();
-                                Log.i("loginActivity",json+"");
-                                if (json==null){
-                                    Utils.showToast(LoginActivity.this,"登陆失败,请重试");
-                                    return;
-                                }
-                                LoginBean loginBean = new Gson().fromJson(json, LoginBean.class);
-                                if("".equals(loginBean)){
-                                    Utils.showToast(LoginActivity.this,"登陆失败,请重试");
-                                    return;
-                                }
-                                Log.d("LoginActivity", "loginBean:" + loginBean.getRESULT());
-                                String result = loginBean.getRESULT();
-                                if (result.equals("0")){
-                                    String sax = "";
-                                    LoginBean.USERINFOBean userinfo = loginBean.getUSERINFO();
-                                    String memid = userinfo.getMEMID();
-                                    String sex = userinfo.getSEX();
-                                    if (sex.equals("1")) {
-                                        sax="女";
-                                    }else if (sex.equals("0")){
-                                        sax="男";
-                                    }
-                                    String logintoken = userinfo.getLOGINTOKEN();
-                                    Log.i("LoginActivity",memid);
-                                    SPUtils.put(LoginActivity.this,Constant.SEX,sax);
-                                    SPUtils.put(LoginActivity.this,Constant.NICKNAME,userinfo.getNICKNAME());
-                                    SPUtils.put(LoginActivity.this,Constant.MEMID,memid);
-                                    SPUtils.put(LoginActivity.this,Constant.LOGIN_USER_NAME,loginuserName);
-                                    SPUtils.put(LoginActivity.this,Constant.LOGIN_PWD,pwd);
-                                    SPUtils.put(LoginActivity.this,Constant.LOGIN_TOKEN,logintoken);
-                                    if (!"".equals(nickName)) {
-                                        SPUtils.put(LoginActivity.this, Constant.NICKNAME, nickName);
-                                    }
-//                                    Utils.showToast(LoginActivity.this,"登陆成功");
-                                    startActivity(new Intent(LoginActivity.this,MainActivity.class));
-                                    finish();
-                                }else {
-                                    Utils.showToast(LoginActivity.this,"登陆失败，请确认帐号密码");
-                                    runOnUiThread(()-> {
-                                        etLoginPsw.setText("");
-                                    });
-                                }
-                            } catch (XmlPullParserException e) {
-                                e.printStackTrace();
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Utils.showToast(LoginActivity.this, "登陆失败，请检查网络");
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        InputStream is = response.body().byteStream();
+                        String json = "";
+                        try {
+                            json = new Xml2Json(is).Pull2Xml();
+                            Log.i("loginActivity", json + "");
+                            LoginBean loginBean = new Gson().fromJson(json, LoginBean.class);
+                            if (null==loginBean) {
+                                Utils.showToast(LoginActivity.this, "网络异常");
+                                return;
                             }
+                            String result = loginBean.getRESULT();
+                            if ("" == json) {
+                                Utils.showToast(LoginActivity.this, "该用户不存在");
+                                return;
+                            }
+                            if (result.equals("1")) {
+                                Utils.showToast(LoginActivity.this, "登录失败");
+                                return;
+                            }
+                            Log.d("LoginActivity", "loginBean:" + loginBean.getRESULT());
+                            if (result.equals("0")) {
+                                String sax = "";
+                                LoginBean.USERINFOBean userinfo = loginBean.getUSERINFO();
+                                String memid = userinfo.getMEMID();
+                                String sex = userinfo.getSEX();
+                                if (sex.equals("1")) {
+                                    sax = "女";
+                                } else if (sex.equals("0")) {
+                                    sax = "男";
+                                }
+                                String logintoken = userinfo.getLOGINTOKEN();
+                                Log.i("LoginActivity", memid);
+
+                                SPUtils.put(LoginActivity.this, Constant.SEX, sax);
+                                SPUtils.put(LoginActivity.this, Constant.NICKNAME, userinfo.getNICKNAME());
+                                SPUtils.put(LoginActivity.this, Constant.MEMID, memid);
+                                SPUtils.put(LoginActivity.this, Constant.LOGIN_USER_NAME, loginuserName);
+                                SPUtils.put(LoginActivity.this, Constant.LOGIN_PWD, pwd);
+                                SPUtils.put(LoginActivity.this, Constant.LOGIN_TOKEN, logintoken);
+                                String avatar = userinfo.getAVATAR();
+                                if (!avatar.startsWith("http:")) {
+                                    avatar = "http://" + avatar;
+                                }
+                                SPUtils.put(LoginActivity.this, Constant.AVATAR, "".equals(avatar) ? "" : avatar);
+
+                                if (!"".equals(nickName)) {
+                                    SPUtils.put(LoginActivity.this, Constant.NICKNAME, nickName);
+                                }
+//                                    Utils.showToast(LoginActivity.this,"登陆成功");
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                finish();
+                            } else {
+                                Utils.showToast(LoginActivity.this, "登陆失败，请确认帐号密码");
+                                runOnUiThread(() -> {
+                                    etLoginPsw.setText("");
+                                });
+                            }
+                        } catch (XmlPullParserException e) {
+                            e.printStackTrace();
                         }
-                    });
+                    }
+                });
             }).start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -162,15 +189,22 @@ public class LoginActivity extends BaseActivity {
 
     }
 
-    @OnClick(R.id.tv_register)
-    public void onClick() {
-        startActivityForResult(new Intent(this,RegisterActivity.class),250);
+    @OnClick({R.id.tv_register,R.id.tv_loser_psw})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_register:
+                startActivityForResult(new Intent(this, RegisterActivity.class), 250);
+                break;
+            case R.id.tv_loser_psw:
+                startActivity(new Intent(this,LoserPswActivity.class));
+                break;
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode==250&&resultCode==200&&data!=null){
+        if (requestCode == 250 && resultCode == 200 && data != null) {
             String userName = data.getStringExtra(Constant.USER_NAME);
             String passWord = data.getStringExtra(Constant.PASSWORD);
             nickName = data.getStringExtra(Constant.NICKNAME);
@@ -181,8 +215,8 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_DOWN){
-            if(getCurrentFocus()!=null && getCurrentFocus().getWindowToken()!=null){
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (getCurrentFocus() != null && getCurrentFocus().getWindowToken() != null) {
                 systemService.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
         }

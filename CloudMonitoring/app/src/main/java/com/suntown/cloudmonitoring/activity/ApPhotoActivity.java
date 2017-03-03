@@ -46,7 +46,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class ApPhotoActivity extends Activity {
+public class ApPhotoActivity extends BaseActivity {
 
 
     @BindView(R.id.pb)

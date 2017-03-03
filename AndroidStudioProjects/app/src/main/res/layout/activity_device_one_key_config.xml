@@ -5,29 +5,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.suntown.activity.DeviceOneKeyConfigActivity">
-        <RelativeLayout
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:fitsSystemWindows="true"
+        android:background="@color/colorSkyBlue">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:padding="15dp"
+            android:textSize="@dimen/textSizeX"
+            android:textColor="@color/colorWhite"
+            android:text="配置服务"/>
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:padding="@dimen/paddingM"
+            android:layout_centerVertical="true"
+            android:src="@drawable/back_01"
+            android:background="@drawable/back_blue_selector"/>
+        <View
             android:layout_width="match_parent"
-            android:layout_height="60dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:padding="15dp"
-                android:textSize="@dimen/textSizeX"
-                android:text="配置服务"/>
-            <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginLeft="@dimen/padding"
-                android:layout_centerVertical="true"
-                android:src="@drawable/arrow_back"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_alignParentBottom="true"
-                android:background="@color/colorGary"
-                android:layout_height="1dp"/>
-        </RelativeLayout>
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorGary"
+            android:layout_height="1dp"/>
+    </RelativeLayout>
 
 
     <ImageView

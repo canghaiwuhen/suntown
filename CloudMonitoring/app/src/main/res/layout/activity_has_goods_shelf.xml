@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBlackBg"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp">
@@ -58,7 +59,7 @@
             android:background="@color/grgray"/>
         <TextView
             android:id="@+id/tv_num"
-            android:layout_toRightOf="@+id/et_goods_shelf"
+            android:layout_toLeftOf="@+id/et_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -68,20 +69,26 @@
             android:text="行数"/>
         <EditText
             android:id="@+id/et_num"
-            android:layout_toRightOf="@+id/tv_num"
             android:layout_width="50dp"
             android:layout_height="30dp"
             android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/dp_10"
             android:layout_marginLeft="@dimen/dp_5"
             android:inputType="number"
             android:imeOptions="flagNoExtractUi"
             android:background="@color/grgray"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_20">
         <TextView
             android:id="@+id/tv_go"
             android:layout_width="40dp"
             android:layout_height="30dp"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/et_num"
             android:layout_marginLeft="@dimen/dp_20"
             android:gravity="center"
             android:text="前往"

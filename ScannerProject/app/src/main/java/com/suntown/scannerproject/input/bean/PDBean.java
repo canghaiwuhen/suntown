@@ -15,11 +15,13 @@ public class PDBean {
     //卖场 仓库
     public String martNum;
     public String storeNum;
+    public boolean isToggle;
 
     public PDBean() {
     }
 
-    public PDBean(String PDID, String SPDID, String PDNO, String BARCODE, String GOODSNAME, String d4, String d7, String martNum, String storeNum) {
+
+    public PDBean(String PDID, String SPDID, String PDNO, String BARCODE, String GOODSNAME, String d4, String d7, String martNum, String storeNum, boolean isToggle) {
         this.PDID = PDID;
         this.SPDID = SPDID;
         this.PDNO = PDNO;
@@ -29,6 +31,7 @@ public class PDBean {
         D7 = d7;
         this.martNum = martNum;
         this.storeNum = storeNum;
+        this.isToggle = isToggle;
     }
 
     @Override
@@ -43,6 +46,7 @@ public class PDBean {
                 ", D7='" + D7 + '\'' +
                 ", martNum='" + martNum + '\'' +
                 ", storeNum='" + storeNum + '\'' +
+                ", isToggle=" + isToggle +
                 '}';
     }
 }

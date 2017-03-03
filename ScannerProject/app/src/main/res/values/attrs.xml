@@ -8,4 +8,5 @@
     <declare-styleable name="suntown">
         <attr name="isopen" format="boolean"></attr>
     </declare-styleable>
+
 </resources>

@@ -6,6 +6,8 @@
     <color name="iconRed">#D94368</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorGary">#949494</color>
+    <color name="colorLine">#60636C</color>
+    <color name="colorLines">#F2F2F2</color>
     <color name="colorGarySix">#868686</color>
     <color name="colorTextGary">#A3A3A3</color>
     <color name="colorWhiteGary">#E8E8E8</color>
@@ -30,6 +32,8 @@
     <color name="iconWhite">#bcbcc8</color>
     <color name="whiteGary">#555859</color>
     <color name="colorTransparent">#00000000</color>
+    <color name="jmui_chat_detail_split_line_color">#d4d4d4</color>
+    <color name="jmui_chat_text_color">#373334</color>
 
 
 
@@ -57,10 +61,13 @@
     <color name="transparent">#00000000</color>
     <color name="viewfinder_frame">#ff000000</color>
     <color name="viewfinder_laser">#45DDDD</color><!--  设置 扫描框 的 扫描线的颜色 红色,现在修改为 蓝色 -->
-
+    <color name="chat_text_color">#373334</color>
+    <color name="item_click_bg_color">#dddddd</color>
     <color name="viewfinder_laser_left">#45DDDD</color><!--    设置 扫描框 的 扫描线  左边的颜色 红色,现在修改为 淀亮色 -->
     <color name="viewfinder_laser_center">#45DDDD</color><!-- 设置 扫描框 的 扫描线  中间的颜色 红色,现在修改为 蓝色 -->
     <color name="viewfinder_laser_right">#45DDDD</color><!--  设置 扫描框 的 扫描线  右边的颜色 红色,现在修改为 淀亮色 -->
+    <color name="chat_detail_item_hit_color">#555555</color>
+    <color name="jmui_item_click_bg_color">#dddddd</color>
 
     <color name="viewfinder_4_corner">#ff0000ff</color><!--  设置 扫描框 的 四个角  的颜色  现在改为 蓝色-->
 
@@ -68,4 +75,8 @@
     <color name="viewfinder_mask">#60000000</color>
     <color name="header">#58567D</color>
     <color name="grgray">#686868</color>
+    <color name="jmui_jpush_blue">#3f80dc</color>
+    <color name="menu_item_back_pres_color">#3773cb</color>
+    <color name="friend_content_text_color">#7f7f7f</color>
+    <color name="default_cursor_color">#8db4eb</color>
 </resources>

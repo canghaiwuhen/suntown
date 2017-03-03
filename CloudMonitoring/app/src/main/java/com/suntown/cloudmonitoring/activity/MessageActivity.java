@@ -24,7 +24,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MessageActivity extends Activity {
+public class MessageActivity extends BaseActivity {
 
     private static final String TAG = "MessageActivity";
     //AP监控

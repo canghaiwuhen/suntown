@@ -5,8 +5,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 import com.suntown.R;
 import com.suntown.bean.DeviceInfoBean;
 import com.suntown.bean.SwipeData;
@@ -21,11 +25,11 @@ import java.util.Set;
  * Created by Administrator on 2016/8/12.
  */
 public class TagInfoAdapter extends BaseAdapter{
-    private List<DeviceInfoBean.DeviceInfoAndMemidBean> record;
+    private List<DeviceInfoBean.RECORDBean> record;
     private Set<SwipeLayout> swipeLayoutSet=new HashSet<>();
     private Context context;
 
-    public TagInfoAdapter(Context context,List<DeviceInfoBean.DeviceInfoAndMemidBean> record) {
+    public TagInfoAdapter(Context context,List<DeviceInfoBean.RECORDBean> record) {
         this.record = record;
         this.context = context;
     }
@@ -61,16 +65,25 @@ public class TagInfoAdapter extends BaseAdapter{
         if (convertView == null) {
             convertView = View.inflate(context, R.layout.device_list_item, null);
         }
+//        tv_link iv_photo tv_tag_num tv_state
         SwipeLayout swipeLayout = ViewHolder.get(convertView, R.id.swipeLayout);
         TextView tvSwipeConfirm = ViewHolder.get(convertView, R.id.tv_swipe_confirm);
         TextView tvSwipeDelete = ViewHolder.get(convertView, R.id.tv_swipe_delete);
         TextView tvSwipeBind = ViewHolder.get(convertView, R.id.tv_swipe_bind);
-        RelativeLayout rlMain = ViewHolder.get(convertView, R.id.rl_main);
+        LinearLayout rlMain = ViewHolder.get(convertView, R.id.rl_main);
         TextView tvTagNum = ViewHolder.get(convertView, R.id.tv_tag_num);
         TextView tvGoodsName = ViewHolder.get(convertView, R.id.tv_goods_name);
+        TextView tvLink = ViewHolder.get(convertView, R.id.tv_link);
+        TextView tvState = ViewHolder.get(convertView, R.id.tv_state);
+        ImageView ivPhoto = ViewHolder.get(convertView, R.id.iv_photo);
 
-        tvGoodsName.setText(record.get(position).getGNAME());
-        tvTagNum.setText(record.get(position).getTINYIP());
+        DeviceInfoBean.RECORDBean memidBean = record.get(position);
+
+        Picasso.with(context).load(memidBean.IMGPATH).error(R.drawable.goods).into(ivPhoto);
+        tvLink.setText(memidBean.WIFIID);
+//        tvState
+        tvGoodsName.setText(memidBean.GNAME);
+        tvTagNum.setText(memidBean.TINYIP);
         swipeLayout.close(false);
 //        swipeLayout.setTag(position);
         swipeLayout.setOnSwipeLayoutChangedListener(onSwipeLayoutChangedListener);

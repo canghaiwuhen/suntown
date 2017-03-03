@@ -25,7 +25,7 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GuideActivity extends Activity {
+public class GuideActivity extends BaseActivity {
 
     @BindView(R.id.guide_vp)
     ViewPager guideVp;

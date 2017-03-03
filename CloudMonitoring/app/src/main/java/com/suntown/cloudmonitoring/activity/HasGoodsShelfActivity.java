@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -60,7 +61,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class HasGoodsShelfActivity extends Activity {
+public class HasGoodsShelfActivity extends BaseActivity {
 
     private static final String TAG = "HasGoodsShelfActivity";
     private static final int ON_SCANNIN_GREQUEST_CODE = 1;
@@ -145,7 +146,7 @@ public class HasGoodsShelfActivity extends Activity {
                 //点击删除
                 if (isClick) {
                     int size = shelfItemBeanList.size();
-                    if (size > 5 && position==size-1) {
+                    if (size > 3 && position==size-1) {
                         shelfItemBeanList.remove(position);
                         mainAdapter.notifyDataSetChanged();
                     } else {
@@ -196,7 +197,7 @@ public class HasGoodsShelfActivity extends Activity {
             public void onChildItemDeleteClick(View view, int group, int position) {
                 List<ShelfItemBean> itemBeanList = listMap.get(group);
                 int size = itemBeanList.size();
-                if (size > 5) {
+                if (size > 3) {
                     itemBeanList.remove(position);
                     mainAdapter.notifyDataSetChanged();
                 }
@@ -320,10 +321,11 @@ public class HasGoodsShelfActivity extends Activity {
                                         }
                                     }
                                 }
-                                    Row=num;
+                                    Row = Row>num?Row:num;
                             }
                         }
                         runOnUiThread(() -> {
+                            initRow(Row);
                             mainAdapter.notifyDataSetChanged();
                         });
                     } catch (XmlPullParserException e) {
@@ -348,7 +350,7 @@ public class HasGoodsShelfActivity extends Activity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
-                showDialog();
+//                showDialog();
                 break;
             //多扫
             case R.id.tb_long_scanner:
@@ -404,6 +406,8 @@ public class HasGoodsShelfActivity extends Activity {
                         listMap.clear();
                         listMap.putAll(map);
                     } else if (i1 >= indexList.size()) {
+                        Row=i1;
+                        Log.i(TAG,"Row:"+Row);
                         Log.i(TAG, "indexList-" + indexList.toString());
                         int y = 1;
                         for (int i = indexList.size(); i < i1; i++) {
@@ -412,7 +416,7 @@ public class HasGoodsShelfActivity extends Activity {
 //                            Integer integer = indexList.get(indexList.size() - 1);
                             indexList.add(0, max + y);
                             beanList = new ArrayList<>();
-                            for (int j = 0; j < 5; j++) {
+                            for (int j = 0; j < 3; j++) {
                                 ShelfItemBean itemBean = new ShelfItemBean("", "", "");
                                 itemBean.isClick = false;
                                 beanList.add(itemBean);
@@ -465,6 +469,51 @@ public class HasGoodsShelfActivity extends Activity {
     }
 
     /**
+     * 限定行数
+     * @param i1
+     */
+    private void initRow(int i1) {
+        if (i1 < Row) {
+            i1 = Row;
+        }
+        Row=0;
+        if (i1 > 0 && i1 < indexList.size()) {
+            ArrayList<Integer> integers = new ArrayList<>();
+            for (int i = indexList.size() - 1; i > indexList.size() -1 - i1; i--) {
+                Integer index = indexList.get(i);
+                integers.add(index);
+            }
+            indexList.clear();
+            for (int i = 0; i < integers.size(); i++) {
+                indexList.add(0, integers.get(i));
+            }
+            Map<Integer, List<ShelfItemBean>> map = new HashMap<>();
+            for (Integer integer : indexList) {
+                List<ShelfItemBean> shelfItemBeanList = listMap.get(integer);
+                map.put(integer, shelfItemBeanList);
+            }
+            listMap.clear();
+            listMap.putAll(map);
+        } else if (i1 >= indexList.size()) {
+//                        Log.i(TAG, "indexList-" + indexList.toString());
+            int y = 1;
+            for (int i = indexList.size(); i < i1; i++) {
+                y++;
+                Integer max = Collections.max(indexList);
+//                            Integer integer = indexList.get(indexList.size() - 1);
+                indexList.add(0, max + y);
+                beanList = new ArrayList<>();
+                for (int j = 0; j < 3; j++) {
+                    ShelfItemBean itemBean = new ShelfItemBean("", "", "");
+                    beanList.add(itemBean);
+                }
+                listMap.put(max + y, beanList);
+            }
+        }
+        mainAdapter.notifyDataSetChanged();
+    }
+
+    /**
      * 提交数据到服务器
      */
     private void subServer(String xml) {
@@ -511,14 +560,19 @@ public class HasGoodsShelfActivity extends Activity {
      * 弹出对话框
      */
     private void showDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("您还没有提交数据，是否确认退出");
-        builder.setNegativeButton("确定", (dialogInterface, i) -> {
+        String self = etGoodsShelf.getText().toString();
+        if ("".equals(self)){
             finish();
-            dialogInterface.dismiss();
-        });
-        builder.setPositiveButton("取消", (dialogInterface, i) -> dialogInterface.dismiss());
-        builder.create().show();
+        }else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("您还没有提交数据，是否确认退出");
+            builder.setNegativeButton("确定", (dialogInterface, i) -> {
+                finish();
+                dialogInterface.dismiss();
+            });
+            builder.setPositiveButton("取消", (dialogInterface, i) -> dialogInterface.dismiss());
+            builder.create().show();
+        }
     }
 
 
@@ -834,6 +888,8 @@ public class HasGoodsShelfActivity extends Activity {
         }).start();
     }
 
+
+
     /**
      * 初始化集合
      */
@@ -843,7 +899,7 @@ public class HasGoodsShelfActivity extends Activity {
         for (int i = 0; i < index; i++) {
             indexList.add(i);
             beanList = new ArrayList<>();
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < 3; j++) {
 //                beanList.add(new ShelfItemBean(j + "标签", j + "条码", j + "名称"));
                 ShelfItemBean itemBean = new ShelfItemBean("", "", "");
                 itemBean.isClick = false;
@@ -877,19 +933,19 @@ public class HasGoodsShelfActivity extends Activity {
         return super.onTouchEvent(event);
     }
 
-    /**
-     * 返回键按下
-     *
-     * @param keyCode
-     * @param event
-     * @return
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            showDialog();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+//    /**
+//     * 返回键按下
+//     *
+//     * @param keyCode
+//     * @param event
+//     * @return
+//     */
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+//            showDialog();
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 }

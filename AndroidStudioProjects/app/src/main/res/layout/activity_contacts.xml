@@ -1,85 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.suntown.activity.ContactsActivity">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        android:background="@color/colorSkyBlue">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textColor="@color/colorBlack"
             android:padding="15dp"
             android:textSize="@dimen/textSizeX"
-            android:text="通讯录"/>
+            android:textColor="@color/colorWhite"
+            android:text="我的好友"/>
         <ImageView
             android:id="@+id/iv_back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginLeft="@dimen/padding"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:padding="@dimen/paddingM"
             android:layout_centerVertical="true"
-            android:src="@drawable/arrow_back"/>
+            android:src="@drawable/back_01"
+            android:background="@drawable/back_blue_selector"/>
+        <ImageView
+            android:id="@+id/iv_add"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/dp10"
+            android:src="@drawable/add"
+            android:background="@drawable/back_blue_selector"/>
         <View
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorGary"
+            android:background="@color/colorLine"
             android:layout_height="1dp"/>
     </RelativeLayout>
 
+    <LinearLayout
+        android:id="@+id/ll_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhiteBg"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorTextGary"
+            android:padding="@dimen/dp10"
+            android:textSize="@dimen/sp16"
+            android:text="@string/PSRQ"/>
+        <TextView
+            android:id="@+id/tv_count"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_below="@+id/tv_name1"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/dp5"
+            android:lines="1"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/sp_common_circle2yellow"
+            android:textColor="@android:color/white"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/arrow"/>
+    </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/tv_no_constact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_gravity="center"
-            android:textSize="@dimen/textSizeL"
-            android:textColor="@color/colorGary"
-            android:text="暂无联系人信息"/>
         <ListView
             android:id="@+id/lv_contacts"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-        <ProgressBar
-            android:id="@+id/pb_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"
-            android:layout_gravity="center"/>
-        <LinearLayout
-            android:id="@+id/ll_start_contacts"
+        <TextView
+            android:id="@+id/ll_normal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_margin="60dp"
-                android:src="@drawable/phone"/>
-            <Button
-                android:id="@+id/btn_satart_contact"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/blue_confirm_selector"
-                android:textColor="@color/colorWhite"
-                android:layout_centerVertical="true"
-                android:text="匹配通讯录"
-                android:layout_margin="50dp"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorGary"
-                android:textSize="18sp"
-                android:layout_gravity="center_horizontal"
-                android:text="连接手机通讯录，和好友共享信息"/>
-        </LinearLayout>
+            android:text="暂无好友"
+            android:textSize="@dimen/sp20"
+            android:gravity="center"/>
     </FrameLayout>
 </LinearLayout>

@@ -5,9 +5,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.suntown.R;
 import com.suntown.bean.WaitConfirmBean;
 import com.suntown.widget.SwipeLayout;
@@ -64,6 +66,7 @@ public class CompletedAdapter extends BaseAdapter {
 
         TextView tvName = ViewHolder.get(convertView, R.id.tv_name);
         TextView tvPrice = ViewHolder.get(convertView, R.id.tv_price);
+        ImageView ivPhoto = ViewHolder.get(convertView, R.id.iv_photo);
         TextView tvOrderNumber = ViewHolder.get(convertView, R.id.tv_order_number);
         TextView tvOrderMAC = ViewHolder.get(convertView, R.id.tv_order_mac_number);
         TextView cartNumber = ViewHolder.get(convertView, R.id.cart_number_tv);
@@ -72,11 +75,16 @@ public class CompletedAdapter extends BaseAdapter {
         SwipeLayout swipeLayout = ViewHolder.get(convertView, R.id.swipeLayout);
 
         LinearLayout llMain = ViewHolder.get(convertView, R.id.ll_main);
-
+        String imgpath = orderinfoBean.getIMGPATH();
+        Picasso.with(context).load(imgpath).error(R.drawable.no_photo).into(ivPhoto);
         tvName.setText(orderinfoBean.getGNAME());
         tvPrice.setText("￥"+recordBean.getMONEY());
-        cartNumber.setText(orderinfoBean.getDTYPE());
-        tvCurrentTime.setText(recordBean.getADDDATE());
+        cartNumber.setText("×"+orderinfoBean.getNUM());
+        String adddate = recordBean.getADDDATE();
+        if (adddate.contains(".0")){
+            adddate = adddate.replace(".0","");
+        }
+        tvCurrentTime.setText(adddate);
         tvOrderMAC.setText(orderinfoBean.getTINYIP());
         tvOrderNumber.setText(recordBean.getFORMNO());
 

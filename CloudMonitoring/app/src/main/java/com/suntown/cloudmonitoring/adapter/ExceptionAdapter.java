@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 可展开的recyclerViewHelper
  */
-public class ExceptionAdapter extends BaseMultiItemQuickAdapter<MultiItemEntity> {
+public class ExceptionAdapter extends BaseMultiItemQuickAdapter<MultiItemEntity,BaseViewHolder> {
     public static final int TYPE_LEVEL_0 = 0;
     public static final int TYPE_LEVEL_1 = 1;
 

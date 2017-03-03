@@ -9,7 +9,7 @@ import org.xutils.db.annotation.Table;
 /**
  * Created by Administrator on 2016/11/2.
  */
-@Table(name = "inoutbean")
+@Table(name = "inOutBean")
 public class InOutBean implements Parcelable {
     @Column(name = "id",isId = true)
     public int id;

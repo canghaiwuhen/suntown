@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.suntown.cloudmonitoring.R;
 import com.suntown.cloudmonitoring.api.ApiClient;
@@ -31,6 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import cn.jpush.android.api.JPushInterface;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.api.BasicCallback;
 import rx.functions.Action1;
 
 public class WelcomeActivity extends BaseActivity {
@@ -93,6 +96,20 @@ public class WelcomeActivity extends BaseActivity {
                             finish();
                         }else{
                             initNet();
+                            JMessageClient.login(userName, Constant.JMPSW, new BasicCallback() {
+                                @Override
+                                public void gotResult(int responseCode, String LoginDesc) {
+                                    if (responseCode == 0) {
+                                        Log.i(TAG, "JMessageClient.login" + ", responseCode = " + responseCode + " ; LoginDesc = " + LoginDesc);
+                                        Log.i(TAG, "JM登录成功");
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
+                                        Log.i(TAG, "JMessageClient.login" + ", responseCode = " + responseCode + " ; LoginDesc = " + LoginDesc);
+                                        Log.i(TAG, "JM登录失败");
+                                        registerJM(userName);
+                                    }
+                                }
+                            });
                         }
                     }else{
                         startActivity(new Intent(WelcomeActivity.this,GuideActivity.class));
@@ -106,6 +123,21 @@ public class WelcomeActivity extends BaseActivity {
 
     }
 
+    private void registerJM(String userName) {
+        JMessageClient.register(this.userName, Constant.JMPSW, new BasicCallback() {
+            @Override
+            public void gotResult(int responseCode, String registerDesc) {
+                if (responseCode == 0) {
+                    Log.i(TAG,  ", JM注册失败 ");
+                    Log.i(TAG, "JMessageClient.register " + ", responseCode = " + responseCode + " ; registerDesc = " + registerDesc);
+                } else {
+                    Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "JM注册失败 ");
+                    Log.i(TAG, "JMessageClient.register " + ", responseCode = " + responseCode + " ; registerDesc = " + registerDesc);
+                }
+            }
+        });
+    }
 
 
     private void initNet() {

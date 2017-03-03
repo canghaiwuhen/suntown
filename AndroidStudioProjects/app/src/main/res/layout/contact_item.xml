@@ -1,19 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
+<com.suntown.widget.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_margin="@dimen/paddingM"
+    android:id="@+id/swipeLayout"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bj_07">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="删除"
+            android:textSize="@dimen/textSize"
+            android:textColor="#fff"
+            android:gravity="center"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:background="#F10"/>
+    </LinearLayout>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:padding="@dimen/padding"
-    android:layout_height="100dp">
-    <ImageView
+    android:layout_height="100dp"
+    android:id="@+id/rl_main">
+    <com.suntown.widget.RoundAngleImageView
+        android:id="@+id/iv_photo"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@drawable/user"/>
+        android:src="@drawable/user"
+        app:roundWidth="10dp"
+        app:roundHeight="10dp"
+        android:scaleType="fitXY"/>
     <TextView
         android:id="@+id/tv_nick"
         android:layout_marginTop="5dp"
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorGary"
+        android:textColor="#609AF2"
         android:textSize="20sp"
         android:text="昵称"/>
     <TextView
@@ -27,3 +56,4 @@
         android:textSize="20sp"
         android:text="1234564650"/>
 </RelativeLayout>
+    </com.suntown.widget.SwipeLayout>

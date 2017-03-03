@@ -33,7 +33,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class WaitPadActivity extends Activity {
+public class WaitPadActivity extends BaseActivity {
 
     @BindView(R.id.tv_choose_shop)
     TextView tvChooseShop;

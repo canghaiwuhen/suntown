@@ -28,6 +28,8 @@ public class Constant {
     public static final String DEVICE_NUM = "device_num";
     public static final String ARG1 = "arg1";
     public static final String ARG0 = "arg0";
+    public static final String DTYPE = "dtype";
+    public static final String SWVERSION = "swversion";
 
 
     public static String formatBASE_HOST(String url){

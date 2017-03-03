@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBlackBg"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/colorBlackBg">
+
+        <TextView
+            android:id="@+id/iv_back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_margin="@dimen/dp_10"
+            android:background="@drawable/arrow_l"/>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:maxLines="1"
+            android:textSize="@dimen/sp_20" />
+        <ToggleButton
+            android:id="@+id/tg_choose"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/dp_10"
+            android:checked="false"
+            android:textOn=""
+            android:textOff=""
+            android:text=""
+            android:background="@drawable/toggle_selector"/>
+    </RelativeLayout>
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+
+       <ExpandableListView
+           android:id="@+id/elv_list"
+           android:groupIndicator="@null"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"/>
+       <include android:id="@+id/ll_normal"
+           android:visibility="gone"
+           layout="@layout/normal_item"/>
+   </RelativeLayout>
+</LinearLayout>

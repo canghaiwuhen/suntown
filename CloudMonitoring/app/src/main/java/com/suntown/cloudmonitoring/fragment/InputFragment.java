@@ -9,10 +9,8 @@ import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -20,15 +18,13 @@ import android.widget.TextView;
 
 import com.suntown.cloudmonitoring.R;
 import com.suntown.cloudmonitoring.activity.CreamaActivity;
-import com.suntown.cloudmonitoring.activity.HasGoodsShelfActivity;
 import com.suntown.cloudmonitoring.activity.InputAndOutputActivity;
 import com.suntown.cloudmonitoring.activity.InputCheckActivity;
 import com.suntown.cloudmonitoring.adapter.NoteAdapter;
 import com.suntown.cloudmonitoring.adapter.OddNumAdapter;
 import com.suntown.cloudmonitoring.bean.InOutBean;
+import com.suntown.cloudmonitoring.bean.InputBean;
 import com.suntown.cloudmonitoring.bean.Item2;
-import com.suntown.cloudmonitoring.bean.ShopXmlBean;
-import com.suntown.cloudmonitoring.bean.inputBean;
 import com.suntown.cloudmonitoring.utils.Constant;
 import com.suntown.cloudmonitoring.utils.SPUtils;
 import com.suntown.cloudmonitoring.utils.Utils;
@@ -42,7 +38,6 @@ import org.xutils.ex.DbException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import okhttp3.Call;
@@ -77,7 +72,7 @@ public class InputFragment extends Fragment {
     private NoteAdapter adapter;
     private OddNumAdapter oddAdapter;
     private DbManager db;
-    public List<inputBean> inputBeanList = new ArrayList<>();
+    public List<InputBean> inputBeanList = new ArrayList<>();
     public List<String> stringList;
     private List<InOutBean> inOutBelist;
     Handler handler = new Handler() {
@@ -96,7 +91,7 @@ public class InputFragment extends Fragment {
                     llMain.setVisibility(View.VISIBLE);
                     llNormal.setVisibility(View.GONE);
                     tvNumTitle.setText("入库单号:");
-                    inputBeanList = (List<inputBean>) msg.obj;
+                    inputBeanList = (List<InputBean>) msg.obj;
                     Log.i(TAG, "updateList:" + inputBeanList.toString());
                     adapter.notifyDataSetChanged();
                     break;
@@ -104,7 +99,7 @@ public class InputFragment extends Fragment {
                     stringList.add(oddNum);
                     //TODO 保存数据库  并加入到集合
                     try {
-                    for (inputBean inputBean : inputBeanList) {
+                    for (InputBean inputBean : inputBeanList) {
                         InOutBean inOutBean = new InOutBean(oddNum,inputBean.Gname,inputBean.Barcode,
                                 1,inputBean.num,inputBean.boxNum,inputBean.Date,sid,userId);
                             db.save(inOutBean);
@@ -168,6 +163,13 @@ public class InputFragment extends Fragment {
         lvOldItem.setAdapter(oddAdapter);
         llNormal.setVisibility(View.VISIBLE);
         llMain.setVisibility(View.GONE);
+        inOutBelist = new ArrayList<>();
+        oddNum = SPUtils.getString(getActivity(),Constant.IN_NUM);
+        if ("".equals(oddNum)){
+            getNum();
+        }else{
+            tvNum.setText(oddNum);
+        }
 
         inflate.findViewById(R.id.fab_saoyisao).setOnClickListener(view -> {
             String num = SPUtils.getString(getActivity(),Constant.IN_NUM);
@@ -194,7 +196,7 @@ public class InputFragment extends Fragment {
 
         //点击删除条目
         adapter.SetOnItemClickCallBack(position -> {
-            inputBean inputBean = inputBeanList.get(position);
+            InputBean inputBean = inputBeanList.get(position);
             inputBeanList.remove(position);
                 scanner.remove(inputBean.Barcode);
                 adapter.notifyDataSetChanged();
@@ -218,16 +220,10 @@ public class InputFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.i(TAG,"oddNum："+oddNum);
-        oddNum = SPUtils.getString(getActivity(),Constant.IN_NUM);
-        if ("".equals(oddNum)){
-            getNum();
-        }else{
-            tvNum.setText(oddNum);
-        }
-        inOutBelist = new ArrayList<>();
+
         //TODO 数据库取出数据
         inOutBelist = queryDataBase();
+        Log.i(TAG,"oddNum："+oddNum);
         if (inOutBelist !=null&&inOutBelist.size()>0) {
             Log.i(TAG,"inOutBeanList-"+inOutBelist.toString());
             for (InOutBean inOutBean : inOutBelist) {
@@ -264,6 +260,7 @@ public class InputFragment extends Fragment {
             if (list!=null) {
                 Log.i(TAG,"list:"+list.toString());
                 for (InOutBean inOutBean : list) {
+                    Log.i(TAG,"sid:"+inOutBean.sid+",userId:"+inOutBean.userId);
                     if (inOutBean.moudleName==1 && Sid.equals(inOutBean.sid)&&userId.equals(inOutBean.userId)) {
                         inOutBeanList.add(inOutBean);
                     }
@@ -271,6 +268,7 @@ public class InputFragment extends Fragment {
 //                        inOutBeanList.add(inOutBean);
 //                    }
                 }
+                Log.i(TAG,"inOutBeanList:"+inOutBeanList.toString());
                 return inOutBeanList;
             }
         } catch (DbException e) {
@@ -282,10 +280,9 @@ public class InputFragment extends Fragment {
 
 
     private void initData() {
-        sid = ((InputAndOutputActivity) getActivity()).sid;
-        Log.i(TAG, "sid:" + sid + ",resultStr" + resultStr);
+        Log.i(TAG, "sid:" + Sid + ",resultStr" + resultStr);
         if ("".equals(resultStr)) {
-//            llNormal.setVisibility(View.VISIBLE);
+            llNormal.setVisibility(View.VISIBLE);
             llMain.setVisibility(View.GONE);
         } else {
             if (!resultStr.contains(".")) {
@@ -304,7 +301,7 @@ public class InputFragment extends Fragment {
     private void getGoodsDatial(String goodsCode) {
         RequestBody formBody = new FormBody.Builder().
                 add("arg1", goodsCode).
-                add("arg0", sid).build();
+                add("arg0", Sid).build();
         Request request = new Request.Builder()
                 .url(Constant.formatBASE_HOST(serverIP) + "/axis2/services/STPdaService2/GetGoodsInfo3")
                 .post(formBody)
@@ -318,7 +315,6 @@ public class InputFragment extends Fragment {
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
                         String xml = response.body().string();
-
                         xml = xml.replace("<ns:GetGoodsInfo3Response xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
                         xml = xml.replace("</ns:return></ns:GetGoodsInfo3Response>", "");
                         xml = xml.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&#xd;", "");
@@ -329,12 +325,8 @@ public class InputFragment extends Fragment {
                         String barcode = item2.Barcode;
                         if (null!=(gName1) && null!=barcode) {
                             String time = Utils.Time();
-//                            ShopXmlBean shopXmlBean = shopXmlBeanList.get(0);
-//                            Log.i(TAG, shopXmlBean.toString());
-//                            String barcode = shopXmlBean.Barcode;
-//                            String gName = shopXmlBean.GName;
                             Log.i(TAG, "barcode:" + barcode + ",+gName:" + gName1 + ",time:" + time);
-                            inputBean bean = new inputBean(barcode, gName1, "1", "1", time);
+                            InputBean bean = new InputBean(barcode, gName1, "1", "1", time);
                             if (!inputBeanList.contains(bean)) {
                                 inputBeanList.add(bean);
                             }
@@ -405,8 +397,10 @@ public class InputFragment extends Fragment {
                     Log.i(TAG,"num:"+num);
                     Log.i(TAG,"stringList:"+stringList.toString());
                     if (!"".equals(num)){
-                        Log.i(TAG,"num:"+num);
                         stringList.remove(num);
+                        if (stringList.size()==0) {
+                            llNormal.setVisibility(View.VISIBLE);
+                        }
                         oddAdapter.notifyDataSetChanged();
                     }
                 }

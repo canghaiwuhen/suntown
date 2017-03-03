@@ -43,7 +43,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class BatteryMonitoringAct extends Activity {
+public class BatteryMonitoringAct extends BaseActivity {
 
     @BindView(R.id.tv_filtrate)
     TextView tvFiltrate;

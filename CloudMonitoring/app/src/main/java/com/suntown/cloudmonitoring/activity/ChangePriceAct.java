@@ -60,7 +60,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ChangePriceAct extends Activity {
+public class ChangePriceAct extends BaseActivity {
 
     private static final String TAG = "ChangePriceAct";
     @BindView(R.id.bChart)
@@ -312,7 +312,7 @@ public class ChangePriceAct extends Activity {
             lvList = (ListView) view.findViewById(R.id.lv_list);
             ShopAdapter adapter = new ShopAdapter(this, host);
             lvList.setAdapter(adapter);
-            popupWindow = new PopupWindow(view,180, WindowManager.LayoutParams.WRAP_CONTENT);
+            popupWindow = new PopupWindow(view,180, 500);
         }
         popupWindow.setBackgroundDrawable(getResources().getDrawable(R.color.whiteGary));
         popupWindow.setFocusable(true);

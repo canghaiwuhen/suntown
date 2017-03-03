@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_verify_friends"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/back_blue_selector">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:padding="15dp"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/textSizeX"
+            android:text="@string/verify_friend"/>
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:padding="@dimen/paddingM"
+            android:layout_centerVertical="true"
+            android:src="@drawable/back_01"
+            android:background="@drawable/back_blue_selector"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorLine"
+            android:layout_height="1dp"/>
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorLine"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ListView
+            android:id="@+id/lv_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/tv_no_signal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/nothing_verify"
+            android:textSize="@dimen/sp20"
+            android:gravity="center"
+            android:visibility="gone"/>
+    </FrameLayout>
+</LinearLayout>

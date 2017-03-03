@@ -103,6 +103,13 @@ public class QueryActivity extends BaseActivity {
         init();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
+        registerReceiver(receiver, intentFilter);
+    }
+
     private void init() {
         db = x.getDb(((BaseApplication) getApplication()).getDaoConfig());
         oldList.clear();
@@ -117,8 +124,6 @@ public class QueryActivity extends BaseActivity {
         if ("".equals(serverIp)) {
             serverIp = ApiConstant.BASE_URL;
         }
-        IntentFilter intentFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
-        registerReceiver(receiver, intentFilter);
         rlMain.setOnClickListener(view -> {
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -127,7 +132,8 @@ public class QueryActivity extends BaseActivity {
         etSerach.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND
                     || actionId == EditorInfo.IME_ACTION_DONE
-                    || (event != null && KeyEvent.KEYCODE_ENTER == event.getKeyCode() && KeyEvent.ACTION_DOWN == event.getAction())) {
+                    || actionId == EditorInfo.IME_ACTION_NEXT
+                    || actionId == EditorInfo.IME_ACTION_GO) {
                 if (!shopName.equals("")) {
                     goodsString = etSerach.getText().toString().trim();
                     boolean isTagNum = goodsString.contains(".");
@@ -177,6 +183,7 @@ public class QueryActivity extends BaseActivity {
             case R.id.tv_search:
 //                startActivity(new Intent(this, ChooseShopActivity.class));
                 break;
+            //清空条码
             case R.id.tv_clear:
                 try {
                     for (Person person : oldList) {
@@ -225,6 +232,7 @@ public class QueryActivity extends BaseActivity {
                         db.delete(personList);
                     }
                     goodsList.clear();
+                    addressList.clear();
                     lvGoods.setVisibility(View.GONE);
                     rlGoodsTitle.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();
@@ -293,6 +301,7 @@ public class QueryActivity extends BaseActivity {
                         Utils.showToast(QueryActivity.this, "提交缺货任务成功");
                         runOnUiThread(() -> {
                             goodsList.clear();
+                            code.clear();
                             rlGoodsTitle.setVisibility(View.GONE);
                             goodsAdapter.notifyDataSetChanged();
                             addressList.clear();
@@ -359,7 +368,6 @@ public class QueryActivity extends BaseActivity {
     private void queryData() {
         addressList.clear();
         tinyipList.clear();
-
         ipList.clear();
         code.clear();
         oldList.clear();
@@ -434,7 +442,7 @@ public class QueryActivity extends BaseActivity {
             try {
                 ShopXmlBean shopXmlBean = new Xml2Json(xml).pullXml2Bean();
                 String tinyIp = shopXmlBean.TinyIp;
-                if (null != tinyIp) {
+                if (null != tinyIp&&!"".equals(tinyIp)) {
                     if (!tinyipList.contains(tinyIp)) {
                         tinyipList.add(tinyIp);
                         //不存Barcode gname
@@ -492,7 +500,7 @@ public class QueryActivity extends BaseActivity {
                 Log.i(TAG, "xml --" + xml);
                 List<ShopXmlBean> shopXmlBeanList = null;
                 shopXmlBeanList = new Xml2Json(xml).PullXml();
-                if (shopXmlBeanList != null) {
+                if (shopXmlBeanList != null&&shopXmlBeanList.size()!=0) {
                     Log.i(TAG, "shopXmlBeanList --" + shopXmlBeanList.toString());
                     for (ShopXmlBean shopXmlBean : shopXmlBeanList) {
                         String gName = shopXmlBean.GName;
@@ -579,13 +587,14 @@ public class QueryActivity extends BaseActivity {
         }
     };
 
-
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
         unregisterReceiver(receiver);
 
     }
+
+
 
     /**
      * 回收键盘

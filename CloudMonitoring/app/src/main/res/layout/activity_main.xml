@@ -3,11 +3,13 @@
     android:id="@+id/drawerlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBlackBg">
+    android:background="@color/colorBlackBg"
+    >
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <LinearLayout
             android:id="@+id/fragment_layout"
@@ -301,7 +303,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorBgGary" />
-            <include layout="@layout/setting_item2" />
+            <!--<include layout="@layout/setting_item2" />-->
         </LinearLayout>
     </ScrollView>
 

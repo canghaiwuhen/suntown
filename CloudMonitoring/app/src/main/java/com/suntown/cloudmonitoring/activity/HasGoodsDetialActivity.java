@@ -47,7 +47,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class HasGoodsDetialActivity extends Activity {
+public class HasGoodsDetialActivity extends BaseActivity {
 
     private static final int SCANNIN_TAG = 0;
     private static final int SCANNIN_BARCODE = 1;

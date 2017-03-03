@@ -1,11 +1,9 @@
 package com.suntown.cloudmonitoring.adapter;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.suntown.cloudmonitoring.R;
-import com.suntown.cloudmonitoring.bean.inputBean;
+import com.suntown.cloudmonitoring.bean.InputBean;
 
 import java.util.List;
 
@@ -24,10 +22,10 @@ import java.util.List;
  * Created by Administrator on 2016/11/1.
  */
 public class NoteAdapter extends BaseAdapter{
-    List<inputBean> inputBeanList;
+    List<InputBean> inputBeanList;
     Context context;
 
-    public NoteAdapter(Context context, List<inputBean> inputBeanList) {
+    public NoteAdapter(Context context, List<InputBean> inputBeanList) {
         this.context=context;
         this.inputBeanList=inputBeanList;
     }
@@ -63,7 +61,7 @@ public class NoteAdapter extends BaseAdapter{
     public View getView(int i, View convertView, ViewGroup viewGroup) {
 
         ViewHolder viewHolder = null;
-        inputBean inputBean = inputBeanList.get(i);
+        InputBean inputBean = inputBeanList.get(i);
 
         if (convertView == null) {
             convertView = View.inflate(context,R.layout.input_item, null);
@@ -133,7 +131,7 @@ public class NoteAdapter extends BaseAdapter{
 
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    inputBean bean = inputBeanList.get(position);
+                    InputBean bean = inputBeanList.get(position);
                     bean.boxNum= charSequence.toString();
 
                     Log.i("MainActivity", "onTextChanged: " + position + " boxNum - " + bean.boxNum);
@@ -151,7 +149,7 @@ public class NoteAdapter extends BaseAdapter{
 
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    inputBean bean = inputBeanList.get(position);
+                    InputBean bean = inputBeanList.get(position);
                     bean.num = charSequence.toString();
                 }
 

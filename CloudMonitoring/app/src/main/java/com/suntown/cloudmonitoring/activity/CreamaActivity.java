@@ -160,17 +160,18 @@ public class CreamaActivity extends FragmentActivity implements Callback {
         } else {
             if (isOnScanner) {
                 if (intType == 1) {
-                    if (resultString.contains(".")) {
-                        //查询  标签是否存在 其他货架，若存在 tanchudialog
-                        initData(resultString, 1);
-                    } else {
+//                    if (resultString.contains(".")) {
+//                        //查询  标签是否存在 其他货架，若存在 tanchudialog
+//                        initData(resultString, 1);
+//                    }
+//                    else {
                         Intent resultIntent = new Intent();
                         Bundle bundle = new Bundle();
                         bundle.putString(Constant.RESULT_CODE, resultString);
                         resultIntent.putExtras(bundle);
                         this.setResult(RESULT_OK, resultIntent);
                         CreamaActivity.this.finish();
-                    }
+//                    }
                 } else {
                     Intent resultIntent = new Intent();
                     Bundle bundle = new Bundle();
@@ -181,10 +182,10 @@ public class CreamaActivity extends FragmentActivity implements Callback {
                 }
 
             } else {
-                if (resultString.contains(".")) {
-                    //查询  标签是否存在 其他货架，若存在 tanchudialog
-                    initData(resultString, 2);
-                } else {
+//                if (resultString.contains(".")) {
+//                    //查询  标签是否存在 其他货架，若存在 tanchudialog
+//                    initData(resultString, 2);
+//                } else {
                     Utils.showToast(CreamaActivity.this,"扫描成功，继续扫描");
 //                    addData(resultString);
                     scannerList.add(resultString);
@@ -197,7 +198,7 @@ public class CreamaActivity extends FragmentActivity implements Callback {
                        }
                    },2000);
 
-                }
+//                }
             }
         }
 
@@ -325,7 +326,6 @@ public class CreamaActivity extends FragmentActivity implements Callback {
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         hasSurface = false;
-
     }
 
     public ViewfinderView getViewfinderView() {

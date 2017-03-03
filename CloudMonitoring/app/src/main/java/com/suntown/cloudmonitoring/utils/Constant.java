@@ -6,13 +6,13 @@ package com.suntown.cloudmonitoring.utils;
 public class Constant {
     public static final String USER_NAME = "username";
     public static final String PASS_WORD = "password";
+    public static final String GUIDED = "guided";
     public static final String USER_ID = "userid";
     public static final String SERVER_IP = "server_ip";
     public static final String MODNAME = "modname";
     public static final String SNAME = "sname";
     public static final String STRING_DATA = "Strig_data";
     public static final String SID = "sid";
-    public static final String GUIDED = "guided";
     public static final String INFO_BEAN = "info_bean";
     public static final String USER_ID_MAIN = "uer_id_main";
     public static final String TINYIP = "tinyip";
@@ -63,7 +63,9 @@ public class Constant {
     public static final String CHECK_NUM = "check_num";
     public static final String ARG1 = "arg1";
     public static final String ARG0 = "arg0";
+    public static final String PIC_PATH = "path";
     public static String All_RECORD = "record";
+    public static final String JMPSW = "suntown";
 
 
     public static String formatBASE_HOST(String url){

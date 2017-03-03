@@ -1,0 +1,55 @@
+package com.suntown.smartscreen.data;
+
+import java.util.List;
+
+/**
+ * Created by Administrator on 2017/2/13.
+ */
+
+public class AllMainTainBean {
+    /**
+     * ROWS : 20
+     * RECORD : [{"TYPENAME":"临保模板","DMSPECID":"6","ANGLE":"0","DMNAME":"临保模板","ISSPLASH":"0","LIGHTPERIOD":"80","LIGHTCODENAME":"红灯","DESCRIBE":"","IDX":"1","ISSPLASHNAME":"无闪屏","DMCODE":"145","SPECNAME":"2英寸","ISACTIVE":"1","TYPE":"4","LIGHTCODE":"1"},{"TYPENAME":"补货模板","DMSPECID":"6","ANGLE":"0","DMNAME":"补货模板","ISSPLASH":"0","LIGHTPERIOD":"50","LIGHTCODENAME":"无灯","DESCRIBE":"","IDX":"2","ISSPLASHNAME":"无闪屏","DMCODE":"146","SPECNAME":"2英寸","ISACTIVE":"1","TYPE":"5","LIGHTCODE":"0"},{"TYPENAME":"促销模板","DMSPECID":"6","ANGLE":"0","DMNAME":"促销价格","ISSPLASH":"0","LIGHTPERIOD":"200","LIGHTCODENAME":"绿灯","DESCRIBE":"","IDX":"3","ISSPLASHNAME":"无闪屏","DMCODE":"281","SPECNAME":"2英寸","ISACTIVE":"1","TYPE":"2","LIGHTCODE":"2"},{"TYPENAME":"促销模板","DMSPECID":"6","ANGLE":"0","DMNAME":"施家桥促销价格","ISSPLASH":"0","LIGHTPERIOD":"300","LIGHTCODENAME":"红灯","DESCRIBE":"","IDX":"4","ISSPLASHNAME":"无闪屏","DMCODE":"321","SPECNAME":"2英寸","ISACTIVE":"1","TYPE":"2","LIGHTCODE":"1"},{"TYPENAME":"会员价模板","DMSPECID":"6","ANGLE":"0","DMNAME":"施家桥店会员价格","ISSPLASH":"0","LIGHTPERIOD":"300","LIGHTCODENAME":"黄灯","DESCRIBE":"","IDX":"5","ISSPLASHNAME":"无闪屏","DMCODE":"341","SPECNAME":"2英寸","ISACTIVE":"1","TYPE":"3","LIGHTCODE":"3"},{"TYPENAME":"价格模板","DMSPECID":"161","ANGLE":"0","DMNAME":"2.04寸价格模板","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"无灯","DESCRIBE":"","IDX":"6","ISSPLASHNAME":"无闪屏","DMCODE":"343","SPECNAME":"2.04英寸","ISACTIVE":"1","TYPE":"0","LIGHTCODE":"0"},{"TYPENAME":"促销模板","DMSPECID":"161","ANGLE":"0","DMNAME":"2.04寸促销模板","ISSPLASH":"0","LIGHTPERIOD":"300","LIGHTCODENAME":"红灯","DESCRIBE":"","IDX":"7","ISSPLASHNAME":"无闪屏","DMCODE":"344","SPECNAME":"2.04英寸","ISACTIVE":"1","TYPE":"2","LIGHTCODE":"1"},{"TYPENAME":"陈列模板","DMSPECID":"161","ANGLE":"0","DMNAME":"2.04寸陈列模板","ISSPLASH":"0","LIGHTPERIOD":"300","LIGHTCODENAME":"黄灯","DESCRIBE":"1","IDX":"8","ISSPLASHNAME":"无闪屏","DMCODE":"345","SPECNAME":"2.04英寸","ISACTIVE":"1","TYPE":"1","LIGHTCODE":"3"},{"TYPENAME":"陈列模板","DMSPECID":"121","ANGLE":"0","DMNAME":"23232","ISSPLASH":"0","LIGHTPERIOD":"300","LIGHTCODENAME":"黄灯","DESCRIBE":"1","IDX":"9","ISSPLASHNAME":"无闪屏","DMCODE":"347","SPECNAME":"11","ISACTIVE":"0","TYPE":"1","LIGHTCODE":"3"},{"TYPENAME":"陈列模板2","DMSPECID":"165","ANGLE":"0","DMNAME":"2.13景芳陈列（SRD2）","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"","DESCRIBE":"","IDX":"10","ISSPLASHNAME":"无闪屏","DMCODE":"550","SPECNAME":"2.13(252*128)","ISACTIVE":"1","TYPE":"21","LIGHTCODE":""},{"TYPENAME":"陈列模板","DMSPECID":"141","ANGLE":"0","DMNAME":"2.8寸陈列模板","ISSPLASH":"0","LIGHTPERIOD":"300","LIGHTCODENAME":"黄灯","DESCRIBE":"1","IDX":"11","ISSPLASHNAME":"无闪屏","DMCODE":"359","SPECNAME":"2.9寸","ISACTIVE":"1","TYPE":"1","LIGHTCODE":"3"},{"TYPENAME":"会员价模板","DMSPECID":"161","ANGLE":"0","DMNAME":"2.04会员价","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"无灯","DESCRIBE":"","IDX":"12","ISSPLASHNAME":"无闪屏","DMCODE":"362","SPECNAME":"2.04英寸","ISACTIVE":"1","TYPE":"3","LIGHTCODE":"0"},{"TYPENAME":"价格模板","DMSPECID":"163","ANGLE":"0","DMNAME":"290价格模板（寺岗1）","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"","DESCRIBE":"","IDX":"13","ISSPLASHNAME":"无闪屏","DMCODE":"646","SPECNAME":"2.9(296*128)","ISACTIVE":"1","TYPE":"0","LIGHTCODE":""},{"TYPENAME":"价格模板","DMSPECID":"163","ANGLE":"0","DMNAME":"2.9寸售卖机模板","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"无灯","DESCRIBE":"","IDX":"14","ISSPLASHNAME":"无闪屏","DMCODE":"375","SPECNAME":"2.9(296*128)","ISACTIVE":"1","TYPE":"0","LIGHTCODE":"0"},{"TYPENAME":"陈列模板","DMSPECID":"165","ANGLE":"0","DMNAME":"2.13景芳陈列(SRD)","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"","DESCRIBE":"","IDX":"15","ISSPLASHNAME":"无闪屏","DMCODE":"553","SPECNAME":"2.13(252*128)","ISACTIVE":"1","TYPE":"1","LIGHTCODE":""},{"TYPENAME":"促销模板","DMSPECID":"163","ANGLE":"0","DMNAME":"2.9寸促销模板-二维码","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"无灯","DESCRIBE":"","IDX":"16","ISSPLASHNAME":"无闪屏","DMCODE":"368","SPECNAME":"2.9(296*128)","ISACTIVE":"1","TYPE":"2","LIGHTCODE":"0"},{"TYPENAME":"缺货模板2","DMSPECID":"165","ANGLE":"0","DMNAME":"2.13景芳缺货（SRD2）","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"","DESCRIBE":"","IDX":"17","ISSPLASHNAME":"无闪屏","DMCODE":"563","SPECNAME":"2.13(252*128)","ISACTIVE":"1","TYPE":"27","LIGHTCODE":""},{"TYPENAME":"缺货模板","DMSPECID":"165","ANGLE":"0","DMNAME":"2.13景芳缺货（SRD）","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"","DESCRIBE":"","IDX":"18","ISSPLASHNAME":"无闪屏","DMCODE":"564","SPECNAME":"2.13(252*128)","ISACTIVE":"1","TYPE":"7","LIGHTCODE":""},{"TYPENAME":"缺货模板","DMSPECID":"163","ANGLE":"0","DMNAME":"2.9寸ewj下架模板","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"无灯","DESCRIBE":"","IDX":"19","ISSPLASHNAME":"无闪屏","DMCODE":"372","SPECNAME":"2.9(296*128)","ISACTIVE":"1","TYPE":"7","LIGHTCODE":"0"},{"TYPENAME":"促异模板","DMSPECID":"168","ANGLE":"0","DMNAME":"420促异（世纪联华）","ISSPLASH":"0","LIGHTPERIOD":"","LIGHTCODENAME":"","DESCRIBE":"","IDX":"20","ISSPLASHNAME":"无闪屏","DMCODE":"584","SPECNAME":"4.2(400*300)","ISACTIVE":"1","TYPE":"8","LIGHTCODE":""}]
+     */
+
+    public int ROWS;
+    public List<RECORDBean> RECORD;
+
+    public static class RECORDBean {
+        /**
+         * TYPENAME : 临保模板
+         * DMSPECID : 6
+         * ANGLE : 0
+         * DMNAME : 临保模板
+         * ISSPLASH : 0
+         * LIGHTPERIOD : 80
+         * LIGHTCODENAME : 红灯
+         * DESCRIBE :
+         * IDX : 1
+         * ISSPLASHNAME : 无闪屏
+         * DMCODE : 145
+         * SPECNAME : 2英寸
+         * ISACTIVE : 1
+         * TYPE : 4
+         * LIGHTCODE : 1
+         */
+
+        public String TYPENAME;
+        public String DMSPECID;
+        public String ANGLE;
+        public String DMNAME;
+        public String ISSPLASH;
+        public String LIGHTPERIOD;
+        public String LIGHTCODENAME;
+        public String DESCRIBE;
+        public String IDX;
+        public String ISSPLASHNAME;
+        public String DMCODE;
+        public String SPECNAME;
+        public String ISACTIVE;
+        public String TYPE;
+        public String LIGHTCODE;
+
+
+    }
+}

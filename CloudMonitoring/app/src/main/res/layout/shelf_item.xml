@@ -14,8 +14,9 @@
         android:layout_marginLeft="@dimen/dp_5"
         android:layout_marginTop="@dimen/dp_10"
         android:text="123"
+        android:gravity="center_horizontal"
         android:textColor="@color/colorWhite"
-        android:textSize="@dimen/dp_16" />
+        android:textSize="@dimen/dp_14" />
 
     <TextView
         android:id="@+id/tv_barcode"
@@ -25,8 +26,9 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="@dimen/dp_5"
         android:text="123"
+        android:gravity="center_horizontal"
         android:textColor="@color/colorWhite"
-        android:textSize="@dimen/dp_16" />
+        android:textSize="@dimen/dp_14" />
 
     <TextView
         android:id="@+id/tv_gname"
@@ -37,8 +39,9 @@
         android:layout_marginLeft="@dimen/dp_5"
         android:lines="1"
         android:text="123"
+        android:gravity="center_horizontal"
         android:textColor="@color/colorWhite"
-        android:textSize="@dimen/dp_16" />
+        android:textSize="@dimen/dp_14" />
 
     <ImageView
         android:id="@+id/iv_delete"

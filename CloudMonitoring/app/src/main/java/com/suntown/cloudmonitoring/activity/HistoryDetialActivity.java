@@ -53,7 +53,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class HistoryDetialActivity extends Activity {
+public class HistoryDetialActivity extends BaseActivity {
 
     private static final String TAG = "HistoryDetialActivity";
     @BindView(R.id.rl_tag_title)

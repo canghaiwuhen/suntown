@@ -4,6 +4,7 @@ import android.os.Environment;
 
 
 public class  ApiConstant {
+    public static final String UPDATE_URL = "http://192.168.0.152:8080";
     // 文件位置
     public static String SAVE_FILE_PATH = Environment.getExternalStorageDirectory()
             .toString() + "/hicoupon/merchant";

@@ -80,4 +80,11 @@ public interface ApiService {
     @GET("/axis2/services/STPdaService2/Commit_DispData")
     Observable<String> Commit_DispData(@Query("xml") String xml);
 
+    /**
+     * 获取更新列表
+     */
+    @GET("/esl/PAD_UpdategetLastPdaUpdateInfo")
+    Observable<String> getUpdateList(@Query("dtype") String dtype,
+                                     @Query("swversion") String swversion);
+
 }

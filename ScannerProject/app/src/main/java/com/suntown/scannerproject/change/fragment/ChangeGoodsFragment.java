@@ -148,7 +148,7 @@ public class ChangeGoodsFragment extends Fragment implements View.OnClickListene
                     if (message.contains(".")){
                         etTinyip.setText(message);
                         etTinyip.setFocusable(false);
-                      requestBarcodeFocus();
+                        requestBarcodeFocus();
                     }else{
                         etBarcode.setText(message);
                         etBarcode.setFocusable(false);
@@ -173,7 +173,6 @@ public class ChangeGoodsFragment extends Fragment implements View.OnClickListene
         etTinyip.requestFocus();
         etTinyip.findFocus();
         etTinyip.setSelection(etTinyip.getText().length());
-
     }
     @Override
     public void onPause() {

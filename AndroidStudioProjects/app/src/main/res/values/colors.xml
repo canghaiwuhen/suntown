@@ -2,19 +2,35 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorGreen">#73A7F4</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorWhiteBg">#EFEFF4</color>
     <color name="colorGary">#949494</color>
+    <color name="colorGary95">#959595</color>
+    <color name="colorGarySmall">#919191</color>
     <color name="colorWhiteGary">#E8E8E8</color>
+    <color name="colorTextGary">#636364</color>
+    <color name="colorLine">#EBEBEB</color>
+    <color name="colorBgLine">#EFEFF4</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorTextBlack">#4D4D4D</color>
+    <color name="colorTextbac">#DCDCDC</color>
     <color name="colorGaryBg">#B1B1B1</color>
     <color name="colorGarybutton">#BC6B53</color>
     <color name="colorBlue">#6CBBAF</color>
+    <color name="colorSkyBlue">#5d9af2</color>
+    <color name="colorSkyBluePlus">#6CBEFF</color>
     <color name="colorMoreBlue">#43B8DB</color>
     <color name="colorRed">#BA0011</color>
+    <color name="colorRedText">#FB4749</color>
+    <color name="colorPink">#F75F75</color>
     <color name="coloDrakrRed">#B44B4B</color>
+    <color name="colorYellow">#FAB53A</color>
     <color name="normalTextColor">#000333</color>
     <color name="manTextColor">#ADE0EF</color>
+    <color name="colorYello">#FF5500</color>
+    <color name="colorYelloPress">#CD3301</color>
     <color name="province_line_border">#C7C7C7</color>
     <color name="scan_corner_color">#0effc2</color>
 </resources>

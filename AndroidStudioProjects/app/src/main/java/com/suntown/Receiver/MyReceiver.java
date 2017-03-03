@@ -55,7 +55,7 @@ public class MyReceiver extends BroadcastReceiver {
         	//i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         	i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP );
         	context.startActivity(i);
-			SPUtils.put(context,Constant.PUSH_NUM,0);
+//			SPUtils.put(context,Constant.PUSH_NUM,0);
 
         } else if (JPushInterface.ACTION_RICHPUSH_CALLBACK.equals(intent.getAction())) {
             Log.d(TAG, "[MyReceiver] 用户收到到RICH PUSH CALLBACK: " + bundle.getString(JPushInterface.EXTRA_EXTRA));
@@ -82,8 +82,8 @@ public class MyReceiver extends BroadcastReceiver {
 					if (null != extraJson && extraJson.length() > 0) {
 						msgIntent.putExtra(MainActivity.KEY_EXTRAS, extras);
 						int pushNum = SPUtils.getInt(context, Constant.PUSH_NUM);
-						SPUtils.put(context, Constant.PUSH_NUM,pushNum+1);
-						Log.i("MyReceiver","pushNum:"+pushNum);
+//						SPUtils.put(context, Constant.PUSH_NUM,pushNum+1);
+//						Log.i("MyReceiver","pushNum:"+pushNum);
 					}
 				} catch (JSONException e) {
 

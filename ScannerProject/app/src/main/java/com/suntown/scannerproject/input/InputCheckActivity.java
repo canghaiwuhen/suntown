@@ -5,12 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,7 +21,7 @@ import com.suntown.scannerproject.base.BaseActivity;
 import com.suntown.scannerproject.base.BaseApplication;
 import com.suntown.scannerproject.bean.Item2;
 import com.suntown.scannerproject.bean.ShopXmlBean;
-import com.suntown.scannerproject.input.adapter.NoteAdapter;
+import com.suntown.scannerproject.input.adapter.Note1Adapter;
 import com.suntown.scannerproject.input.bean.InOutBean;
 import com.suntown.scannerproject.input.bean.InputBean;
 import com.suntown.scannerproject.utils.Constant;
@@ -58,7 +59,7 @@ public class InputCheckActivity extends BaseActivity {
     @BindView(R.id.tv_num)
     TextView tvNum;
     @BindView(R.id.lv_item)
-    ListView lvItem;
+    RecyclerView lvItem;
     public List<InputBean> inputBeanList;
     @BindView(R.id.rl_title)
     RelativeLayout rlTitle;
@@ -68,7 +69,7 @@ public class InputCheckActivity extends BaseActivity {
     TextView tvShopName;
     @BindView(R.id.main)
     LinearLayout main;
-    private NoteAdapter adapter;
+    private Note1Adapter adapter;
     private OkHttpClient client;
     private String sid;
     private String serverIP;
@@ -95,12 +96,6 @@ public class InputCheckActivity extends BaseActivity {
         dialog = new LoadingDialog(this);
         IntentFilter intentFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
         registerReceiver(receiver, intentFilter);
-//        findViewById(R.id.fab_saoyisao).setOnClickListener(view -> {
-//            //TODO
-//            Intent scannerIntent = new Intent(SCN_CUST_ACTION_START);
-//            sendBroadcast(scannerIntent);
-//
-//        });
         client = new OkHttpClient();
         serverIP = SPUtils.getString(this, Constant.SUBSERVER_IP);
         userId = SPUtils.getString(this, Constant.USER_CODE);
@@ -131,8 +126,10 @@ public class InputCheckActivity extends BaseActivity {
             }
             this.scanner.add(gname);
         }
-        adapter = new NoteAdapter(this, inputBeanList);
+        adapter = new Note1Adapter(R.layout.input_item, inputBeanList);
         tvNum.setText(str);
+        lvItem.setHasFixedSize(true);
+        lvItem.setLayoutManager(new LinearLayoutManager(this));
         lvItem.setAdapter(adapter);
         adapter.SetOnItemClickCallBack(position -> {
             InputBean inputBean = inputBeanList.get(position);
@@ -328,8 +325,8 @@ public class InputCheckActivity extends BaseActivity {
     };
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         unregisterReceiver(receiver);
     }
 

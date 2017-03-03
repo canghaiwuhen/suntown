@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        android:background="@color/colorSkyBlue">
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:padding="15dp"
+            android:textColor="@color/colorWhite"
             android:textSize="@dimen/textSizeX"
-            android:text="慧屏设备"/>
+            android:text="慧屏设备"
+            android:background="@drawable/back_blue_selector"/>
         <ImageView
             android:id="@+id/iv_back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginLeft="@dimen/padding"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:padding="@dimen/paddingM"
             android:layout_centerVertical="true"
-            android:src="@drawable/arrow_back"/>
+            android:src="@drawable/back_01"/>
         <View
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"
@@ -40,7 +43,7 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/textSize"
         android:layout_margin="40dp"
-        android:text="先按住虚线框按键5S以上至蓝灯常亮，然后松开，待蓝灯闪烁，点击下方配置服务按钮进行联网配置"/>
+        android:text="@string/config_string"/>
     <Button
         android:onClick="configWifi"
         android:layout_width="match_parent"

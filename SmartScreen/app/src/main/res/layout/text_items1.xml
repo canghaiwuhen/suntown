@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_main"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorBgGary">
+    <TextView
+        android:id="@+id/tv_text"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:lines="1"
+        android:padding="@dimen/dp_10"
+        android:text="123"
+        android:textSize="@dimen/sp_18"
+        android:textColor="@color/colorYellow"/>
+
+    <RadioButton
+        android:id="@+id/rb"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_margin="@dimen/dp_5"
+        android:button="@null"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/rb_selector"/>
+</LinearLayout>

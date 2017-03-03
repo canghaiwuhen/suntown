@@ -3,17 +3,17 @@ apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'suntownDown'
-            keyPassword '123456'
-            storeFile file('C:/Users/Administrator/Desktop/apkKey/suntownkey.jks')
-            storePassword '123456'
-        }
-
-    }
+//    signingConfigs {
+//        release {
+//            keyAlias 'suntownDown'
+//            keyPassword '123456'
+//            storeFile file('C:/Users/Administrator/Desktop/apkKey/suntownkey.jks')
+//            storePassword '123456'
+//        }
+//
+//    }
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.1"
     compileOptions.encoding = "UTF-8"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -36,28 +36,28 @@ android {
         applicationId "com.suntown"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
+        versionCode 3
+        versionName "1.3"
     }
     sourceSets {
         main {
-            java.srcDirs = ['src/main/java', 'src/main/java-gen']
+//            java.srcDirs = ['src/main/java', 'src/main/java-gen']
             jniLibs.srcDirs = ['libs']
-        }
-    }
-    buildTypes {
 
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-            // 移除无用的resource文件
-            shrinkResources false
-            //混淆后的zip优化，默认为true，可不写。当不显示配置为true时，不会生成unaligned.apk
-            zipAlignEnabled true
         }
     }
+//    buildTypes {
+//
+//        release {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            signingConfig signingConfigs.release
+//            // 移除无用的resource文件
+//            shrinkResources false
+//            //混淆后的zip优化，默认为true，可不写。当不显示配置为true时，不会生成unaligned.apk
+//            zipAlignEnabled true
+//        }
+//    }
 }
 
 dependencies {
@@ -66,11 +66,21 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.2.1'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
     compile 'com.github.vilyever:AndroidSocketClient:2.0.3'
     compile 'cn.yipianfengye.android:zxing-library:1.5'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support:support-v4:23.0.1'
     compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:support-v13:23.0.1'
+    compile 'com.android.support:recyclerview-v7:23.2.1'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.1.6'
+    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.7.0@aar'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    compile 'com.squareup.retrofit2:converter-scalars:2.0.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.7.1'
+
 }

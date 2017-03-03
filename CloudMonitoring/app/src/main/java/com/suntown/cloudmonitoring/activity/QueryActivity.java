@@ -65,7 +65,7 @@ import rx.Observable;
 import static com.suntown.cloudmonitoring.R.id.lv_goods;
 
 
-public class QueryActivity extends Activity {
+public class QueryActivity extends BaseActivity {
 
     @BindView(R.id.tv_search)
     TextView tvSearch;
@@ -543,7 +543,7 @@ public class QueryActivity extends Activity {
                     person.setTime(times);
                     person.setName(tagDetialBean.sname);
                     Log.i(TAG, "person-" + person.toString());
-                    oldList.add(person);
+                    oldList.add(0,person);
                     lvOldData.setVisibility(View.VISIBLE);
                     rlTagTitle.setVisibility(View.VISIBLE);
                     adapter.notifyDataSetChanged();
@@ -552,6 +552,8 @@ public class QueryActivity extends Activity {
                     //TODO 保存到数据库
                     SaveData(person);
                 }
+            }else{
+                Utils.showToast(QueryActivity.this, "没有查询到该标签信息");
             }
 
         }, throwable -> {
@@ -596,7 +598,7 @@ public class QueryActivity extends Activity {
                                 String barcode = shopXmlBean.Barcode;
                                 String tinyIp = shopXmlBean.TinyIp;
                                 if (!addressList.contains(barcode)) {
-                                    addressList.add(barcode);
+                                    addressList.add(0,barcode);
                                     long times = System.currentTimeMillis();
                                     Log.i(TAG, "time--" + times);
                                     //不存tinyIp sname

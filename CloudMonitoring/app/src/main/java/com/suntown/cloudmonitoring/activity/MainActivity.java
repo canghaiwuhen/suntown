@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.suntown.cloudmonitoring.R;
+import com.suntown.cloudmonitoring.activity.form.FormActivity;
 import com.suntown.cloudmonitoring.api.ApiClient;
 import com.suntown.cloudmonitoring.base.BaseActivity;
 import com.suntown.cloudmonitoring.bean.SmsTaskBean;
@@ -32,8 +33,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.android.api.JPushInterface;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
     public static final String MESSAGE_RECEIVED_ACTION = "com.example.jpushdemo.MESSAGE_RECEIVED_ACTION";
     public static final String KEY_TITLE = "title";
@@ -66,12 +71,6 @@ public class MainActivity extends Activity {
     ImageView ivForm;
     @BindView(R.id.rl_work_order)
     RelativeLayout rlWorkOrder;
-    @BindView(R.id.rl_wait_confirm)
-    RelativeLayout rlWaitConfirm;
-    @BindView(R.id.rl_wait_handle)
-    RelativeLayout rlWaitHandle;
-    @BindView(R.id.rl_completed)
-    RelativeLayout rlCompleted;
     @BindView(R.id.fragment_layout)
     LinearLayout fragmentLayout;
     @BindView(R.id.right_nickname)
@@ -80,8 +79,6 @@ public class MainActivity extends Activity {
     LinearLayout llUpdatePsw;
     @BindView(R.id.ll_exit)
     LinearLayout llExit;
-    @BindView(R.id.rl_query)
-    RelativeLayout rlQuery;
     @BindView(R.id.rl_witpad)
     RelativeLayout rlWitpad;
     @BindView(R.id.right)
@@ -90,8 +87,6 @@ public class MainActivity extends Activity {
     ImageView ivQuery;
     @BindView(R.id.ll_item1)
     LinearLayout llItem1;
-    @BindView(R.id.ll_item2)
-    LinearLayout llItem2;
     @BindView(R.id.iv_arrow_setting)
     ImageView ivArrowSetting;
     @BindView(R.id.iv_arrow_form)
@@ -105,12 +100,12 @@ public class MainActivity extends Activity {
     private MessageReceiver mMessageReceiver;
     public static boolean isForeground =false;
     private LoadingDialog dialog;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         dialog = new LoadingDialog(this);
         dialog.show();
         ButterKnife.bind(this);
@@ -130,7 +125,7 @@ public class MainActivity extends Activity {
     }
 
     private void init() {
-        String name = SPUtils.getString(this, Constant.USER_NAME);
+        name = SPUtils.getString(this, Constant.USER_NAME);
         String modname = SPUtils.getString(this, Constant.MODNAME);
         userId = SPUtils.getString(this, Constant.USER_ID);
         rightNickname.setText(name.equals("") ? "用户名" : name);
@@ -174,9 +169,8 @@ public class MainActivity extends Activity {
 
     @OnClick({R.id.iv_message, R.id.iv_user, R.id.tv_change_server, R.id.iv_arrow, R.id.rl_ap_monitoring,
             R.id.rl_change_price, R.id.rl_register_monitoring, R.id.rl_Battery_monitoring,
-            R.id.rl_Battery_danger_monitoring, R.id.rl_helper, R.id.rl_work_order, R.id.rl_wait_confirm,
-            R.id.rl_wait_handle, R.id.rl_completed, R.id.fragment_layout, R.id.ll_update_psw, R.id.ll_exit,
-            R.id.rl_query, R.id.rl_witpad})
+            R.id.rl_Battery_danger_monitoring, R.id.rl_helper, R.id.rl_work_order, R.id.fragment_layout,
+            R.id.ll_update_psw, R.id.ll_exit, R.id.rl_query, R.id.rl_witpad})
     public void onClick(View view) {
         switch (view.getId()) {
             //推送消息
@@ -235,27 +229,35 @@ public class MainActivity extends Activity {
             case R.id.rl_witpad:
                 startActivity(new Intent(MainActivity.this,WaitPadActivity.class));
                 break;
-            //工单
+            // TODO 工单
             case R.id.rl_work_order:
-//                form = !form;
-//                if (form) {
-//                    llItem2.setVisibility(View.VISIBLE);
-//                    ivArrowForm.setImageResource(R.drawable.arrow_d);
-//                } else {
-//                    llItem2.setVisibility(View.GONE);
-//                    ivArrowForm.setImageResource(R.drawable.arrow_r);
-//                }
-                Utils.showToast(this,"正在持续开发中，敬请期待。");
+                LoadingDialog loadingDialog = new LoadingDialog(this);
+                loadingDialog.show();
+                JMessageClient.getUserInfo(name, new GetUserInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, UserInfo userInfo) {
+                        if (null == userInfo) {
+//                            Utils.showToast(MainActivity.this,"用户未上线");
+                            Log.i(TAG,"userInfo:"+"用户未上线");
+                            login(loadingDialog);
+                        }else{
+                            Log.i(TAG,"userInfo:"+userInfo.toString());
+                            loadingDialog.dismiss();
+                            startActivity(new Intent(MainActivity.this, FormActivity.class));
+                        }
+                    }
+                });
+
                 break;
-            //待提交
-            case R.id.rl_wait_confirm:
-                break;
-            //待处理
-            case R.id.rl_wait_handle:
-                break;
-            //已经处理
-            case R.id.rl_completed:
-                break;
+//            //待提交
+//            case R.id.rl_wait_confirm:
+//                break;
+//            //待处理
+//            case R.id.rl_wait_handle:
+//                break;
+//            //已经处理
+//            case R.id.rl_completed:
+//                break;
             case R.id.ll_update_psw:
                 startActivity(new Intent(MainActivity.this, UpdatePswActivity.class));
                 break;
@@ -270,6 +272,25 @@ public class MainActivity extends Activity {
                 break;
 
         }
+    }
+
+    private void login(LoadingDialog dialog) {
+        JMessageClient.login(name, Constant.JMPSW, new BasicCallback() {
+            @Override
+            public void gotResult(int responseCode, String LoginDesc) {
+                if (responseCode == 0) {
+                    Log.i(TAG, "JMessageClient.login" + ", responseCode = " + responseCode + " ; LoginDesc = " + LoginDesc);
+                    Log.i(TAG, "JM登录成功");
+                    dialog.dismiss();
+                    startActivity(new Intent(MainActivity.this, FormActivity.class));
+                } else {
+                    Utils.showToast(MainActivity.this,"您的账号在其他设备登录，请重新登录!");
+                    Log.i(TAG, "JMessageClient.login" + ", responseCode = " + responseCode + " ; LoginDesc = " + LoginDesc);
+                    Log.i(TAG, "JM登录失败");
+                    dialog.dismiss();
+                }
+            }
+        });
     }
 
     @Override

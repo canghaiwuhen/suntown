@@ -67,4 +67,16 @@ public class Utils {
         }
         return "";
     }
+
+    public static String replaceString(String avatar) {
+        if (avatar.contains("tempimg")){
+            avatar = avatar.replace("tempimg","TempImages");
+        }
+        if (avatar.contains("avatar")){
+            avatar = avatar.replace("avatar","Avatar");
+        }if (!avatar.startsWith("http")){
+            avatar="http://"+avatar;
+        }
+        return avatar;
+    }
 }

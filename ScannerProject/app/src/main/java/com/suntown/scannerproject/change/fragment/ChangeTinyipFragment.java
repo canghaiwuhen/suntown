@@ -75,7 +75,6 @@ public class ChangeTinyipFragment extends Fragment implements View.OnClickListen
         }
         ((TextView) inflate.findViewById(R.id.tv_barcode)).setText("请扫描更换前标签:");
         ((TextView) inflate.findViewById(R.id.tv_tinyip)).setText("请扫描更换后标签:");
-
         etBarcode = (EditText) inflate.findViewById(R.id.et_barcode);
         etTinyip = (EditText) inflate.findViewById(R.id.et_tinyip);
         inflate.findViewById(R.id.btn_confirm).setOnClickListener(this);
@@ -83,13 +82,8 @@ public class ChangeTinyipFragment extends Fragment implements View.OnClickListen
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         });
-        etBarcode.setOnFocusChangeListener((view, b) -> {
-            if (b){
-                isCodeClick = true;
-            }else {
-                isCodeClick = false;
-            }
-        });
+        etBarcode.setOnClickListener(view -> requestBarcodeFocus());
+        etTinyip.setOnClickListener(view -> requestFocus());
         dialog = new LoadingDialog(getActivity());
     }
 
@@ -171,25 +165,19 @@ public class ChangeTinyipFragment extends Fragment implements View.OnClickListen
                         message = tinyip;
                     }
                     if (message.contains(".")){
-                        if (isCodeClick) {
+                        if (etBarcode.isFocusable()) {
                             etBarcode.setText(message);
                         }else{
                             etTinyip.setText(message);
                         }
                         if (etBarcode.isFocusable()){
+                            etBarcode.setText(message);
                             etBarcode.setFocusable(false);
-                            etTinyip.setFocusable(true);
-                            etTinyip.setFocusableInTouchMode(true);
-                            etTinyip.requestFocus();
-                            etTinyip.findFocus();
-                            etTinyip.setSelection(etTinyip.getText().length());
+                            requestFocus();
                         }else {
+                            etTinyip.setText(message);
                             etTinyip.setFocusable(false);
-                            etBarcode.setFocusable(true);
-                            etBarcode.setFocusableInTouchMode(true);
-                            etBarcode.requestFocus();
-                            etBarcode.findFocus();
-                            etBarcode.setSelection(etBarcode.getText().length());
+                            requestBarcodeFocus();
                         }
                     }else{
 //                    Utils.showToast(getActivity(),"请输入正确的标签");
@@ -204,5 +192,21 @@ public class ChangeTinyipFragment extends Fragment implements View.OnClickListen
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(receiver);
+    }
+
+    private void requestBarcodeFocus() {
+        etBarcode.setFocusable(true);
+        etBarcode.setFocusableInTouchMode(true);
+        etBarcode.requestFocus();
+        etBarcode.findFocus();
+        etBarcode.setSelection(etBarcode.getText().length());
+    }
+
+    private void requestFocus() {
+        etTinyip.setFocusable(true);
+        etTinyip.setFocusableInTouchMode(true);
+        etTinyip.requestFocus();
+        etTinyip.findFocus();
+        etTinyip.setSelection(etTinyip.getText().length());
     }
 }

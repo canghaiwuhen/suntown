@@ -1,31 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.suntown.activity.BindGoodsActivity">
+    android:fitsSystemWindows="true"
+    android:id="@+id/ll_bind_goods_main">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        android:background="@color/colorSkyBlue">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:padding="15dp"
             android:textSize="@dimen/textSizeX"
+            android:textColor="@color/colorWhite"
             android:text="设备设置"/>
         <ImageView
             android:id="@+id/iv_back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginLeft="@dimen/padding"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:padding="@dimen/padding"
+            android:visibility="gone"
             android:layout_centerVertical="true"
             android:src="@drawable/arrow_back"/>
         <View
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorGary"
+            android:background="@color/colorLine"
             android:layout_height="1dp"/>
         <TextView
             android:id="@+id/tv_save"
@@ -36,6 +39,7 @@
             android:textSize="@dimen/textSize"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/padding"
+            android:visibility="gone"
             android:layout_centerVertical="true" />
     </RelativeLayout>
     <LinearLayout
@@ -63,7 +67,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorGary"
+        android:background="@color/colorLine"
         android:layout_marginLeft="@dimen/padding"
         android:layout_alignParentBottom="true" />
     <LinearLayout
@@ -97,7 +101,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorGary"
+        android:background="@color/colorLine"
         android:layout_marginLeft="@dimen/padding"
         android:layout_alignParentBottom="true" />
     <ListView
@@ -106,6 +110,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
     <Button
+        android:id="@+id/btn_bind"
         android:onClick="bindGoods"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

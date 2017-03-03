@@ -8,7 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.suntown.cloudmonitoring.R;
-import com.suntown.cloudmonitoring.bean.inputBean;
 
 import java.util.List;
 

@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">标签测试软件</string>
+    <string name="tip">先按住Key键10S以上至蓝灯变亮，然后松开，待绿灯闪烁，点击下一步进行联网设置。</string>
+    <string name="device_setting">您的设备配置成功,请选择如下操作</string>
+    <string name="device_success">您的设备配置成功,请进行商品绑定或者返回设备列表!</string>
+    <!--WIFI -->
+    <string name="hiflying_smartlinker_ssid">SSID:</string>
+    <string name="hiflying_smartlinker_password">Password:</string>
+    <string name="hiflying_smartlinker_start">Start</string>
+    <string name="hiflying_smartlinker_waiting">正在链接...</string>
+    <string name="hiflying_smartlinker_timeout">连接超时!</string>
+    <string name="hiflying_smartlinker_completed">慧屏连接完成</string>
+    <string name="hiflying_smartlinker_new_module_found" formatted="false">New smart linked module: Mac-%s Ip-%s</string>
+    <string name="hiflying_smartlinker_no_wifi_connectivity">没有WIFI连接</string>
+</resources>

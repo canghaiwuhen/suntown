@@ -1,10 +1,10 @@
 package com.suntown.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -30,9 +30,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class UpdatePswActivity extends Activity implements View.OnClickListener {
+public class UpdatePswActivity extends BaseActivity implements View.OnClickListener {
 
-    private TextView savePsw;
+    private Button savePsw;
     private TextView cancel;
     private EditText old_Psw;
     private EditText new_Psw;
@@ -52,7 +52,7 @@ public class UpdatePswActivity extends Activity implements View.OnClickListener 
     }
 
     private void init() {
-        savePsw = ((TextView) findViewById(R.id.tv_save));
+        savePsw = ((Button) findViewById(R.id.btn_save));
         cancel = ((TextView) findViewById(R.id.tv_cancel));
         old_Psw = ((EditText) findViewById(R.id.et_old_psw));
         new_Psw = ((EditText) findViewById(R.id.et_new_psw));
@@ -64,12 +64,15 @@ public class UpdatePswActivity extends Activity implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.tv_save:
+            case R.id.btn_save:
                 psw = SPUtils.getString(UpdatePswActivity.this, Constant.LOGIN_PWD);
                 Log.d("UpdatePswActivity", psw);
                 String oldPsw =  old_Psw.getText().toString();
                 String newPsw = new_Psw.getText().toString();
                 confirmPsw = confirm_Psw.getText().toString();
+                if (Utils.isFastClick()) {
+                    return;
+                }
                 if (new_Psw.length()<6){
                     Utils.showToast(UpdatePswActivity.this,"密码安全等级过低，请重新设置密码");
                 }
@@ -78,7 +81,7 @@ public class UpdatePswActivity extends Activity implements View.OnClickListener 
                 confirmPsw = String2MD5.MD5(confirmPsw);
                 if("".equals(oldPsw)||"".equals(newPsw)||"".equals(confirmPsw)){
                     Utils.showToast(UpdatePswActivity.this,"密码不能为空");
-                }else if (!newPsw.equals(confirmPsw)){
+                }else if (!newPsw.equals(oldpsw)){
                     Utils.showToast(UpdatePswActivity.this,"两次输入的密码不相同");
                 }else if(!oldpsw.equals(psw)){
                     Utils.showToast(UpdatePswActivity.this,"原密码输入错误");

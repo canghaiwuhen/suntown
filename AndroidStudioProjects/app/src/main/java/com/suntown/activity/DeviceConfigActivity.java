@@ -19,7 +19,7 @@ import com.suntown.utils.SmartSocketUtils;
 import com.suntown.utils.SocThread;
 
 
-public class DeviceConfigActivity extends Activity implements View.OnClickListener {
+public class DeviceConfigActivity extends BaseActivity implements View.OnClickListener {
 
     private LinearLayout llSuccsee;
     private LinearLayout llLoading;
@@ -153,7 +153,7 @@ public class DeviceConfigActivity extends Activity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.iv_back:
-                finish();
+//                finish();
                 break;
             case R.id.tv_bindGoods:
                 if (tagNum==null){

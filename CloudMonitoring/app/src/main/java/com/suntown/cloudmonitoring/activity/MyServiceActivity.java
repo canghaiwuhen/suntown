@@ -37,7 +37,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.functions.Action1;
 
-public class MyServiceActivity extends Activity {
+public class MyServiceActivity extends BaseActivity {
 
     private static final String TAG = "MyServiceActivity";
     @BindView(R.id.iv_message)

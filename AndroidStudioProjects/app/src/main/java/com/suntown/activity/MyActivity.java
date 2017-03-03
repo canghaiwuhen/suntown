@@ -1,6 +1,5 @@
 package com.suntown.activity;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,130 +11,139 @@ import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 import com.suntown.R;
-import com.suntown.bean.LoginBean;
+import com.suntown.api.ApiService;
+import com.suntown.bean.AddUserInfo;
+import com.suntown.bean.AvatarBean;
+import com.suntown.netUtils.RxSchedulers;
 import com.suntown.utils.BitmapUtils;
 import com.suntown.utils.Constant;
 import com.suntown.utils.ImageTools;
 import com.suntown.utils.SPUtils;
-import com.suntown.utils.StatusBarCompat;
 import com.suntown.utils.Utils;
-import com.suntown.utils.Xml2Json;
 import com.suntown.widget.AppleDialog;
 import com.suntown.widget.CircleImageView;
-
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.functions.Action1;
 
-public class MyActivity extends Activity implements View.OnClickListener {
+public class MyActivity extends BaseActivity {
 
-    @BindView(R.id.rl_choose_photo)
-    RelativeLayout rlChoosePhoto;
-    @BindView(R.id.rl_choose_nick)
-    RelativeLayout rlChooseNick;
-    @BindView(R.id.rl_choose_sax)
-    RelativeLayout rlChooseSax;
-    @BindView(R.id.rl_choose_psw)
-    RelativeLayout rlChoosePsw;
-    @BindView(R.id.rl_enter_contacts)
-    RelativeLayout rlEnterContacts;
-    @BindView(R.id.rl_choose_address)
-    RelativeLayout rlChooseAddress;
-    @BindView(R.id.tv_sax)
-    TextView tvSax;
-    @BindView(R.id.tv_nick_name)
-    TextView tvNickName;
-    @BindView(R.id.tv_number)
-    TextView tvNumber;
-    @BindView(R.id.iv_back)
-    ImageView ivBack;
-    @BindView(R.id.iv_header)
-    CircleImageView ivHeader;
-
+    private static final String TAG = "MyActivity";
     private static final int SCALE = 5;
     private static final int TAKE_PICTURE = 0;
     private static final int CHOOSE_PICTURE = 1;
-    @BindView(R.id.tv_psw)
-    TextView tvPsw;
+    @BindView(R.id.iv_head)
+    CircleImageView ivHead;
+    @BindView(R.id.tv_choose_nick)
+    TextView tvChooseNick;
+    @BindView(R.id.tv_tel)
+    TextView tvTel;
+    @BindView(R.id.tv_sax)
+    TextView tvSax;
+    @BindView(R.id.tv_fm_num)
+    TextView tvFmNum;
+
     private Bitmap newBitmap;
     private String base64;
     private OkHttpClient client;
     String[] strings = {"男", "女"};
+    private String nickName;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my);
-        StatusBarCompat.compat(this);
+//        setContentView(R.layout.activity_my);
+        setContentView(R.layout.activity_my_update);
         ButterKnife.bind(this);
         client = new OkHttpClient();
     }
 
+
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         init();
     }
 
     private void init() {
-        String nickName = SPUtils.getString(this, Constant.NICKNAME);
-        String userName = SPUtils.getString(this, Constant.LOGIN_USER_NAME);
+        nickName = SPUtils.getString(this, Constant.NICKNAME);
+        userName = SPUtils.getString(this, Constant.LOGIN_USER_NAME);
 //        String psw = SPUtils.getString(this, Constant.LOGIN_PWD);
         String sex = SPUtils.getString(this, Constant.SEX);
-        Log.i("MyActivity",sex);
+        Log.i("MyActivity", sex);
         tvSax.setText(sex);
         Log.i("MyActivity", nickName);
-        tvNickName.setText(nickName);
+        tvChooseNick.setText(nickName);
         Log.i("MyActivity", userName);
-        tvNumber.setText(userName);
-        Bitmap path = new BitmapUtils().getBitmapFromPath(userName);
-        if (path != null) {
-            ivHeader.setImageBitmap(path);
+        tvTel.setText(userName);
+        String avatar = SPUtils.getString(this, Constant.AVATAR);
+        int anInt = SPUtils.getInt(this, Constant.PUSH_FM_NUM);
+        if (0 < anInt) {
+            tvFmNum.setVisibility(View.VISIBLE);
+            tvFmNum.setText(anInt + "");
         } else {
-            Log.i("MyActivity", "未找到本地图片");
-            ivHeader.setImageResource(R.drawable.user);
+            tvFmNum.setVisibility(View.GONE);
+        }
+        Log.d("MyActivity", "avatar:" + avatar);
+
+        if (!"".equals(avatar)) {
+            String url = Utils.replaceString(avatar);
+            Log.i(TAG, "url:" + url);
+            Picasso.with(this).load(url).error(R.drawable.no_photo).into(ivHead);
+        } else {
+            Bitmap path = BitmapUtils.getBitmapFromPath(userName);
+            if (path != null) {
+                Log.d("MainActivity", userName);
+                ivHead.setImageBitmap(path);
+            } else {
+                ivHead.setImageResource(R.drawable.user);
+            }
         }
     }
 
-    @OnClick({R.id.iv_back, R.id.rl_choose_photo, R.id.rl_choose_nick, R.id.rl_choose_sax, R.id.rl_choose_psw, R.id.rl_enter_contacts, R.id.rl_choose_address})
+    @OnClick({R.id.iv_back, R.id.tv_choose_nick, R.id.rl_zxing, R.id.rl_choose_addres, R.id.rl_choose_psw, R.id.rl_device_setting, R.id.rl_enter_contacts, R.id.rl_my, R.id.ll_choose_sax})
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.rl_choose_photo:
-                //TODO Dialog
-                Log.i("MyActivity", "dialog");
-                showPhotoDialog();
+            case R.id.iv_back:
+                finish();
                 break;
-            case R.id.rl_choose_nick:
+            case R.id.tv_choose_nick:
                 //TODO 更改昵称
                 startActivity(new Intent(MyActivity.this, UpdateNickNameActivity.class));
                 break;
-            case R.id.rl_choose_sax:
-                showDialog();
+            case R.id.rl_zxing:
+                if (!Utils.isFastClick()) {
+                    startActivity(new Intent(MyActivity.this, DbarCodeActivity.class));
+                }
                 break;
-            case R.id.iv_back:
-                upDateUserInfo();
+            case R.id.rl_choose_addres:
+                //TODO 更改地址
+                startActivity(new Intent(MyActivity.this, AddressCenterActivity.class));
                 break;
             case R.id.rl_choose_psw:
+                //TODO 更改密码
+                startActivity(new Intent(MyActivity.this, UpdatePswActivity.class));
+                break;
+            //更改密码
+            case R.id.rl_device_setting:
                 //TODO 更改密码
                 startActivity(new Intent(MyActivity.this, UpdatePswActivity.class));
                 break;
@@ -143,183 +151,80 @@ public class MyActivity extends Activity implements View.OnClickListener {
                 //TODO 进入联系人界面
                 startActivity(new Intent(MyActivity.this, ContactsActivity.class));
                 break;
-            case R.id.rl_choose_address:
-                //TODO 更改地址
-                startActivity(new Intent(MyActivity.this, AddressCenterActivity.class));
+            case R.id.rl_my:
+                //TODO 进入联系人界面
+                startActivity(new Intent(MyActivity.this, ContactsActivity.class));
+                break;
+            case R.id.ll_choose_sax:
+                showDialog();
                 break;
         }
     }
 
-
-    private void showPhotoDialog() {
-        final String[] strings = {"拍照", "从相册中选择"};
-        new AppleDialog(this, strings[0], ContextCompat.getColorStateList(this, R.color.manTextColor), strings[1], ContextCompat.getColorStateList(this, R.color.colorAccent)).setmDialogListener(new AppleDialog.AppleDialogListener() {
-            @Override
-            public void onTopClick() {
-                Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                Uri imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "image.jpg"));
-                //指定照片保存路径（SD卡），image.jpg为一个临时文件，每次拍照后这个图片都会被替换
-                openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(openCameraIntent, TAKE_PICTURE);
-            }
-
-            @Override
-            public void onBottomClick() {
-                Intent openAlbumIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                openAlbumIntent.setType("image/*");
-                startActivityForResult(openAlbumIntent, CHOOSE_PICTURE);
-            }
-        }).show();
-    }
-
+    /**
+     * 选择性别
+     */
     private void showDialog() {
         new AppleDialog(this, strings[0], ContextCompat.getColorStateList(this, R.color.manTextColor), strings[1], ContextCompat.getColorStateList(this, R.color.colorAccent)).setmDialogListener(new AppleDialog.AppleDialogListener() {
             @Override
             public void onTopClick() {
                 tvSax.setText(strings[0]);
                 SPUtils.put(MyActivity.this, Constant.SEX, strings[0]);
+                //TODO 上传服务器
+                addUserInfo(0);
             }
 
             @Override
             public void onBottomClick() {
                 tvSax.setText(strings[1]);
-                SPUtils.put(MyActivity.this, Constant.SAX, strings[1]);
+                SPUtils.put(MyActivity.this, Constant.SEX, strings[1]);
+                addUserInfo(1);
             }
         }).show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == TAKE_PICTURE) {
-            //将保存在本地的图片取出并缩小后显示在界面上
-            Bitmap bitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/image.jpg");
-            //由于Bitmap内存占用较大，这里需要回收内存，否则会报out of memory异常
-            newBitmap = bitmap.getByteCount() > 512000 ? ImageTools.zoomBitmap(bitmap, bitmap.getWidth() / SCALE, bitmap.getHeight() / SCALE) : bitmap;
-            saveAndSetBitmap();
-            bitmap.recycle();
-
-//            ImageTools.savePhotoToSDCard(newBitmap, Environment.getExternalStorageDirectory().getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
-        } else if (requestCode == CHOOSE_PICTURE) {
-            ContentResolver resolver = getContentResolver();
-            //照片的原始资源地址
-            Uri originalUri = data.getData();
-            try {
-                //使用ContentProvider通过URI获取原始图片
-                Bitmap photo = MediaStore.Images.Media.getBitmap(resolver, originalUri);
-                if (photo != null) {
-                    //为防止原始图片过大导致内存溢出，这里先缩小原图显示，然后释放原始Bitmap占用的内存
-                    newBitmap = ImageTools.zoomBitmap(photo, photo.getWidth() / SCALE, photo.getHeight() / SCALE);
-                    //释放原始图片占用的内存，防止out of memory异常发生
-                    saveAndSetBitmap();
-                    newBitmap.recycle();//TODO
-                    photo.recycle();
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            return;
-        }
-    }
-
-    private void saveAndSetBitmap() {
-        ivHeader.setImageBitmap(newBitmap);
-        base64 = BitmapUtils.bitmapToBase64(newBitmap);
-        BitmapUtils.saveBitmap(newBitmap, SPUtils.getString(this, Constant.LOGIN_USER_NAME));
-//        upload(base64);
-    }
-
-    private void upload(String base64) {
-        RequestBody formBody = new FormBody.Builder()
-                .add("token", SPUtils.getString(MyActivity.this, Constant.LOGIN_TOKEN))
-                .add(Constant.MEMID, SPUtils.getString(MyActivity.this, Constant.MEMID))
-                .add("context", base64)
-                .add("type", "1")
-                .build();
-        final Request request = new Request.Builder()
-                .url(Constant.format("uploadAvatar"))
-                .post(formBody)
-                .build();
-        new Thread(() -> {
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Utils.showToast(MyActivity.this, "联网失败，请检查网络");
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    InputStream is = response.body().byteStream();
-                    Log.i("MainActivity", is.toString());
-                    String json = null;
-                    try {
-                        json = new Xml2Json(is).Pull2Xml();
-                        Log.i("MainActivity", json + "");
-                        LoginBean loginBean = new Gson().fromJson(json, LoginBean.class);
-                        String result = loginBean.getRESULT();
-                        Log.d("LoginActivity", "loginBean:" + loginBean.getRESULT());
-                        if (result.equals("0")) {
-                            Utils.showToast(MyActivity.this, "头像上传成功");
-                        } else if (result.equals("")) {
-                            Utils.showToast(MyActivity.this, "头像上传失败");
-                        } else {
-                            Utils.showToast(MyActivity.this, "头像上传失败");
-                        }
-                    } catch (XmlPullParserException e) {
-                        e.printStackTrace();
+    /**
+     * 上传用户信息（性别）
+     * @param i
+     */
+    private void addUserInfo(int i) {
+//        {@"memid":memid,@"logintoken":loginToken,@"sex":gender,@"loginname":tel,@"cardno":@"",@"age":@"",@"address":@"",@"name":nickName};
+        String token = SPUtils.getString(MyActivity.this, Constant.LOGIN_TOKEN);
+        String memid = SPUtils.getString(MyActivity.this, Constant.MEMID);
+        Map<String, String> params = new HashMap<>();
+        params.put(Constant.MEMID, memid);
+        params.put(Constant.LOGIN_TOKEN, token);
+        params.put(Constant.SEX, i + "");
+        params.put(Constant.USER_NAME, userName);
+        params.put("cardno", "");
+        params.put("age", "");
+        params.put("address", "");
+        params.put(Constant.NAME, nickName);
+        String ip = Constant.HOST;
+        Retrofit retrofit = new Retrofit.Builder().
+//                addConverterFactory(GsonConverterFactory.create())
+        addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+        retrofit.create(ApiService.class).addUserInfo(params).compose(RxSchedulers.io_main()).subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Log.i(TAG, "s:" + s.toString());
+                String result = s.replace("<ns:addUserInfoResponse xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
+                Log.i(TAG, "result-" + result);
+                result = result.replace("</ns:return></ns:addUserInfoResponse>", "");
+                Log.i(TAG, "result-" + result);
+                AddUserInfo addUserInfo = new Gson().fromJson(result, AddUserInfo.class);
+                if ("0".equals(addUserInfo.RESULT)) {
+                    if (addUserInfo.USERINFO.SEX.equals(i)) {
+//                        tvSax.setText(strings[i]);
+                        SPUtils.put(MyActivity.this, Constant.SEX, strings[i]);
                     }
                 }
-            });
-        }).start();
-    }
 
-    private void upDateUserInfo() {
-        RequestBody formBody = new FormBody.Builder()
-                .add(Constant.MEMID, SPUtils.getString(MyActivity.this, Constant.MEMID))
-                .add(Constant.LOGIN_TOKEN, SPUtils.getString(MyActivity.this, Constant.LOGIN_TOKEN))
-                .add(Constant.SEX, tvSax.getText().toString())
-                .add("loginname", SPUtils.getString(MyActivity.this, Constant.LOGIN_USER_NAME))
-                .add("cardno", "")
-                .add("age", "")
-                .add("address", "")
-                .add("name", SPUtils.getString(MyActivity.this, Constant.LOGIN_USER_NAME))
-                .build();
-        final Request request = new Request.Builder()
-                .url(Constant.format("addUserInfo"))
-                .post(formBody)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-//                Utils.showToast(MyActivity.this, "联网失败，请检查网络");
-                finish();
             }
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                InputStream is = response.body().byteStream();
-                Log.i("MainActivity", is.toString());
-                String json = null;
-                try {
-                    json = new Xml2Json(is).Pull2Xml();
-                    Log.i("MainActivity", json + "");
-                    LoginBean loginBean = new Gson().fromJson(json, LoginBean.class);
-                    if (loginBean==null){
-                        return;
-                    }
-                    String result = loginBean.getRESULT();
-                    Log.d("LoginActivity", "loginBean:" + loginBean.getRESULT());
-//                    if ("0".equals(result)) {
-//                        runOnUiThread(() -> finish());
-//                    }
-                } catch (XmlPullParserException e) {
-                    e.printStackTrace();
-                }
-                finish();
-            }
+        }, throwable -> {
+            Log.i(TAG, "throwable:" + throwable.toString());
         });
-        finish();
     }
+
 }

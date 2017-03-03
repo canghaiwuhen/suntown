@@ -17,7 +17,7 @@ import com.suntown.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class QueryContacts extends Activity {
+public class QueryContacts extends BaseActivity {
     private ListView lvList;
     private ArrayList<HashMap<String, String>> readContact;
     private TextView back;

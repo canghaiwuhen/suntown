@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/10/25.
  */
-public class ItemDragAdapter extends BaseItemDraggableAdapter<ShelfItemBean>{
+public class ItemDragAdapter extends BaseItemDraggableAdapter<ShelfItemBean,BaseViewHolder>{
     private static final int QUERY_OK = 200;
     Context context;
     List<ShelfItemBean> beanList;

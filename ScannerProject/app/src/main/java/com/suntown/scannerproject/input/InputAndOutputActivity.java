@@ -106,7 +106,7 @@ public class InputAndOutputActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            showDialog();
+//            showDialog();
             return true;
         }
         return super.onKeyDown(keyCode, event);

@@ -144,14 +144,14 @@ public class Xml2Json {
                         break;
                     // 判断当前事件是否为标签元素开始事件
                     case XmlPullParser.START_TAG:
-//                        if ("LabData".equals(tagName)) {
-//                            //  Log.i("Xml2Json", xmlpullParser.nextText());
-////                            json = xmlpullParser.nextText();
-//                            shopXmlBean = new ShopXmlBean();
-//                        }else
+                        if ("LabData".equals(tagName)) {
+                            //  Log.i("Xml2Json", xmlpullParser.nextText());
+//                            json = xmlpullParser.nextText();
+                            shopXmlBean = new ShopXmlBean();
+                        }else
                         if ("TinyIP".equals(tagName)) {
                             String s = xmlpullParser.nextText();
-                            shopXmlBean = new ShopXmlBean();
+//                            shopXmlBean = new ShopXmlBean();
                             if (!"".equals(s)){
                                 shopXmlBean.setTinyIp(s);
                             }
@@ -216,14 +216,13 @@ public class Xml2Json {
                             if (!"".equals(s)) {
                                 shopXmlBean.setPowerOff(s);
                             }
-                            shopBeanList.add(shopXmlBean);
-                            shopXmlBean=null;
+//                            shopBeanList.add(shopXmlBean);
                         }
                         break;
                     case XmlPullParser.END_TAG:
                         if ("LabData".equals(tagName)){
-//                            shopBeanList.add(shopXmlBean);
-//                            shopXmlBean=null;
+                            shopBeanList.add(shopXmlBean);
+                            shopXmlBean=null;
                         }
                         break;
                 }
@@ -238,6 +237,7 @@ public class Xml2Json {
         }
         return shopBeanList;
     }
+
     public ShopXmlBean pullXml2Bean(){
             ShopXmlBean  shopXmlBean = new ShopXmlBean();
             int eventType;

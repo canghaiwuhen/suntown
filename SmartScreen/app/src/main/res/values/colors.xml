@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2E2E36</color>
+    <color name="colorPrimaryDark">#2E2E36</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorGary">#949494</color>
+    <color name="colorItem">#36383F</color>
+    <color name="colorViolet">#7A538F</color>
+    <color name="colorBlackBg">#2E2E36</color>
+    <color name="colorBlack">#17171B</color>
+    <color name="colorYellow">#FAB53A</color>
+    <color name="iconRed">#D94368</color>
+    <color name="colorBgGary">#36383F</color>
+    <color name="colorItemBg">#35373E</color>
+    <color name="colorTextGary">#A3A3A3</color>
+    <color name="colorGreen">#7EBE45</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorGaryBg">#B1B1B1</color>
+    <color name="colorMoreGreen">#79B645</color>
+    <color name="scan_corner_color">#0effc2</color>
+    <color name="province_line_border">#D0D0D0</color>
+
+
+</resources>

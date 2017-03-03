@@ -3,7 +3,6 @@ package com.suntown.cloudmonitoring.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,9 +17,8 @@ import com.suntown.cloudmonitoring.adapter.NoteAdapter;
 import com.suntown.cloudmonitoring.base.BaseActivity;
 import com.suntown.cloudmonitoring.base.BaseApplication;
 import com.suntown.cloudmonitoring.bean.InOutBean;
+import com.suntown.cloudmonitoring.bean.InputBean;
 import com.suntown.cloudmonitoring.bean.Item2;
-import com.suntown.cloudmonitoring.bean.ShopXmlBean;
-import com.suntown.cloudmonitoring.bean.inputBean;
 import com.suntown.cloudmonitoring.utils.Constant;
 import com.suntown.cloudmonitoring.utils.SPUtils;
 import com.suntown.cloudmonitoring.utils.Utils;
@@ -48,7 +46,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class InputCheckActivity extends Activity {
+public class InputCheckActivity extends BaseActivity {
 
     private static final String TAG = "InputCheckActivity";
     private static final int SCANNIN_GREQUEST_CODE = 1;
@@ -56,7 +54,7 @@ public class InputCheckActivity extends Activity {
     TextView tvNum;
     @BindView(R.id.lv_item)
     ListView lvItem;
-    public List<inputBean> inputBeanList;
+    public List<InputBean> inputBeanList;
     @BindView(R.id.rl_title)
     RelativeLayout rlTitle;
     @BindView(R.id.tv_num_title)
@@ -66,7 +64,6 @@ public class InputCheckActivity extends Activity {
     private NoteAdapter adapter;
     private OkHttpClient client;
     private String sid;
-    private String userid;
     private String serverIP;
     private DbManager db;
     private String orderNum;
@@ -74,6 +71,7 @@ public class InputCheckActivity extends Activity {
     boolean isClear = false;
     private LinearLayout llNormal;
     private String str;
+    private String userid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +82,11 @@ public class InputCheckActivity extends Activity {
         tvNumTitle.setText("入库单号");
         tvShopName.setText("入库管理");
         findViewById(R.id.fab_saoyisao).setOnClickListener(view -> {
-            Intent intent = new Intent(InputCheckActivity.this, CreamaActivity.class);
-            intent.putExtra(Constant.IS_ON_SCANN, true);
-            startActivityForResult(intent, SCANNIN_GREQUEST_CODE);
+            if (!isClear){
+                Intent intent = new Intent(InputCheckActivity.this, CreamaActivity.class);
+                intent.putExtra(Constant.IS_ON_SCANN, true);
+                startActivityForResult(intent, SCANNIN_GREQUEST_CODE);
+            }
         });
         client = new OkHttpClient();
         serverIP = SPUtils.getString(this, Constant.SUBSERVER_IP);
@@ -109,7 +109,7 @@ public class InputCheckActivity extends Activity {
             String gname = inOutBean.gname;
             if (str.equals(orderNum)) {
                 String barcode = inOutBean.barcode;
-                inputBean bean = new inputBean(barcode, gname, inOutBean.boxNum, inOutBean.goodsNum, inOutBean.puductDate);
+                InputBean bean = new InputBean(barcode, gname, inOutBean.boxNum, inOutBean.goodsNum, inOutBean.puductDate);
                 inputBeanList.add(bean);
                 scanner.add(barcode);
             }
@@ -119,16 +119,18 @@ public class InputCheckActivity extends Activity {
         tvNum.setText(str);
         lvItem.setAdapter(adapter);
         adapter.SetOnItemClickCallBack(position -> {
-            inputBean inputBean = inputBeanList.get(position);
+            InputBean inputBean = inputBeanList.get(position);
             String barcode = inputBean.Barcode;
             InOutBean outBean = null;
             try {
-//                outBean = db.selector(InOutBean.class).where("barcode", "=", barcode).where("moudleName", "=", "1").
-//                        where("sid", "=", sid).where("userId", "=", userid).findFirst();
-                List<InOutBean> moudleName = db.selector(InOutBean.class).where("moudleNme", "=", "1").findAll();
+                Log.i(TAG," barcode:"+barcode+" sid:"+sid+" userId:"+userId);
+                List<InOutBean> moudleName = db.selector(InOutBean.class).where("barcode", "=", barcode).where("moudleName", "=", "1").
+                        where("sid", "=", sid).where("userId", "=", userId).findAll();
+                Log.i(TAG,moudleName.toString());
+//                List<InOutBean> moudleName = db.selector(InOutBean.class).where("moudleNme", "=", "1").findAll();
                 for (InOutBean inOutBean : moudleName) {
                     if (barcode.equals(inOutBean.barcode)) {
-                        db.delete(outBean);
+                        db.delete(inOutBean);
                     }
                 }
 //                db.delete(InOutBean.class, WhereBuilder.b("orderNum", "=", str));
@@ -136,7 +138,8 @@ public class InputCheckActivity extends Activity {
                 e.printStackTrace();
             }
             inputBeanList.remove(position);
-            if (0==inputBeanList.size()||null==inputBeanList){
+            if (0 == inputBeanList.size() || null == inputBeanList) {
+                isClear=true;
                 rlTitle.setVisibility(View.GONE);
                 llNormal.setVisibility(View.VISIBLE);
             }
@@ -156,6 +159,7 @@ public class InputCheckActivity extends Activity {
                 } else {
                     intent.putExtra(Constant.NUM, "");
                 }
+                Log.i(TAG,"str:"+str);
                 setResult(300, intent);
                 finish();
                 break;
@@ -248,8 +252,10 @@ public class InputCheckActivity extends Activity {
                         runOnUiThread(() -> {
                             isClear = true;
                             inputBeanList.clear();
-                            rlTitle.setVisibility(View.GONE);
                             adapter.notifyDataSetChanged();
+                            rlTitle.setVisibility(View.GONE);
+                            inputBeanList.clear();
+                            llNormal.setVisibility(View.VISIBLE);
                         });
                     } else {
                         Utils.showToast(InputCheckActivity.this, "提交失败");
@@ -281,14 +287,6 @@ public class InputCheckActivity extends Activity {
                         xml = xml.replace("</ns:return></ns:GetGoodsInfo3Response>", "");
                         xml = xml.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&#xd;", "");
                         Log.i(TAG, "xml-" + xml);
-//                        List<ShopXmlBean> shopXmlBeanList = null;
-//                        shopXmlBeanList = new Xml2Json(xml).PullXml();
-//                        Log.i(TAG, shopXmlBeanList.toString());
-//                        if (shopXmlBeanList != null && shopXmlBeanList.size() != 0) {
-//                            ShopXmlBean shopXmlBean = shopXmlBeanList.get(0);
-//                            Log.i(TAG, shopXmlBean.toString());
-//                            String barcode = shopXmlBean.Barcode;
-//                            String gName = shopXmlBean.GName;
                         Item2 item2 = new Xml2Json(xml).PullGoodsXml();
                         Log.i(TAG, "item2:"+item2.toString());
                         String gName1 = item2.GName;
@@ -296,7 +294,7 @@ public class InputCheckActivity extends Activity {
                         if (null!=(gName1) && null!=barcode) {
                             String time = Utils.Time();
                             Log.i(TAG, "barcode:" + barcode + ",+gName:" + gName1 + ",time:" + time);
-                            inputBean bean = new inputBean(barcode, gName1, "1", "1", time);
+                            InputBean bean = new InputBean(barcode, gName1, "1", "1", time);
                             if (!inputBeanList.contains(bean)) {
                                 inputBeanList.add(bean);
 //                                db.save(bean);
@@ -322,6 +320,7 @@ public class InputCheckActivity extends Activity {
         } else {
             intent.putExtra(Constant.NUM, "");
         }
+        Log.i(TAG,"str:"+str);
         setResult(300, intent);
         finish();
     }

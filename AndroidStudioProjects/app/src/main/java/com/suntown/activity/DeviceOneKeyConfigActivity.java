@@ -19,7 +19,9 @@ import com.hiflying.smartlink.OnSmartLinkListener;
 import com.hiflying.smartlink.SmartLinkedModule;
 import com.hiflying.smartlink.v3.SnifferSmartLinker;
 import com.suntown.R;
+import com.suntown.api.ApiService;
 import com.suntown.bean.LoginBean;
+import com.suntown.netUtils.RxSchedulers;
 import com.suntown.utils.Constant;
 import com.suntown.utils.HexStr;
 import com.suntown.utils.SPUtils;
@@ -32,6 +34,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -40,8 +44,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.functions.Action1;
 
-public class DeviceOneKeyConfigActivity extends Activity implements OnSmartLinkListener {
+public class DeviceOneKeyConfigActivity extends BaseActivity implements OnSmartLinkListener {
     private boolean mIsConncting = false;
     private SnifferSmartLinker mSnifferSmartLinker;
     protected Handler mViewHandler = new Handler();
@@ -147,7 +155,8 @@ public class DeviceOneKeyConfigActivity extends Activity implements OnSmartLinkL
                         stopSocket();
 //                        BindPhoneAndTAG();
                         stopTag();
-
+                        // TODO 绑定标签地址
+                        setWIFIAndIP(tagNum,SPUtils.getString(DeviceOneKeyConfigActivity.this,Constant.WIFI_SSID));
                     } else {
                         Log.i(TAG, "没有数据返回不更新");
                     }
@@ -214,7 +223,6 @@ public class DeviceOneKeyConfigActivity extends Activity implements OnSmartLinkL
         mWaitingDialog = new ProgressDialog(this);
         mWaitingDialog.setMessage(getString(R.string.hiflying_smartlinker_waiting));
         mWaitingDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, getString(android.R.string.cancel), (dialog, which) -> {
-
         });
         mWaitingDialog.setOnDismissListener(dialog -> {
                 mSnifferSmartLinker.setOnSmartLinkListener(null);
@@ -398,5 +406,36 @@ public class DeviceOneKeyConfigActivity extends Activity implements OnSmartLinkL
 //                socketThread.send(bytes);
         }).start();
     }
-
+    /**
+     * 设置标签 wifi
+     * @param tagNum
+     * @param ssid
+     */
+    private void setWIFIAndIP(String tagNum, String ssid) {
+        Log.i(TAG, "tagNum:" + tagNum+",ssid:"+ssid);
+        Map<String, String> params = new HashMap<>();
+        params.put(Constant.ARG0, tagNum);
+        params.put(Constant.ARG1, ssid);
+        String ip = Constant.BASE_HOST;
+        Retrofit retrofit = new Retrofit.Builder().
+                addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+        retrofit.create(ApiService.class).setWIFIIP(params).compose(RxSchedulers.io_main()).subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Log.i(TAG, "s:" + s);
+                String json = s.replace("<ns:setWIFIAndIPResponse xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
+                json = json.replace("</ns:return></ns:setWIFIAndIPResponse>", "");
+                LoginBean loginBean = new Gson().fromJson(json, LoginBean.class);
+                if (loginBean.getRESULT().equals("1")) {
+                    Log.i(TAG,"设置标签WIFI地址成功");
+                    Utils.showToast(DeviceOneKeyConfigActivity.this,"设置标签WIFI地址成功");
+                }else{
+                    Log.i(TAG,"设置标签WIFI地址失败");
+                }
+            }
+        }, throwable -> {
+            Log.i(TAG, "throwable:" + throwable);
+        });
+    }
 }

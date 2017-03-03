@@ -1,8 +1,6 @@
 package com.suntown.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,7 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class CompletedActivity extends Activity {
+public class CompletedActivity extends BaseActivity {
 
     @BindView(R.id.iv_back)
     ImageView ivBack;
@@ -39,6 +37,8 @@ public class CompletedActivity extends Activity {
     TextView tvPrice;
     @BindView(R.id.tv_tag_name)
     TextView tvTagName;
+    @BindView(R.id.tv_num)
+    TextView tvNum;
     private WaitConfirmBean.RECORDBean recordBean;
     private WaitConfirmBean.RECORDBean.ORDERINFOBean orderinfoBean;
 
@@ -56,21 +56,22 @@ public class CompletedActivity extends Activity {
         orderinfoBean = orderinfo.get(0);
         String[] address = recordBean.getADDRESS().split("\\/");
 
-        Log.i("test","address:"+ recordBean.getADDRESS());
-        Log.i("test","address:"+address);
-        String name =address.length>0?address[0]:"未选择";
+        Log.i("test", "address:" + recordBean.getADDRESS());
+        Log.i("test", "address:" + address);
+        String name = address.length > 0 ? address[0] : "未选择";
 //        String number = address[1];
-        String addres = address.length>2?address[2]:"未选择";
-        tvName.setText(name==""?"未选择":name);
+        String addres = address.length > 2 ? address[2] : "未选择";
+        tvName.setText(name == "" ? "未选择" : name);
         tvAddress.setText(addres);
         tvOrderNumber.setText(recordBean.getFORMNO());
         tvTagName.setText(orderinfoBean.getTINYIP());
-        Picasso.with(this).load(Constant.formatImage(orderinfoBean.getIMGPATH())).error(R.drawable.user).into(ivGoodsPhoto);
+        Picasso.with(this).load(Constant.formatImage(orderinfoBean.getIMGPATH())).error(R.drawable.no_photo).into(ivGoodsPhoto);
         tvGoodsName.setText(orderinfoBean.getGNAME());
-        tvPrice.setText("￥"+recordBean.getMONEY());
+        tvPrice.setText("￥" + recordBean.getMONEY());
+        tvNum.setText("×"+orderinfoBean.getNUM());
     }
 
-    @OnClick({R.id.iv_back, R.id.tv_confirm,R.id.iv_goods_photo})
+    @OnClick({R.id.iv_back, R.id.tv_confirm, R.id.iv_goods_photo})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
@@ -80,8 +81,8 @@ public class CompletedActivity extends Activity {
                 showDialog();
                 break;
             case R.id.iv_goods_photo:
-                Intent inten = new Intent(CompletedActivity.this,PicActivity.class);
-                inten.putExtra("picName",Constant.formatImage(orderinfoBean.getIMGPATH()));
+                Intent inten = new Intent(CompletedActivity.this, PicActivity.class);
+                inten.putExtra("picName", Constant.formatImage(orderinfoBean.getIMGPATH()));
                 startActivity(inten);
                 break;
         }
@@ -90,10 +91,10 @@ public class CompletedActivity extends Activity {
     private void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("请确认收货");
-        builder.setNegativeButton("取消",null);
+        builder.setNegativeButton("取消", null);
         builder.setPositiveButton("确认", (dialog, which) -> {
-                dialog.dismiss();
-                //TODO 向服务器发起请求
+            dialog.dismiss();
+            //TODO 向服务器发起请求
         });
     }
 }

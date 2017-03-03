@@ -60,7 +60,7 @@ public class RecyclerMainAdapter extends RecyclerView.Adapter<RecyclerMainAdapte
     public void onBindViewHolder(MyViewHolder holder, int position) {
         int i = indexList.size()-position;
         holder.tvTitle.setText("第"+i+"层");
-        holder.rlitem.setLayoutManager(new GridLayoutManager(context, 5));
+        holder.rlitem.setLayoutManager(new GridLayoutManager(context, 3));
         Integer integer = indexList.get(position);
         Log.i("Adapter","integer-"+integer.toString());
         List<ShelfItemBean> beanList = listMap.get(integer);

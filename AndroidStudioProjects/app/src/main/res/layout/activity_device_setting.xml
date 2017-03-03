@@ -6,12 +6,15 @@
     android:id="@+id/ll_main">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        android:fitsSystemWindows="true"
+        android:background="@color/colorSkyBlue">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:padding="15dp"
+            android:textColor="@color/colorWhite"
             android:textSize="@dimen/textSizeX"
             android:text="设备设置"/>
 

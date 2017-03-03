@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    <View android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"/>
+    <ImageView
+        android:id="@+id/iv_photo"
+        android:layout_width="260dp"
+        android:layout_height="300dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginLeft="@dimen/dp_60"
+        android:background="@drawable/rc_ic_bubble_no_right" />
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="@dimen/dp_20"
+        android:src="@drawable/duihua_03"
+        android:id="@+id/icon" />
+
+</LinearLayout>

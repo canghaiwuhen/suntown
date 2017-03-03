@@ -5,13 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,8 +20,7 @@ import com.suntown.scannerproject.api.ApiConstant;
 import com.suntown.scannerproject.base.BaseActivity;
 import com.suntown.scannerproject.base.BaseApplication;
 import com.suntown.scannerproject.bean.Item2;
-import com.suntown.scannerproject.bean.ShopXmlBean;
-import com.suntown.scannerproject.input.adapter.NoteAdapter;
+import com.suntown.scannerproject.input.adapter.Note1Adapter;
 import com.suntown.scannerproject.input.bean.InOutBean;
 import com.suntown.scannerproject.input.bean.InputBean;
 import com.suntown.scannerproject.utils.Constant;
@@ -57,11 +56,11 @@ public class OutputCheckActivity extends BaseActivity {
     @BindView(R.id.tv_num)
     TextView tvNum;
     @BindView(R.id.lv_item)
-    ListView lvItem;
+    RecyclerView lvItem;
     public List<InputBean> inputBeanList;
     @BindView(R.id.rl_title)
     RelativeLayout rlTitle;
-    private NoteAdapter adapter;
+    private Note1Adapter adapter;
     private OkHttpClient client;
     private String sid;
     private String serverIP;
@@ -115,8 +114,10 @@ public class OutputCheckActivity extends BaseActivity {
             }
             this.scanner.add(gname);
         }
-        adapter = new NoteAdapter(this, inputBeanList);
         tvNum.setText(str);
+        adapter = new Note1Adapter(R.layout.input_item,inputBeanList);
+        lvItem.setHasFixedSize(true);
+        lvItem.setLayoutManager(new LinearLayoutManager(this));
         lvItem.setAdapter(adapter);
         adapter.SetOnItemClickCallBack(position -> {
                 InputBean inputBean = inputBeanList.get(position);
@@ -307,12 +308,12 @@ public class OutputCheckActivity extends BaseActivity {
             }
         }
     };
+
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         unregisterReceiver(receiver);
     }
-
 
     @Override
     public void onBackPressed() {

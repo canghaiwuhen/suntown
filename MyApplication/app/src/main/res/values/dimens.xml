@@ -1,0 +1,14 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+	<dimen name="popmenu_h">220.0dip</dimen>
+	<dimen name="popmenu_class_h">250.0dip</dimen>
+	<dimen name="popmenu_w">300.0dip</dimen>
+	<dimen name="title_h">60.0dip</dimen>
+	<dimen name="keyword_textsize">16sp</dimen>
+	<dimen name="gallery_item_width">93dip</dimen>
+	<dimen name="gallery_spacing">10dip</dimen>
+	<dimen name="scan_tip_textsize">12sp</dimen>
+</resources>

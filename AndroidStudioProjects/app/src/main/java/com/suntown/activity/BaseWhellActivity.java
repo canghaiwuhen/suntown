@@ -14,7 +14,7 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-public class BaseWhellActivity extends Activity {
+public class BaseWhellActivity extends BaseActivity {
 	
 
 	protected String[] mProvinceDatas;

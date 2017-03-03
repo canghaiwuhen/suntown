@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 
 import com.suntown.scannerproject.R;
 import com.suntown.scannerproject.input.InputAndOutputActivity;
+import com.suntown.scannerproject.input.adapter.Check1Adapter;
 import com.suntown.scannerproject.input.adapter.CheckAdapter;
 import com.suntown.scannerproject.input.bean.BooleanBean;
 import com.suntown.scannerproject.input.bean.PDBean;
@@ -60,17 +63,15 @@ public class CheckFragment extends Fragment {
     private TextView tvNum;
     private RelativeLayout rlTitle;
     private LinearLayout llMain;
-    private ListView lvItem;
+    private RecyclerView lvItem;
     private String serverIP;
     private String checkNum ="";
     private OkHttpClient client;
     private String userId;
     private List<PDBean> pdBeanList = new ArrayList<>();
-    private CheckAdapter checkAdapter;
+    private Check1Adapter checkAdapter;
     private static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
     private static final String SCN_CUST_EX_SCODE = "scannerdata";
-    private static final String SCN_CUST_ACTION_CANCEL = "android.intent.action.SCANNER_BUTTON_UP";
-    private static final String SCN_CUST_ACTION_START = "android.intent.action.SCANNER_BUTTON_DOWN";
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -92,7 +93,7 @@ public class CheckFragment extends Fragment {
                     rlTitle.setVisibility(View.VISIBLE);
                     PDDetailBean pdDetailBean = (PDDetailBean) msg.obj;
                     PDBean pdBean = new PDBean(pdDetailBean.PDID, pdDetailBean.SPDID, pdDetailBean.PDNO,
-                            pdDetailBean.BARCODE, pdDetailBean.GOODSNAME, pdDetailBean.D4, pdDetailBean.D7, "", "");
+                            pdDetailBean.BARCODE, pdDetailBean.GOODSNAME, pdDetailBean.D4, pdDetailBean.D7, "", "",isToggleOn);
                     rlTitle.setVisibility(View.VISIBLE);
                     llNormal.setVisibility(View.GONE);
                     pdBeanList.add(0,pdBean);
@@ -130,41 +131,37 @@ public class CheckFragment extends Fragment {
         return inflate;
     }
 
-    BooleanBean booleanBean = new BooleanBean(isToggleOn);
 
     private void initUi() {
         inflate.findViewById(R.id.rl_main).setOnClickListener(view -> {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         });
-        checkAdapter = new CheckAdapter(getActivity(), pdBeanList, booleanBean);
+
         serverIP = ((InputAndOutputActivity) getActivity()).serverIP;
         client = ((InputAndOutputActivity) getActivity()).client;
         userId = ((InputAndOutputActivity) getActivity()).userid;
         llNormal = (LinearLayout) inflate.findViewById(R.id.ll_normal);// 无数据布局
         llMain = (LinearLayout) inflate.findViewById(R.id.ll_main);//无数据隐藏
         tvNum = (TextView) inflate.findViewById(R.id.tv_num);//盘点单号
-        lvItem = (ListView) inflate.findViewById(R.id.lv_item);//listView
+        lvItem = (RecyclerView) inflate.findViewById(R.id.lv_item);//listView
         rlTitle = (RelativeLayout) inflate.findViewById(R.id.rl_title);//无数据隐藏标题
         sid = SPUtils.getString(getActivity(), Constant.SID);
-        lvItem.setAdapter(checkAdapter);
         llNormal.setVisibility(View.VISIBLE);
         llMain.setVisibility(View.GONE);
         rlTitle.setVisibility(View.GONE);
-//        inflate.findViewById(R.id.fab_scanner).setOnClickListener(view -> {
-//            //TODO 跳转扫码界面
-////            isSend=true;
-//            Observable.timer(1, TimeUnit.SECONDS).subscribe(aLong -> {
-//                Intent scannerIntent = new Intent(SCN_CUST_ACTION_START);
-//                getActivity().sendBroadcast(scannerIntent);
-//            });
-//
-//        });
+
+        checkAdapter = new Check1Adapter( R.layout.check_item, pdBeanList);
+        lvItem.setHasFixedSize(true);
+        lvItem.setLayoutManager(new LinearLayoutManager(getActivity()));
+        lvItem.setAdapter(checkAdapter);
         inflate.findViewById(R.id.tg_choose).setOnClickListener(view -> {
             //更改 toggle状态
             isToggleOn = !isToggleOn;
-            booleanBean.istoogleon = isToggleOn;
             Log.i(TAG, "isToggleOn-" + isToggleOn);
+            for (PDBean pdBean : pdBeanList) {
+                pdBean.isToggle=isToggleOn;
+            }
             checkAdapter.notifyDataSetChanged();
         });
         inflate.findViewById(R.id.tv_commit).setOnClickListener(view -> {

@@ -1,11 +1,13 @@
 package com.suntown.cloudmonitoring.api;
 
 
+import com.suntown.cloudmonitoring.activity.form.FormBaseBean;
 import com.suntown.cloudmonitoring.bean.APInfoBean;
 import com.suntown.cloudmonitoring.bean.AllShopBean;
 import com.suntown.cloudmonitoring.bean.BaseBean;
 import com.suntown.cloudmonitoring.bean.BattVoltageBean;
 import com.suntown.cloudmonitoring.bean.ChildServerBean;
+import com.suntown.cloudmonitoring.bean.FormListBean;
 import com.suntown.cloudmonitoring.bean.LoginBean;
 import com.suntown.cloudmonitoring.bean.MessageBean;
 import com.suntown.cloudmonitoring.bean.PushBean;
@@ -15,12 +17,15 @@ import com.suntown.cloudmonitoring.bean.TagDetialBean;
 import com.suntown.cloudmonitoring.bean.TagPhotoBean;
 import com.suntown.cloudmonitoring.bean.TestBAttertDangerBean;
 import com.suntown.cloudmonitoring.bean.UpdateBean;
+import com.suntown.cloudmonitoring.bean.UserListBean;
 
 import java.util.Map;
 
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 import rx.Observable;
 
 public interface ApiService {
@@ -135,4 +140,25 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("/eslrmsh/phone/user/getUserPushId")
     Observable<BaseBean> upPushId(@FieldMap Map<String, String> map);
+
+    /**
+     * 获取工单信息
+     *   http://192.168.0.12:8080/eslrmsh/phone/workform/queryWorkformByUser?acceptUserId=suntown
+     */
+    @GET("/eslrmsh/phone/workform/queryWorkformByUser")
+    Observable<FormListBean> queryWorkForm(@Query("acceptUserId") String userId);
+
+    /**
+     * 获取工单信息
+     *http://192.168.0.12:8080/eslrmsh/phone/workform/getusersbysid?sid=571002002
+     */
+    @GET("/eslrmsh/phone/workform/getusersbysid")
+    Observable<UserListBean> getUsersBySid(@Query("sid") String sid);
+
+    /**
+     * 保存工单信息
+     *
+     */
+    @GET("/eslrmsh/phone/workform/generateWorkform")
+    Observable<FormBaseBean> generateWorkform(@Query("workform") String json);
 }

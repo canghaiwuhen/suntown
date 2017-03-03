@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name">慧屏下单</string>
+    <string name="VersionCode">3</string>
+    <string name="VersionName">1.3</string>
+    <string name="my_phone">我的手机号码是:</string>
     <string name="device_setting">您的设备配置成功,请选择如下操作</string>
     <string name="device_success">您的设备配置成功,请进行商品绑定或者返回设备列表!</string>
+    <string name="config_string">请长按标签上的按钮5s以上至蓝灯点亮,然后松开,待蓝灯闪烁,点击下一步配置WIFI</string>
+    <string name="PSRQ">验证消息</string>
+    <string name="verify_friend">好友验证</string>
+    <string name="discovery">发现</string>
+    <string name="device_list">设备管理</string>
+    <string name="order_list">订单管理</string>
+    <string name="network_link">网络连接:</string>
+    <string name="my">我的</string>
+    <string name="nothing_verify">暂无好友验证</string>
     <!--WIFI -->
     <string name="hiflying_smartlinker_ssid">SSID:</string>
     <string name="hiflying_smartlinker_password">Password:</string>

@@ -39,7 +39,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.zhikaizhang.indexview.PinyinComparator;
 
-public class FiltrateRegisterAct extends Activity {
+public class FiltrateRegisterAct extends BaseActivity {
 
     private static final String TAG = "FiltrateRegisterAct";
     @BindView(R.id.rl_title)

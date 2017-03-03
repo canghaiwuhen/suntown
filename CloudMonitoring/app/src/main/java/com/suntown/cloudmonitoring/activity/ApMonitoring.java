@@ -43,7 +43,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class ApMonitoring extends Activity {
+public class ApMonitoring extends BaseActivity {
 
     private static final String TAG = "ApMonitoring";
     @BindView(R.id.iv_back)

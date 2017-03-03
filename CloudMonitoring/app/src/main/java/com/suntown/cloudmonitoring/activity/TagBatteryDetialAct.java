@@ -31,7 +31,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class TagBatteryDetialAct extends Activity {
+public class TagBatteryDetialAct extends BaseActivity {
 
     private static final String TAG = "TagBatteryDetialAct";
     @BindView(R.id.tv_tag_name)

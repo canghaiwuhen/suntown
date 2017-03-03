@@ -73,10 +73,9 @@
     </LinearLayout>
     <ImageView
         android:id="@+id/iv_delete"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:src="@drawable/delete_3"
-        android:layout_marginRight="@dimen/dp_5"
-        android:layout_marginTop="@dimen/dp_5"
+        android:padding="@dimen/dp_5"
         android:layout_gravity="right"/>
 </FrameLayout>

@@ -281,7 +281,7 @@ public class NoGoodsShelfActivity extends BaseActivity {
 //                                    lvBeanList.remove(item2);
 //                                }
                                 item2.tinyip = IPTag;
-                                lvBeanList.add(item2);
+                                lvBeanList.add(0,item2);
                                 stringTag.add(IPTag);
                                 etTag.setText("");
                                 etGoodsTag.setText("");

@@ -32,7 +32,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class UpdateNickNameActivity extends Activity {
+public class UpdateNickNameActivity extends BaseActivity {
 
     @BindView(R.id.iv_cancel)
     TextView ivCancel;
@@ -82,15 +82,14 @@ public class UpdateNickNameActivity extends Activity {
 
     private void sendUpdateNikeName() {
         RequestBody formBody = new FormBody.Builder()
-                .add("token", SPUtils.getString(UpdateNickNameActivity.this, Constant.LOGIN_TOKEN))
+                .add(Constant.MEMID, SPUtils.getString(UpdateNickNameActivity.this, Constant.MEMID))
                 .add("nickname",nickeName)
                 .build();
         final Request request = new Request.Builder()
-                .url(Constant.format("updatenikename"))
+                .url(Constant.formatBASE_HOST("updatenikename"))
                 .post(formBody)
                 .build();
         new Thread(() -> {
-            {
                 client.newCall(request).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -124,7 +123,6 @@ public class UpdateNickNameActivity extends Activity {
                         }
                     }
                 });
-            }
         }).start();
     }
 

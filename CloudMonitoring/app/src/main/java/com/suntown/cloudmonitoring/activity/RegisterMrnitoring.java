@@ -1,24 +1,17 @@
 package com.suntown.cloudmonitoring.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.suntown.cloudmonitoring.R;
 import com.suntown.cloudmonitoring.adapter.RegisterExpandAdapter;
-import com.suntown.cloudmonitoring.api.ApiClient;
 import com.suntown.cloudmonitoring.api.ApiService;
 import com.suntown.cloudmonitoring.base.BaseActivity;
 import com.suntown.cloudmonitoring.bean.APInfoBean;
@@ -50,7 +43,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.functions.Action1;
 
-public class RegisterMrnitoring extends Activity {
+public class RegisterMrnitoring extends BaseActivity {
 
     private static final String TAG = "RegisterMrnitoring";
     @BindView(R.id.tv_filtrate)

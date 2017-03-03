@@ -1,52 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/rl_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp10"
+        android:orientation="horizontal"
+        android:background="@drawable/bj_07">
+        <ImageView
+            android:id="@+id/iv_photo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/goods" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/tv_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorGary"
-            android:textSize="@dimen/textSizeL"
-            android:padding="@dimen/padding"
-            android:text="标  签  IP:"/>
-        <TextView
-            android:id="@+id/tv_tag_num"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorRed"
-            android:textSize="@dimen/textSizeL"
-            android:layout_margin="@dimen/padding"
-            android:layout_toRightOf="@+id/tv_tag"
-            android:text="0.0.0.1"/>
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/tv_bind_goods"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorGary"
-            android:textSize="@dimen/textSizeL"
-            android:padding="@dimen/padding"
-            android:text="绑定商品:"/>
-        <TextView
-            android:id="@+id/tv_goods_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorGary"
-            android:textSize="@dimen/textSizeL"
-            android:layout_margin="@dimen/padding"
-            android:layout_toRightOf="@+id/tv_bind_goods"
-            android:text=""/>
-    </RelativeLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="#ddce"/>
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_goods_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/dp10"
+                android:text="康师傅红烧牛肉面"
+                android:textColor="@color/colorPink"
+                android:textSize="@dimen/sp18" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/paddingM"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="标签IP:"
+                    android:textColor="@color/colorGary"
+                    android:textSize="@dimen/sp16" />
+
+                <TextView
+                    android:id="@+id/tv_tag_num"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/paddingM"
+                    android:text="0.0.0.7"
+                    android:textSize="@dimen/sp16" />
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/iv_icon1"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/link"/>
+                <TextView
+                    android:id="@+id/tv_link_tip"
+                    android:layout_toRightOf="@+id/iv_icon1"
+                    android:layout_marginLeft="@dimen/dp5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="@string/network_link"/>
+                <TextView
+                    android:id="@+id/tv_link"
+                    android:layout_toRightOf="@+id/tv_link_tip"
+                    android:layout_marginLeft="@dimen/dp5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""/>
+                <TextView
+                    android:id="@+id/tv_state"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_width="40dp"
+                    android:layout_height="25dp"
+                    android:layout_marginRight="@dimen/dp10"
+                    android:background="@drawable/normal"
+                    android:gravity="center"
+                    android:textColor="@color/colorWhite"
+                    android:text="正常"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+

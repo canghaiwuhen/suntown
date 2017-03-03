@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/title_bar_rl"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@color/colorBlackBg">
+
+        <ImageButton
+            android:id="@+id/return_btn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="@dimen/dp_10"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/arrow_l" />
+
+        <TextView
+            android:id="@+id/number_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/return_btn"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:visibility="gone"
+            />
+
+        <Button
+            android:id="@+id/pick_picture_send_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/send_picture_btn_bg"
+            android:text="发送"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_16"/>
+</RelativeLayout>

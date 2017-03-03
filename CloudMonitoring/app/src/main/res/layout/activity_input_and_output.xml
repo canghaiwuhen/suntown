@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/ll_main"
-    android:background="@color/colorBlackBg">
+    android:background="@color/colorBlackBg"
+    android:fitsSystemWindows="true">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp">

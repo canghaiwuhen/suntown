@@ -1,62 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.suntown.widget.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_margin="@dimen/paddingM"
-    android:id="@+id/swipeLayout"
-    android:layout_height="80dp">
-    <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bj_07"
+    android:orientation="vertical"
+    android:padding="@dimen/dp10">
 
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-    <TextView
-        android:id="@+id/tv_swipe_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="删除"
-        android:textSize="@dimen/padding"
-        android:textColor="#fff"
-        android:gravity="center"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:background="#F10"/>
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/ll_main"
+    <RelativeLayout
+        android:id="@+id/rl_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <RelativeLayout
-            android:id="@+id/rl_main"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/paddingM"
-            android:layout_marginRight="@dimen/paddingM">
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/textSize"
-                android:textColor="#7A7A7A"
-                android:text=""/>
-            <TextView
-                android:id="@+id/tv_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:textSize="@dimen/textSize"
-                android:textColor="#7A7A7A"
-                android:text=""/>
-        </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/paddingM">
+
         <TextView
-            android:id="@+id/tv_address"
-            android:layout_marginLeft="@dimen/paddingM"
-            android:layout_marginRight="@dimen/paddingM"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/paddingS"
-            android:textSize="@dimen/textSize"
+            android:text="陈XX"
             android:textColor="@color/colorBlack"
-            android:text=""/>
+            android:textSize="@dimen/textSize" />
+
+        <TextView
+            android:id="@+id/tv_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="15994299518"
+            android:textColor="#7A7A7A"
+            android:textSize="@dimen/textSize" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_default"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/paddingM"
+        android:text="(默认收货地址)"
+        android:textColor="@color/colorYello" />
+
+    <TextView
+        android:id="@+id/tv_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/paddingM"
+        android:layout_marginRight="@dimen/paddingM"
+        android:layout_marginTop="@dimen/dp10"
+        android:text="浙江省杭州市西湖区文三路五联东苑166   205"
+        android:textColor="@color/colorGary"
+        android:textSize="@dimen/textSize" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/dp10"
+        android:background="@color/colorLine" />
+
+    <LinearLayout
+        android:id="@+id/ll_main_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp10">
+
+        <LinearLayout
+            android:id="@+id/ll_check"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cb_check"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:text=""
+                android:button="@null"
+                android:background="@drawable/checkbox"/>
+            <!--style="@style/MyCheckBox"-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp5"
+                android:text="设为默认" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/ll_edit"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/ma_edit" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="编辑" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_delete"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp10"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/ma_delete"
+                    android:id="@+id/imageView2" />
+
+                <TextView
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="删除" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-</com.suntown.widget.SwipeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="@dimen/dp10"
+        android:background="@color/colorLine" />
+</LinearLayout>

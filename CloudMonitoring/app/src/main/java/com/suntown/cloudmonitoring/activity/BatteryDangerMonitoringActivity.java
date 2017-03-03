@@ -46,7 +46,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class BatteryDangerMonitoringActivity extends Activity {
+public class BatteryDangerMonitoringActivity extends BaseActivity {
     private static final int DURATION = 2000;
     private static final String TAG = "BatteryDangerMonitoringActivity";
 

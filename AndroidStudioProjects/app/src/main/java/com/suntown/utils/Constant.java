@@ -6,7 +6,9 @@ package com.suntown.utils;
  */
 public class Constant {
     public static final String HOST="http://www.smartesl.com.cn/axis2/services/sunteslwebservice/";
-    public static final String BASE_HOST="http://www.smartesl.com.cn/axis2/services/SUNTOKWEBSERVICE/";
+//    public static final String BASE_HOST="http://www.smartesl.com.cn/axis2/services/SUNTOKWEBSERVICE/";
+    public static final String BASE_HOST="http://192.168.0.132:8082/axis2/services/SUNTOKWEBSERVICE/";
+//    public static final String HOST="http://192.168.0.132:8082/axis2/services/sunteslwebservice/";
     public static final String QUERY_HOST="http://www.suntowngis.com:8080/axis2/services/sunteslwebservice/";
     //获取alipay信息
     public static final String TEST_HOST="http://www.iesl.com.cn/axis2/services/sunteslwebservice/";
@@ -36,6 +38,23 @@ public class Constant {
     public static final String SEX = "sex";
     public static final String IS_OFF = "is_off";
     public static final String GUIDED = "guided";
+    public static final String RECORD_BEAN = "recordBean";
+    public static final String AVATAR = "AVATAR";
+    public static final String PUSH_FM_NUM = "push_fm_num";
+    public static final String ARG0 = "arg0";
+    public static final String ARG1 = "arg1";
+    public static final String ARG2 = "arg2";
+    public static final String ARG3 = "arg3";
+    public static final String ARG4 = "arg4";
+    public static final String ARG5 = "arg5";
+    public static final String FLAG = "flag";
+    public static final String TINTIP = "tinyip";
+    public static final String INT = "int";
+    public static final String GNAME = "gname";
+    public static final String STARTINDEX = "startIndex";
+    public static final String LENGTH = "length";
+    public static final String TYPE = "type";
+    public static final String KID = "kid";
     public static String SERIAL_NUM ="serial_num";
 
     //type

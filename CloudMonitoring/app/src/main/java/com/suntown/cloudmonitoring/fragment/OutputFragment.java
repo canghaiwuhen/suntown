@@ -18,15 +18,12 @@ import android.widget.TextView;
 import com.suntown.cloudmonitoring.R;
 import com.suntown.cloudmonitoring.activity.CreamaActivity;
 import com.suntown.cloudmonitoring.activity.InputAndOutputActivity;
-import com.suntown.cloudmonitoring.activity.InputCheckActivity;
 import com.suntown.cloudmonitoring.activity.OutputCheckActivity;
 import com.suntown.cloudmonitoring.adapter.NoteAdapter;
-import com.suntown.cloudmonitoring.adapter.OddNumAdapter;
 import com.suntown.cloudmonitoring.adapter.OutNumAdapter;
 import com.suntown.cloudmonitoring.bean.InOutBean;
+import com.suntown.cloudmonitoring.bean.InputBean;
 import com.suntown.cloudmonitoring.bean.Item2;
-import com.suntown.cloudmonitoring.bean.ShopXmlBean;
-import com.suntown.cloudmonitoring.bean.inputBean;
 import com.suntown.cloudmonitoring.utils.Constant;
 import com.suntown.cloudmonitoring.utils.SPUtils;
 import com.suntown.cloudmonitoring.utils.Utils;
@@ -57,7 +54,7 @@ public class OutputFragment extends Fragment {
     private static final int SCANNIN_GREQUEST_CODE = 1;
     private static final String TAG = "OutputFragment";
     private View inflate;
-    public List<inputBean> inputBeanList = new ArrayList<>();
+    public List<InputBean> inputBeanList = new ArrayList<>();
     public List<String> stringList;
     private List<InOutBean> inOutBelist = new ArrayList<>();
     private NoteAdapter adapter;
@@ -91,7 +88,7 @@ public class OutputFragment extends Fragment {
                     llMain.setVisibility(View.VISIBLE);
                     llNormal.setVisibility(View.GONE);
                     tvNumTitle.setText("出库单号:");
-                    inputBeanList = (List<inputBean>) msg.obj;
+                    inputBeanList = (List<InputBean>) msg.obj;
                     Log.i(TAG, "updateList:" + inputBeanList.toString());
                     adapter.notifyDataSetChanged();
                     break;
@@ -99,10 +96,11 @@ public class OutputFragment extends Fragment {
                     stringList.add(oddNum);
                     //TODO 保存数据库  并加入到集合
                     try {
-                        for (inputBean inputBean : inputBeanList) {
+                        for (InputBean inputBean : inputBeanList) {
                             InOutBean inOutBean = new InOutBean(oddNum,inputBean.Gname,inputBean.Barcode,
                                     2,inputBean.num,inputBean.boxNum,inputBean.Date,Sid,userId);
                             db.save(inOutBean);
+                            Log.i(TAG,"保存数据库成功");
                             inOutBelist.add(inOutBean);
                         }
                         SPUtils.put(getActivity(),Constant.OUT_NUM,"");
@@ -187,7 +185,7 @@ public class OutputFragment extends Fragment {
 
         //点击删除条目
         adapter.SetOnItemClickCallBack(position -> {
-            inputBean inputBean = inputBeanList.get(position);
+            InputBean inputBean = inputBeanList.get(position);
             inputBeanList.remove(position);
                 scanner.remove(inputBean.Barcode);
                 adapter.notifyDataSetChanged();
@@ -211,14 +209,14 @@ public class OutputFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //TODO 数据库取出数据
+        inOutBelist = queryDataBase();
         oddNum = SPUtils.getString(getActivity(),Constant.OUT_NUM);
         if ("".equals(oddNum)){
             getNum();
         }else{
             tvNum.setText(oddNum);
         }
-        //TODO 数据库取出数据
-        inOutBelist = queryDataBase();
         if (null != inOutBelist && 0 <inOutBelist.size()) {
             Log.i(TAG,"inOutBeanList-"+inOutBelist.toString());
             for (InOutBean inOutBean : inOutBelist) {
@@ -290,7 +288,7 @@ public class OutputFragment extends Fragment {
                         if (null!=(gName) && null!=barcode) {
                             String time = Utils.Time();
                             Log.i(TAG, "barcode:" + barcode + ",+gName:" + gName + ",time:" + time);
-                            inputBean bean = new inputBean(barcode, gName, "1", "1", time);
+                            InputBean bean = new InputBean(barcode, gName, "2", "1", time);
                             if (!inputBeanList.contains(bean)) {
                                 inputBeanList.add(bean);
                             }

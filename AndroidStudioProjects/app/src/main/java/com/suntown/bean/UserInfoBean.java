@@ -8,86 +8,47 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/8/12.
  */
-public class UserInfoBean {
+public class UserInfoBean implements Parcelable {
 
     /**
-     * WIFIID : Albert
-     * ROWS : 3
-     * RECORD : [{"MEMID":"128","TEL":"13355789329","WIFIID":"Albert","NICKNAME":"ren"},{"MEMID":"1070","TEL":"18037106850","WIFIID":"Albert","NICKNAME":"suger"},{"MEMID":"1352","TEL":"15994299518","WIFIID":"Albert","NICKNAME":"panda"}]
+     * ROWS : 2
+     * RECORD : [{"MEMID":"128","NAME":"13355789329","LOGINNAME":"","TEL":"13355789329","ADDRESS":"","NICKNAME":"ren","PUSHID":"13065ffa4e0114c01d2","AVATAR":"www.suntowngis.com:8080/tempimg/avatar/128.jpg"},{"MEMID":"1431","NAME":"朱小刀","LOGINNAME":"","TEL":"15092857577","ADDRESS":"","NICKNAME":"朱小刀","PUSHID":"191e35f7e04c7bb8035","AVATAR":"www.smartesl.com.cn/tempimg/avatar/1431.jpg"}]
+     * MEMID : 1070
      */
 
-    private String WIFIID;
-    private int ROWS;
-    /**
-     * MEMID : 128
-     * TEL : 13355789329
-     * WIFIID : Albert
-     * NICKNAME : ren
-     */
+    public int ROWS;
+    public String MEMID;
+    public List<RECORDBean> RECORD;
 
-    private List<RECORDBean> RECORD;
-
-    public String getWIFIID() {
-        return WIFIID;
-    }
-
-    public void setWIFIID(String WIFIID) {
-        this.WIFIID = WIFIID;
-    }
-
-    public int getROWS() {
-        return ROWS;
-    }
-
-    public void setROWS(int ROWS) {
-        this.ROWS = ROWS;
-    }
-
-    public List<RECORDBean> getRECORD() {
-        return RECORD;
-    }
-
-    public void setRECORD(List<RECORDBean> RECORD) {
-        this.RECORD = RECORD;
+    @Override
+    public String toString() {
+        return "UserInfoBean{" +
+                "ROWS=" + ROWS +
+                ", MEMID='" + MEMID + '\'' +
+                ", RECORD=" + RECORD +
+                '}';
     }
 
     public static class RECORDBean implements Parcelable {
-        private String MEMID;
-        private String TEL;
-        private String WIFIID;
-        private String NICKNAME;
+        /**
+         * MEMID : 128
+         * NAME : 13355789329
+         * LOGINNAME : 
+         * TEL : 13355789329
+         * ADDRESS : 
+         * NICKNAME : ren
+         * PUSHID : 13065ffa4e0114c01d2
+         * AVATAR : www.suntowngis.com:8080/tempimg/avatar/128.jpg
+         */
 
-        public String getMEMID() {
-            return MEMID;
-        }
-
-        public void setMEMID(String MEMID) {
-            this.MEMID = MEMID;
-        }
-
-        public String getTEL() {
-            return TEL;
-        }
-
-        public void setTEL(String TEL) {
-            this.TEL = TEL;
-        }
-
-        public String getWIFIID() {
-            return WIFIID;
-        }
-
-        public void setWIFIID(String WIFIID) {
-            this.WIFIID = WIFIID;
-        }
-
-        public String getNICKNAME() {
-            return NICKNAME;
-        }
-
-        public void setNICKNAME(String NICKNAME) {
-            this.NICKNAME = NICKNAME;
-        }
+        public String MEMID;
+        public String NAME;
+        public String LOGINNAME;
+        public String TEL;
+        public String ADDRESS;
+        public String NICKNAME;
+        public String PUSHID;
+        public String AVATAR;
 
         @Override
         public int describeContents() {
@@ -97,9 +58,13 @@ public class UserInfoBean {
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(this.MEMID);
+            dest.writeString(this.NAME);
+            dest.writeString(this.LOGINNAME);
             dest.writeString(this.TEL);
-            dest.writeString(this.WIFIID);
+            dest.writeString(this.ADDRESS);
             dest.writeString(this.NICKNAME);
+            dest.writeString(this.PUSHID);
+            dest.writeString(this.AVATAR);
         }
 
         public RECORDBean() {
@@ -107,9 +72,13 @@ public class UserInfoBean {
 
         protected RECORDBean(Parcel in) {
             this.MEMID = in.readString();
+            this.NAME = in.readString();
+            this.LOGINNAME = in.readString();
             this.TEL = in.readString();
-            this.WIFIID = in.readString();
+            this.ADDRESS = in.readString();
             this.NICKNAME = in.readString();
+            this.PUSHID = in.readString();
+            this.AVATAR = in.readString();
         }
 
         public static final Parcelable.Creator<RECORDBean> CREATOR = new Parcelable.Creator<RECORDBean>() {
@@ -128,10 +97,47 @@ public class UserInfoBean {
         public String toString() {
             return "RECORDBean{" +
                     "MEMID='" + MEMID + '\'' +
+                    ", NAME='" + NAME + '\'' +
+                    ", LOGINNAME='" + LOGINNAME + '\'' +
                     ", TEL='" + TEL + '\'' +
-                    ", WIFIID='" + WIFIID + '\'' +
+                    ", ADDRESS='" + ADDRESS + '\'' +
                     ", NICKNAME='" + NICKNAME + '\'' +
+                    ", PUSHID='" + PUSHID + '\'' +
+                    ", AVATAR='" + AVATAR + '\'' +
                     '}';
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.ROWS);
+        dest.writeString(this.MEMID);
+        dest.writeTypedList(this.RECORD);
+    }
+
+    public UserInfoBean() {
+    }
+
+    protected UserInfoBean(Parcel in) {
+        this.ROWS = in.readInt();
+        this.MEMID = in.readString();
+        this.RECORD = in.createTypedArrayList(RECORDBean.CREATOR);
+    }
+
+    public static final Parcelable.Creator<UserInfoBean> CREATOR = new Parcelable.Creator<UserInfoBean>() {
+        @Override
+        public UserInfoBean createFromParcel(Parcel source) {
+            return new UserInfoBean(source);
+        }
+
+        @Override
+        public UserInfoBean[] newArray(int size) {
+            return new UserInfoBean[size];
+        }
+    };
 }

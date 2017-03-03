@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.suntown.cloudmonitoring.R;
 import com.suntown.cloudmonitoring.api.ApiClient;
@@ -28,6 +29,8 @@ import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.api.BasicCallback;
 
 public class LoginActivity extends BaseActivity {
 
@@ -53,6 +56,7 @@ public class LoginActivity extends BaseActivity {
     public void btn_confirm_login(View view) {
         String userName = etUsername.getText().toString().trim();
         String passWord = etPassword.getText().toString().trim();
+        loginJM(userName);
         if (userName.equals("") || passWord.equals("")) {
             Utils.showToast(LoginActivity.this, "账号或密码不能为空");
             return;
@@ -87,9 +91,43 @@ public class LoginActivity extends BaseActivity {
             }
         }, throwable -> {
             dialog.dismiss();
+            Log.i(TAG,"throwable:"+throwable);
             Utils.showToast(this, "连接服务器失败，请检查网络!");
         });
     }
+
+    private void loginJM(String userName) {
+        JMessageClient.login(userName, Constant.JMPSW, new BasicCallback() {
+            @Override
+            public void gotResult(int responseCode, String LoginDesc) {
+                if (responseCode == 0) {
+                    Log.i(TAG, "JMessageClient.login" + ", responseCode = " + responseCode + " ; LoginDesc = " + LoginDesc);
+                    Log.i(TAG, "JM登录成功");
+                } else {
+                    Log.i(TAG, "JMessageClient.login" + ", responseCode = " + responseCode + " ; LoginDesc = " + LoginDesc);
+                    Log.i(TAG, "JM登录失败");
+                    registerJM(userName);
+                }
+            }
+        });
+    }
+
+    private void registerJM(String userName) {
+        JMessageClient.register(userName, Constant.JMPSW, new BasicCallback() {
+            @Override
+            public void gotResult(int responseCode, String registerDesc) {
+                if (responseCode == 0) {
+                    Log.i(TAG,  ", JM注册失败 ");
+                    Log.i(TAG, "JMessageClient.register " + ", responseCode = " + responseCode + " ; registerDesc = " + registerDesc);
+                } else {
+                    Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "JM注册失败 ");
+                    Log.i(TAG, "JMessageClient.register " + ", responseCode = " + responseCode + " ; registerDesc = " + registerDesc);
+                }
+            }
+        });
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if(event.getAction() == MotionEvent.ACTION_DOWN){

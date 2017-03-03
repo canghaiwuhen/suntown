@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBlackBg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+    <include layout="@layout/title_item"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include
+            android:id="@+id/ll_no_data"
+            layout="@layout/normal_item"
+            android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <ExpandableListView
+                android:id="@+id/elv_list"
+                android:cacheColorHint="#000000"
+                android:groupIndicator="@null"
+                android:layout_width="match_parent"
+                android:layout_margin="@dimen/dp_5"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_40"
+                android:layout_margin="@dimen/dp_10"
+                android:background="@drawable/login_confirm_selector"
+                android:text="确认分配"
+                android:textColor="@color/colorWhite" />
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

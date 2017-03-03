@@ -47,7 +47,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class HistortyActivity extends Activity {
+public class HistortyActivity extends BaseActivity {
     private static final String TAG = "HistortyActivity";
     @BindView(R.id.tv_search)
     TextView tvSearch;
@@ -228,32 +228,32 @@ public class HistortyActivity extends Activity {
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,oneDaythList);
-                }else if (null!=twoDaythList&&0!=twoDaythList.size()){
+                } if (null!=twoDaythList&&0!=twoDaythList.size()){
                     Date dates=new Date(twoDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,twoDaythList);
-                }else if (null!=threeDaythList&&0!=twoDaythList.size()){
+                } if (null!=threeDaythList&&0!=twoDaythList.size()){
                     Date dates=new Date(threeDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,threeDaythList);
-                }else if (null!=fourDaythList&&0!=fourDaythList.size()){
+                } if (null!=fourDaythList&&0!=fourDaythList.size()){
                     Date dates=new Date(fourDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,fourDaythList);
-                }else if (null!=fiveDaythList&&0!=fiveDaythList.size()){
+                }if (null!=fiveDaythList&&0!=fiveDaythList.size()){
                     Date dates=new Date(fiveDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,fiveDaythList);
-                }else if (null!=sixDaythList&&0!=sixDaythList.size()){
+                }if (null!=sixDaythList&&0!=sixDaythList.size()){
                     Date dates=new Date(sixDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,sixDaythList);
-                }else if (null!=sevenDaythList&&0!=sevenDaythList.size()){
+                }if (null!=sevenDaythList&&0!=sevenDaythList.size()){
                     Date dates=new Date(sevenDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);

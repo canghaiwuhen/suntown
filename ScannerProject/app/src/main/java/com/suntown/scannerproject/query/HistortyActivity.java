@@ -126,12 +126,10 @@ public class HistortyActivity extends BaseActivity {
         // 查询所有有数据
         try {
             Log.i(TAG,"sid-"+sid+",serverip-"+serverIP+",userid-"+userid);
+//            List<Person> all = db.selector(Person.class).findAll();
+//                Log.i(TAG,"all-"+all.toString());
             List<Person> personList = db.selector(Person.class).where("sid", "=", sid).and("serverip", "=", serverIP).
                     and("userid", "=", userid).orderBy("id").findAll();
-//            List<Person> personList = db.selector(Person.class).where("sid", "=", sid).orderBy("id").findAll();
-//            personList-[Person{id=1, time=1478854021252, sid='571002002', barcode='6908180138985',
-//                    name='null', gname='大湖苹果汁255毫升', ip='192.57.1.236', userid='suntown',
-//                    serverip='http://www.smartesl.com.cn'}]
             if (null==personList) {
                 Utils.showToast(this, "暂无信息");
             } else {
@@ -163,22 +161,23 @@ public class HistortyActivity extends BaseActivity {
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,oneDaythList);
-                }else if (null!=twoDaythList&&0!=twoDaythList.size()){
+                }
+                if (null!=twoDaythList&&0!=twoDaythList.size()){
                     Date dates=new Date(twoDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,twoDaythList);
-                }else if (null!=threeDaythList&&0!=twoDaythList.size()){
+                } if (null!=threeDaythList&&0!=threeDaythList.size()){
                     Date dates=new Date(threeDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,threeDaythList);
-                }else if (null!=fourDaythList&&0!=fourDaythList.size()){
+                } if (null!=fourDaythList&&0!=fourDaythList.size()){
                     Date dates=new Date(fourDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,fourDaythList);
-                }else if (null!=fiveDaythList&&0!=fiveDaythList.size()){
+                } if (null!=fiveDaythList&&0!=fiveDaythList.size()){
                     Date dates=new Date(fiveDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
@@ -188,7 +187,7 @@ public class HistortyActivity extends BaseActivity {
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
                     listMap.put(format,sixDaythList);
-                }else if (null!=sevenDaythList&&0!=sevenDaythList.size()){
+                } if (null!=sevenDaythList&&0!=sevenDaythList.size()){
                     Date dates=new Date(sevenDaythList.get(0).time);
                     String format = dateFormater.format(dates);
                     daythlist.add(format);
@@ -218,7 +217,7 @@ public class HistortyActivity extends BaseActivity {
                     db.delete(Person.class);
                     Log.i(TAG,"删除成功");
                     tvSearch.setVisibility(View.GONE);
-                    Utils.showToast(HistortyActivity.this,"数据库已清空");
+                    Utils.showToast(HistortyActivity.this,"数据已清空");
                 } catch (DbException e) {
                     e.printStackTrace();
                     Log.i(TAG,"删除失败");

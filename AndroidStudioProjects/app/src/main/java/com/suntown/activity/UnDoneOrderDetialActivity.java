@@ -1,8 +1,6 @@
 package com.suntown.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -21,7 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class UnDoneOrderDetialActivity extends Activity {
+public class UnDoneOrderDetialActivity extends BaseActivity {
 
     @BindView(R.id.iv_back)
     ImageView ivBack;
@@ -41,6 +39,8 @@ public class UnDoneOrderDetialActivity extends Activity {
     TextView tvConfirm;
     @BindView(R.id.tv_tag_name)
     TextView tvTagName;
+    @BindView(R.id.tv_num)
+    TextView tvNum;
     private WaitConfirmBean.RECORDBean recordBean;
     private WaitConfirmBean.RECORDBean.ORDERINFOBean orderinfoBean;
 
@@ -60,21 +60,22 @@ public class UnDoneOrderDetialActivity extends Activity {
 //        String name = address[0];
 ////        String number = address[1];
 //        String addres = address[2];
-        String name =address.length>0?address[0]:"未选择";
+        String name = address.length > 0 ? address[0] : "未选择";
 //        String number = address[1];
-        String addres = address.length>2?address[2]:"未选择";
+        String addres = address.length > 2 ? address[2] : "未选择";
         tvName.setText(name);
         tvAddress.setText(addres);
         tvOrderNumber.setText(recordBean.getFORMNO());
         tvTagName.setText(orderinfoBean.getTINYIP());
 //        Picasso.with(context).load(UsageExampleListViewAdapter.eatFoodyImages[0]).placeholder(R.mipmap.ic_launcher).error(R.mipmap.future_studio_launcher).noFade().into(imageViewFade);
 //        ivGoodsPhoto.setImageResource(orderinfoBean.getIMGPATH());
-        Picasso.with(this).load(Constant.formatImage(orderinfoBean.getIMGPATH())).error(R.drawable.user).into(ivGoodsPhoto);
+        Picasso.with(this).load(Constant.formatImage(orderinfoBean.getIMGPATH())).error(R.drawable.no_photo).into(ivGoodsPhoto);
         tvGoodsName.setText(orderinfoBean.getGNAME());
-        tvPrice.setText("￥"+ recordBean.getMONEY());
+        tvPrice.setText("￥" + recordBean.getMONEY());
+        tvNum.setText("×"+orderinfoBean.getNUM());
     }
 
-    @OnClick({R.id.iv_back, R.id.tv_confirm,R.id.iv_goods_photo})
+    @OnClick({R.id.iv_back, R.id.tv_confirm, R.id.iv_goods_photo})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
@@ -84,8 +85,8 @@ public class UnDoneOrderDetialActivity extends Activity {
                 showDialog();
                 break;
             case R.id.iv_goods_photo:
-                Intent inten = new Intent(UnDoneOrderDetialActivity.this,PicActivity.class);
-                inten.putExtra("picName",Constant.formatImage(orderinfoBean.getIMGPATH()));
+                Intent inten = new Intent(UnDoneOrderDetialActivity.this, PicActivity.class);
+                inten.putExtra("picName", Constant.formatImage(orderinfoBean.getIMGPATH()));
                 startActivity(inten);
                 break;
         }
@@ -94,14 +95,14 @@ public class UnDoneOrderDetialActivity extends Activity {
     private void showDialog() {
         if (Utils.isFastClick()) {
 //            Utils.showToast(LoginActivity.this,"点击太过频繁");
-            return ;
+            return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("请确认收货");
-        builder.setNegativeButton("取消",null);
+        builder.setNegativeButton("取消", null);
         builder.setPositiveButton("确认", (dialog, which) -> {
-                dialog.dismiss();
-                //TODO 向服务器发起请求
+            dialog.dismiss();
+            //TODO 向服务器发起请求
         });
     }
 

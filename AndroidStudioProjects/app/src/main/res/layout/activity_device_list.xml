@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <LinearLayout
         android:id="@+id/ll_hide"
@@ -24,49 +25,77 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        android:background="@color/colorSkyBlue">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:padding="15dp"
+            android:padding="@dimen/padding"
+            android:textColor="@color/colorWhite"
             android:textSize="@dimen/textSizeX"
             android:text="设备设置"/>
         <ImageView
             android:id="@+id/iv_back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginLeft="@dimen/padding"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:padding="@dimen/paddingM"
             android:layout_centerVertical="true"
-            android:src="@drawable/arrow_back"/>
+            android:src="@drawable/back_01"
+            android:background="@drawable/back_blue_selector"/>
         <View
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorGary"
+            android:background="@color/colorLine"
             android:layout_height="1dp"/>
-        <TextView
-            android:id="@+id/tv_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="编辑"
-            android:textColor="@color/colorRed"
-            android:textSize="@dimen/textSize"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="@dimen/padding"
-            android:layout_centerVertical="true" />
+        <!--<TextView-->
+            <!--android:id="@+id/tv_setting"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="编辑"-->
+            <!--android:textColor="@color/colorRed"-->
+            <!--android:textSize="@dimen/textSize"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_marginRight="@dimen/padding"-->
+            <!--android:layout_centerVertical="true" />-->
     </RelativeLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipe_refresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        <ListView
-            android:id="@+id/lv_goods"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-        </android.support.v4.widget.SwipeRefreshLayout>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="vertical">
+          <LinearLayout
+              android:id="@+id/ll_add_device"
+              android:layout_width="match_parent"
+              android:layout_height="70dp"
+              android:orientation="horizontal"
+              android:layout_margin="@dimen/dp20"
+              android:background="@drawable/bj_07"
+              android:gravity="center">
+              <ImageView
+                  android:layout_width="40dp"
+                  android:layout_height="40dp"
+                  android:src="@drawable/device_add"/>
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="新增设备"
+                  android:textSize="@dimen/sp20"
+                  android:textColor="@color/colorSkyBlue"/>
+          </LinearLayout>
+          <android.support.v4.widget.SwipeRefreshLayout
+              android:id="@+id/swipe_refresh"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+              <!--<ListView-->
+              <android.support.v7.widget.RecyclerView
+                  android:id="@+id/lv_goods"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"/>
+          </android.support.v4.widget.SwipeRefreshLayout>
+      </LinearLayout>
         <ProgressBar
             android:id="@+id/pb_loading"
             android:layout_width="wrap_content"

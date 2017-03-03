@@ -5,142 +5,268 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.suntown.activity.DeviceListDatilActivity">
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        android:fitsSystemWindows="true"
+        android:background="@color/colorSkyBlue">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:padding="15dp"
+            android:textColor="@color/colorWhite"
             android:textSize="@dimen/textSizeX"
             android:text="标签详情"/>
+        <TextView
+            android:id="@+id/tv_change_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/dp10"
+            android:textColor="@color/colorRed"
+            android:text="更换地址"/>
         <View
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorGary"
+            android:background="@color/colorLine"
             android:layout_height="1dp"/>
         <ImageView
             android:id="@+id/iv_back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginLeft="@dimen/padding"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:padding="@dimen/paddingM"
             android:layout_centerVertical="true"
-            android:src="@drawable/arrow_back"/>
+            android:src="@drawable/back_01"
+            android:background="@drawable/back_blue_selector"/>
     </RelativeLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/item_padding"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <TextView
-            style="@style/TextViewItem"
-            android:textColor="@color/colorGary"
-            android:layout_marginLeft="@dimen/padding"
-            android:text="标签IP:"/>
-        <TextView
-            style="@style/TextViewItem"
-            android:id="@+id/tv_tag_ip"
-            android:textColor="@color/colorRed"
-            android:layout_toLeftOf="@+id/iv_arrow"
-            android:text=""/>
-    </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGary"
-        android:layout_marginLeft="@dimen/padding"
-        android:layout_alignParentBottom="true" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/item_padding"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <TextView
-            style="@style/TextViewItem"
-            android:textColor="@color/colorGary"
-            android:layout_marginLeft="@dimen/padding"
-            android:text="标签电量:"/>
-        <TextView
-            style="@style/TextViewItem"
-            android:id="@+id/tv_tag_battery"
-            android:textColor="@color/colorBlack"
-            android:layout_toLeftOf="@+id/iv_arrow"
-            android:text=""/>
-    </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGary"
-        android:layout_marginLeft="@dimen/padding"
-        android:layout_alignParentBottom="true" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/item_padding"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <TextView
-            style="@style/TextViewItem"
-            android:textColor="@color/colorGary"
-            android:layout_marginLeft="@dimen/padding"
-            android:text="标签版本:"/>
-        <TextView
-            style="@style/TextViewItem"
-            android:id="@+id/tv_tag_version"
-            android:textColor="@color/colorBlack"
-            android:layout_toLeftOf="@+id/iv_arrow"
-            android:text=""/>
-    </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGary"
-        android:layout_marginLeft="@dimen/padding"
-        android:layout_alignParentBottom="true" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/item_padding"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <TextView
-            style="@style/TextViewItem"
-            android:textColor="@color/colorGary"
-            android:layout_marginLeft="@dimen/padding"
-            android:text="绑定商品:"/>
-        <TextView
-            style="@style/TextViewItem"
-            android:id="@+id/tv_band_goods"
-            android:textColor="@color/colorBlack"
-            android:layout_toLeftOf="@+id/iv_arrow"
-            android:text=""/>
-    </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGary"
-        android:layout_marginLeft="@dimen/padding"
-        android:layout_alignParentBottom="true" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/item_padding"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <TextView
-            style="@style/TextViewItem"
-            android:textColor="@color/colorGary"
-            android:layout_marginLeft="@dimen/padding"
-            android:text="商品价格:"/>
-        <TextView
-            style="@style/TextViewItem"
-            android:id="@+id/tv_goods_price"
-            android:textColor="@color/colorRed"
-            android:layout_toLeftOf="@+id/iv_arrow"
-            android:text=""/>
-    </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGary"
-        android:layout_marginLeft="@dimen/padding"
-        android:layout_alignParentBottom="true" />
+
+   <ScrollView
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           android:orientation="vertical">
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/item_padding"
+               android:gravity="center_vertical"
+               android:orientation="horizontal">
+               <TextView
+                   style="@style/TextViewItem"
+                   android:layout_marginLeft="@dimen/padding"
+                   android:text="标签IP:"/>
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_tag_ip"
+                   android:textColor="@color/colorRed"
+                   android:layout_toLeftOf="@+id/iv_arrow"/>
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"
+               android:layout_alignParentBottom="true" />
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:padding="@dimen/dp15"
+               android:orientation="horizontal">
+
+               <TextView
+                   style="@style/TextViewItem"
+                   android:text="标签备注:" />
+
+               <EditText
+                   android:id="@+id/et_nick_name"
+                   style="@style/TextViewItem"
+                   android:layout_width="match_parent"
+                   android:background="@null"
+                   android:hint=" 请输入备注"
+                   android:layout_toLeftOf="@+id/iv_arrow" />
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"
+               android:layout_alignParentBottom="true" />
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/dp50"
+               android:gravity="center_vertical"
+               android:orientation="horizontal">
+               <TextView
+                   style="@style/TextViewItem"
+                   android:layout_marginLeft="@dimen/padding"
+                   android:text="标签电量:"/>
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_tag_battery"
+                   android:textColor="@color/colorBlack"
+                   android:layout_toLeftOf="@+id/iv_arrow"/>
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"
+               android:layout_alignParentBottom="true" />
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/dp50"
+               android:gravity="center_vertical"
+               android:orientation="horizontal">
+               <TextView
+                   style="@style/TextViewItem"
+                   android:layout_marginLeft="@dimen/padding"
+                   android:text="标签版本:"/>
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_tag_version"
+                   android:textColor="@color/colorBlack"
+                   android:layout_toLeftOf="@+id/iv_arrow"
+                   android:text=""/>
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"
+               android:layout_alignParentBottom="true" />
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:padding="@dimen/dp15"
+               android:orientation="horizontal">
+
+               <TextView
+                   style="@style/TextViewItem"
+                   android:text="绑定商品:"
+                   android:id="@+id/textView5" />
+
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_band_goods"
+                   android:textColor="@color/colorBlack"
+                   android:layout_toLeftOf="@+id/iv_arrow" />
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"
+               android:layout_alignParentBottom="true" />
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/dp50"
+               android:gravity="center_vertical"
+               android:orientation="horizontal">
+               <TextView
+                   style="@style/TextViewItem"
+                   android:layout_marginLeft="@dimen/padding"
+                   android:text="商品价格:"/>
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_goods_price"
+                   android:layout_toLeftOf="@+id/iv_arrow"
+                   android:text=""/>
+           </LinearLayout>
+
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"
+               android:layout_alignParentBottom="true" />
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:padding="@dimen/dp15"
+               android:gravity="center_vertical"
+               android:orientation="horizontal">
+               <TextView
+                   style="@style/TextViewItem"
+                   android:text="付款方式: "/>
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_pay"
+                   android:layout_toLeftOf="@+id/iv_arrow"
+                   android:text=""/>
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"/>
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/dp50"
+               android:gravity="center_vertical"
+               android:orientation="horizontal">
+               <TextView
+                   style="@style/TextViewItem"
+                   android:layout_marginLeft="@dimen/padding"
+                   android:text="收货人:"/>
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_receiver"
+                   android:layout_toLeftOf="@+id/iv_arrow"
+                   android:text=""/>
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"
+               android:layout_alignParentBottom="true" />
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/dp50"
+               android:gravity="center_vertical"
+               android:orientation="horizontal">
+               <TextView
+                   style="@style/TextViewItem"
+                   android:layout_marginLeft="@dimen/padding"
+                   android:text="电话号码:"/>
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_tel"
+                   android:layout_toLeftOf="@+id/iv_arrow"
+                   android:text=""/>
+           </LinearLayout>
+           <View
+               android:layout_width="match_parent"
+               android:layout_height="1dp"
+               android:background="@color/colorLine"
+               android:layout_marginLeft="@dimen/padding"/>
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:padding="@dimen/dp15"
+               android:orientation="horizontal">
+
+               <TextView
+                   style="@style/TextViewItem"
+                   android:text="绑定地址:"
+                   android:id="@+id/textView4" />
+
+               <TextView
+                   style="@style/TextViewItem"
+                   android:id="@+id/tv_address"
+                   android:layout_width="match_parent"
+                   android:layout_toLeftOf="@+id/iv_arrow" />
+           </LinearLayout>
+
+
+       </LinearLayout>
+   </ScrollView>
+
 </LinearLayout>

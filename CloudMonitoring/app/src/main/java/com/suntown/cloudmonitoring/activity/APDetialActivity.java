@@ -14,7 +14,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class APDetialActivity extends Activity {
+public class APDetialActivity extends BaseActivity {
 
     @BindView(R.id.apip)
     TextView apip;

@@ -141,7 +141,7 @@ public class PhoteInformationFragment extends Fragment implements View.OnClickLi
     private boolean mapTypeFlag = false;
     private boolean loginFlag = false;
     private boolean bindFlag = false;
-    private boolean sendFlag = false;;
+    private boolean sendFlag = false;
     private SendBean sendBean;
     private TextView textSend;
 
@@ -265,38 +265,39 @@ public class PhoteInformationFragment extends Fragment implements View.OnClickLi
                 public void onResponse(Call call, Response response) throws IOException {
                     String string = response.body().string();
                     Log.i(TAG, "string-" + string);
-                    ExceptionFlagBean exceptionFlagBean = new Gson().fromJson(string, ExceptionFlagBean.class);
-                    eslWarn = exceptionFlagBean.eslWarn;
-                    Log.i(TAG, "eslWarn-" + eslWarn.toString());
+                        ExceptionFlagBean exceptionFlagBean = new Gson().fromJson(string, ExceptionFlagBean.class);
+                        eslWarn = exceptionFlagBean.eslWarn;
+                        Log.i(TAG, "eslWarn-" + eslWarn.toString());
+
                     bindFlag = eslWarn.bindFlag;
                     loginFlag = eslWarn.loginFlag;
                     mapTypeFlag = eslWarn.mapTypeFlag;
                     taskFlag = eslWarn.taskFlag;
                     modelFlag = eslWarn.modelFlag;
                     sendFlag = eslWarn.sendFlag;
-                    if (bindFlag == true) {
+                    if (true == bindFlag) {
                         shelBean = new Gson().fromJson(string, ShelfBean.class);
                     }
-                    if (loginFlag == true) {
+                    if (true == loginFlag) {
                         //ap esl
                         apEslBean = new Gson().fromJson(string, ApEslBean.class);
                     }
-                    if (mapTypeFlag == true) {
+                    if (true == mapTypeFlag) {
                         maptypeBean = new Gson().fromJson(string, MaptypeBean.class);
 //                        int oriMaptype = maptypeBean.eslWarn.oriMaptype;
                         Log.i(TAG, "maptypeBean-" + maptypeBean.eslWarn.oriMaptype);
                     }
-                    if (taskFlag == true) {
+                    if (true == taskFlag) {
                         //eslUptTasks goods
                         goodsUpTaskBean = new Gson().fromJson(string, GoodsUpTaskBean.class);
 //                        Log.i(TAG, "apEslBean-" + goodsUpTaskBean.toString());
                     }
-                    if (modelFlag == true) {
+                    if (true == modelFlag  ) {
                         //eslUptTasks goods
                         modelFlagBean = new Gson().fromJson(string, ModelFlagBean.class);
 //                        Log.i(TAG, "apEslBean-" + modelFlagBean.toString());
                     }
-                    if (eslWarn.sendFlag == true) {
+                    if (true == eslWarn.sendFlag) {
                         //eslUptTasks goods
                         sendBean = new Gson().fromJson(string, SendBean.class);
 //                        Log.i(TAG, "apEslBean-" + sendBean.toString());

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.suntown.R;
+import com.suntown.bean.LoginBean;
 import com.suntown.bean.RegisterBean;
 import com.suntown.bean.SMSCode;
 import com.suntown.utils.Constant;
@@ -220,12 +221,14 @@ public class RegisterActivity extends BaseActivity {
                     } catch (XmlPullParserException e) {
                         e.printStackTrace();
                     }
-                    SMSCode smsCode = new Gson().fromJson(json, SMSCode.class);
-                    String result = smsCode.getRESULT();
+                    LoginBean loginBean = new Gson().fromJson(json, LoginBean.class);
+                    String result = loginBean.getRESULT();
                     if (result.equals("0")) {
                         Utils.showToast(RegisterActivity.this, "短信发送成功");
                     } else if (result.equals("1")) {
                         Utils.showToast(RegisterActivity.this, "号码已被注册");
+                    } else if (result.equals("2")) {
+                        Utils.showToast(RegisterActivity.this, "短信发送失败");
                     }
                 }
             });

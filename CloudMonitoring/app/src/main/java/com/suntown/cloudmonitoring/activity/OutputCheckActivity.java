@@ -2,7 +2,6 @@ package com.suntown.cloudmonitoring.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,9 +16,8 @@ import com.suntown.cloudmonitoring.adapter.NoteAdapter;
 import com.suntown.cloudmonitoring.base.BaseActivity;
 import com.suntown.cloudmonitoring.base.BaseApplication;
 import com.suntown.cloudmonitoring.bean.InOutBean;
+import com.suntown.cloudmonitoring.bean.InputBean;
 import com.suntown.cloudmonitoring.bean.Item2;
-import com.suntown.cloudmonitoring.bean.ShopXmlBean;
-import com.suntown.cloudmonitoring.bean.inputBean;
 import com.suntown.cloudmonitoring.utils.Constant;
 import com.suntown.cloudmonitoring.utils.SPUtils;
 import com.suntown.cloudmonitoring.utils.Utils;
@@ -55,7 +53,7 @@ public class OutputCheckActivity extends BaseActivity {
     TextView tvNum;
     @BindView(R.id.lv_item)
     ListView lvItem;
-    public List<inputBean> inputBeanList;
+    public List<InputBean> inputBeanList;
     @BindView(R.id.rl_title)
     RelativeLayout rlTitle;
     private NoteAdapter adapter;
@@ -102,7 +100,7 @@ public class OutputCheckActivity extends BaseActivity {
             String gname = inOutBean.gname;
             if (str.equals(orderNum)){
                 String barcode = inOutBean.barcode;
-                inputBean bean = new inputBean(barcode, gname, inOutBean.boxNum, inOutBean.goodsNum, inOutBean.puductDate);
+                InputBean bean = new InputBean(barcode, gname, inOutBean.boxNum, inOutBean.goodsNum, inOutBean.puductDate);
                 inputBeanList.add(bean);
                 scanner.add(barcode);
             }
@@ -112,24 +110,28 @@ public class OutputCheckActivity extends BaseActivity {
         tvNum.setText(str);
         lvItem.setAdapter(adapter);
         adapter.SetOnItemClickCallBack(position -> {
-                inputBean inputBean = inputBeanList.get(position);
-                String barcode = inputBean.Barcode;
-                InOutBean outBean = null;
-                try {
-//                    outBean = db.selector(InOutBean.class).where("barcode", "=", barcode).where("moudleName", "=", "2").
-//                            where("sid", "=", sid).where("userId", "=", userid).findFirst();
-//                    db.delete(outBean);
-                    List<InOutBean> moudleName = db.selector(InOutBean.class).where("moudleNme", "=", "2").findAll();
-                    for (InOutBean inOutBean : moudleName) {
-                        if (barcode.equals(inOutBean.barcode)) {
-                            db.delete(outBean);
-                        }
+            InputBean inputBean = inputBeanList.get(position);
+            String barcode = inputBean.Barcode;
+            try {
+                Log.i(TAG," barcode:"+barcode+" sid:"+sid+" userId:"+userId);
+                List<InOutBean> moudleName  = db.selector(InOutBean.class).where("barcode", "=", barcode).where("moudleName", "=", "2").
+                        where("sid", "=", sid).where("userId", "=", userId).findAll();
+//                    List<InOutBean> moudleName = db.selector(InOutBean.class).where("moudleNme", "=", "2").findAll();
+                for (InOutBean inOutBean : moudleName) {
+                    if (barcode.equals(inOutBean.barcode)) {
+                        db.delete(inOutBean);
                     }
-                } catch (DbException e) {
-                    e.printStackTrace();
                 }
-                inputBeanList.remove(position);
-                adapter.notifyDataSetChanged();
+            } catch (DbException e) {
+                e.printStackTrace();
+            }
+            inputBeanList.remove(position);
+            if (0 == inputBeanList.size() || null == inputBeanList) {
+                isClear=true;
+                rlTitle.setVisibility(View.GONE);
+                llNormal.setVisibility(View.VISIBLE);
+            }
+            adapter.notifyDataSetChanged();
         });
     }
 
@@ -162,7 +164,7 @@ public class OutputCheckActivity extends BaseActivity {
             case R.id.tv_commit:
                 //TODO 提交审核
                 if (inputBeanList.size()>0) {
-                    String xml = XmlUtils.List2Xml(inputBeanList, userId, str, sid);
+                    String xml = XmlUtils.ListXml(inputBeanList, userId, str, sid);
                     Log.i(TAG,"xml-"+xml);
                     commitInStore(xml);
                 }else{
@@ -187,16 +189,14 @@ public class OutputCheckActivity extends BaseActivity {
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
                     String resultStr = bundle.getString(Constant.RESULT_CODE);
-                    if (!isClear){
-                        if (!scanner.contains(resultStr)) {
-                            scanner.add(resultStr);
-                            if (!resultStr.contains(".")) {
-                                Log.i(TAG,"resultStr-"+resultStr);
-                                //TODO 查询服务器 商品详情
-                                getGoodsDatial(resultStr);
-                            } else {
-                                Utils.showToast(OutputCheckActivity.this, "请扫描商品条码");
-                            }
+                    if (!scanner.contains(resultStr)) {
+                        scanner.add(resultStr);
+                        if (!resultStr.contains(".")) {
+                            Log.i(TAG,"resultStr-"+resultStr);
+                            //TODO 查询服务器 商品详情
+                            getGoodsDatial(resultStr);
+                        } else {
+                            Utils.showToast(OutputCheckActivity.this, "请扫描商品条码");
                         }
                     }
                 }
@@ -236,6 +236,8 @@ public class OutputCheckActivity extends BaseActivity {
                             isClear=true;
                             inputBeanList.clear();
                             rlTitle.setVisibility(View.GONE);
+                            inputBeanList.clear();
+                            llNormal.setVisibility(View.VISIBLE);
                             adapter.notifyDataSetChanged();
                         });
                     }else {
@@ -282,7 +284,7 @@ public class OutputCheckActivity extends BaseActivity {
                         if (null!=(gName1) && null!=barcode) {
                             String time = Utils.Time();
                             Log.i(TAG, "barcode:" + barcode + ",+gName:" + gName1 + ",time:" + time);
-                            inputBean bean = new inputBean(barcode, gName1, "1", "1", time);
+                            InputBean bean = new InputBean(barcode, gName1, "2", "1", time);
                             if (!inputBeanList.contains(bean)) {
                                 inputBeanList.add(bean);
 //                                db.save(bean);

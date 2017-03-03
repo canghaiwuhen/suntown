@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,12 +25,10 @@ import com.suntown.scannerproject.R;
 import com.suntown.scannerproject.bean.Item2;
 import com.suntown.scannerproject.input.InputAndOutputActivity;
 import com.suntown.scannerproject.input.InputCheckActivity;
-import com.suntown.scannerproject.input.adapter.NoteAdapter;
+import com.suntown.scannerproject.input.adapter.Note1Adapter;
 import com.suntown.scannerproject.input.adapter.OddNumAdapter;
 import com.suntown.scannerproject.input.bean.InOutBean;
 import com.suntown.scannerproject.input.bean.InputBean;
-import com.suntown.scannerproject.netUtils.RxBus;
-import com.suntown.scannerproject.netUtils.RxManager;
 import com.suntown.scannerproject.utils.Constant;
 import com.suntown.scannerproject.utils.SPUtils;
 import com.suntown.scannerproject.utils.Utils;
@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -52,8 +51,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import rx.Observable;
-import rx.functions.Action1;
 
 /**
  * Created by Administrator on 2016/10/28.
@@ -64,7 +61,7 @@ public class InputFragment extends Fragment {
     private View inflate;
     private TextView tvNumTitle;
     private TextView tvNum;
-    private ListView lvItem;
+    private RecyclerView lvItem;
     private ListView lvOldItem;
     private LinearLayout llNormal;
     private LinearLayout llMain;
@@ -74,7 +71,7 @@ public class InputFragment extends Fragment {
     private String serverIP;
     private RelativeLayout rlTitle;
     private String userId;
-    private NoteAdapter adapter;
+    private Note1Adapter adapter;
     private OddNumAdapter oddAdapter;
     private DbManager db;
     public List<InputBean> inputBeanList = new ArrayList<>();
@@ -150,26 +147,12 @@ public class InputFragment extends Fragment {
         return inflate;
     }
 
-
-
-    //    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//
-//    }
-
     private void initUi() {
         inflate.findViewById(R.id.rl_main).setOnClickListener(view -> {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         });
-        adapter = new NoteAdapter(getActivity(), inputBeanList);
-        oddAdapter = new OddNumAdapter(getActivity(),stringList);
-        client = ((InputAndOutputActivity) getActivity()).client;
-        serverIP = ((InputAndOutputActivity) getActivity()).serverIP;
-        userId = ((InputAndOutputActivity) getActivity()).userid;
-        sid = SPUtils.getString(getActivity(), Constant.SID);
-        db = ((InputAndOutputActivity) getActivity()).db;
+
         //名称  单号
         llNormal = (LinearLayout) inflate.findViewById(R.id.ll_normal);
         llMain = (LinearLayout) inflate.findViewById(R.id.ll_main);
@@ -178,10 +161,22 @@ public class InputFragment extends Fragment {
         rlTitle = (RelativeLayout) inflate.findViewById(R.id.rl_title);
         inflate.findViewById(R.id.tv_delete).setVisibility(View.GONE);
         //扫描数据
-        lvItem = (ListView) inflate.findViewById(R.id.lv_item);
+        lvItem = (RecyclerView) inflate.findViewById(R.id.lv_item);
         //历史数据
         lvOldItem = (ListView) inflate.findViewById(R.id.lv_old_item);
+
+        adapter = new Note1Adapter(R.layout.input_item,inputBeanList);
+        lvItem.setHasFixedSize(true);
+        lvItem.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItem.setAdapter(adapter);
+        oddAdapter = new OddNumAdapter(getActivity(),stringList);
+        client = ((InputAndOutputActivity) getActivity()).client;
+        serverIP = ((InputAndOutputActivity) getActivity()).serverIP;
+        userId = ((InputAndOutputActivity) getActivity()).userid;
+        sid = SPUtils.getString(getActivity(), Constant.SID);
+        db = ((InputAndOutputActivity) getActivity()).db;
+
+
         //
         lvOldItem.setAdapter(oddAdapter);
         llNormal.setVisibility(View.VISIBLE);
@@ -358,7 +353,7 @@ public class InputFragment extends Fragment {
 //                            String barcode = shopXmlBean.Barcode;
 //                            String gName = shopXmlBean.GName;
                             Log.i(TAG, "barcode:" + barcode + ",+gName:" + gName1 + ",time:" + time);
-                            InputBean bean = new InputBean(barcode, gName1, "1", "1", time);
+                            InputBean bean = new InputBean(barcode, gName1, "", "", time);
                             if (!inputBeanList.contains(bean)) {
                                 inputBeanList.add(0,bean);
                             }

@@ -5,23 +5,35 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
+
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.suntown.R;
 import com.suntown.adapter.AddressAdapter;
+import com.suntown.api.ApiService;
 import com.suntown.bean.AddressBean;
+import com.suntown.bean.BaseBean;
 import com.suntown.bean.LoginBean;
+import com.suntown.netUtils.RxSchedulers;
 import com.suntown.utils.Constant;
 import com.suntown.utils.SPUtils;
 import com.suntown.utils.Utils;
 import com.suntown.utils.Xml2Json;
+
 import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -32,51 +44,23 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.functions.Action1;
 
-public class AddressCenterActivity extends Activity {
+public class AddressCenterActivity extends BaseActivity {
 
+    private static final String TAG = "AddressCenterActivity";
     @BindView(R.id.iv_back)
     ImageView ivBack;
     @BindView(R.id.lv_address)
-    ListView lvAddress;
+    RecyclerView lvAddress;
     private OkHttpClient client;
-    List<AddressBean.RECORDBean> record;
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.obj!=null){
-                record = (List<AddressBean.RECORDBean>) msg.obj;
-                adapter = new AddressAdapter(AddressCenterActivity.this,record);
-                lvAddress.setAdapter(adapter);
-                adapter.setOnAddressAdapterCallBack(new AddressAdapter.OnAddressAdapterCallBack() {
-                    @Override
-                    public void deleteItemClick(int position) {
-                        //TODO 向服务器发起删除请求
-                        String id = record.get(position).getID();
-                        String memid = SPUtils.getString(AddressCenterActivity.this, Constant.MEMID);
-                        deleteAddress(id,memid,position);
-//                        record.remove(position);
-//                        adapter.notifyDataSetChanged();
-                    }
-                    @Override
-                    public void onItemClick(int position) {
-                        Log.i("test","点击了");
-                        AddressBean.RECORDBean recordBean = record.get(position);
-                        String address = recordBean.getRECEIVER()+"/"+recordBean.getPHONE()+"/"+recordBean.getADDRESS();
-                        Log.i("test","address:"+address);
-                        Intent intent = new Intent();
-                        intent.putExtra(Constant.ADDRESS,address);
-                        setResult(300, intent);
-                        if (isWaitPay){
-                            finish();
-                        }
-                    }
-                });
-            }
-        }
-    };
     private AddressAdapter adapter;
     private boolean isWaitPay;
+    private List<AddressBean.RECORDBean> record;
+    private String memid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,116 +69,180 @@ public class AddressCenterActivity extends Activity {
         ButterKnife.bind(this);
         client = new OkHttpClient();
         isWaitPay = getIntent().getBooleanExtra("isWaitPay", false);
+        lvAddress.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         getAllAddress();
     }
 
     public void add_address(View view) {
-        startActivityForResult(new Intent(AddressCenterActivity.this, AddAddressActivity.class),200);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode==200&&resultCode==300){
-            String address = data.getStringExtra("address");
-            String name = data.getStringExtra("name");
-            String number = data.getStringExtra("number");
-            Utils.showToast(this,"number"+number+"name"+name+"address"+address);
-            if (number==null){
-                return;
-            }
-            record.add(new AddressBean.RECORDBean("","","",address,"1",number,name));
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-    @OnClick(R.id.iv_back)
-    public void onClick() {
-        finish();
+        startActivity(new Intent(AddressCenterActivity.this, AddAddressActivity.class));
     }
 
     private void getAllAddress() {
-        final String memid = SPUtils.getString(this, Constant.MEMID);
-        Log.i(String.valueOf(this),"MDMID:"+memid);
-        RequestBody formBody = new FormBody.Builder().add("arg0", memid).build();
-        final Request request = new Request.Builder()
-                .url(Constant.formatBASE_HOST("getAllAddress"))
-                .post(formBody)
-                .build();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                {
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Utils.showToast(AddressCenterActivity.this, "联网失败，请检查网络");
-                        }
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            InputStream is = response.body().byteStream();
-                            String json;
-                            try {
-                                json = new Xml2Json(is).Pull2Xml();
-                                AddressBean addressBean = new Gson().fromJson(json, AddressBean.class);
-                                if (!"0".equals(addressBean.getRESULT())){
-                                    return;
-                                }
-                                List<AddressBean.RECORDBean> record1 = addressBean.getRECORD();
-                                Message msg = new Message();
-                                msg.obj= record1;
-                                handler.sendMessage(msg);
-                            } catch (XmlPullParserException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+        memid = SPUtils.getString(this, Constant.MEMID);
+//        Log.i(String.valueOf(this), "MDMID:" + memid);
+        Map<String, String> params = new HashMap<>();
+        params.put(Constant.ARG0, memid);
+        String ip = Constant.BASE_HOST;
+        Retrofit retrofit = new Retrofit.Builder().
+                addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+        retrofit.create(ApiService.class).getAllAddress(params).compose(RxSchedulers.io_main()).subscribe(s -> {
+            Log.i(TAG,"s:"+s.toString());
+            String result = s.replace("<ns:getAllAddressResponse xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
+            result = result.replace("</ns:return></ns:getAllAddressResponse>", "");
+            AddressBean addressBean = new Gson().fromJson(result, AddressBean.class);
+            Log.i(TAG,"addressBean:"+addressBean.toString());
+            record = addressBean.getRECORD();
+            int y = 0;
+            for (int i = 0; i < record.size(); i++) {
+                if (record.get(i).ISDEFAULT.equals("1")) {
+                    y=i;
                 }
             }
-        }).start();
-    }
-    public void deleteAddress(String id, String memid, final int position) {
-        RequestBody formBody = new FormBody.Builder().add("arg0", id).add("arg1",memid).build();
-        final Request request = new Request.Builder()
-                .url(Constant.formatBASE_HOST("deleteAddress"))
-                .post(formBody)
-                .build();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                {
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Utils.showToast(AddressCenterActivity.this, "联网失败，请检查网络");
-                        }
+            AddressBean.RECORDBean recordBean = record.get(y);
+            record.remove(recordBean);
+            record.add(0,recordBean);
+            adapter = new AddressAdapter(R.layout.address_item, record);
+            lvAddress.setAdapter(adapter);
+            adapter.setOnAddressAdapterCallBack(new AddressAdapter.OnAddressAdapterCallBack() {
+                @Override
+                public void deleteItemClick(int position) {
+                    //TODO 向服务器发起删除请求
+                    String id = record.get(position).ID;
+                    String memid1 = SPUtils.getString(AddressCenterActivity.this, Constant.MEMID);
+                    deleteAddress(id, memid1, position);
+                }
 
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            InputStream is = response.body().byteStream();
-                            String json;
-                            try {
-                                json = new Xml2Json(is).Pull2Xml();
-                                LoginBean loginBean = new Gson().fromJson(json, LoginBean.class);
-                                if ("0".equals(loginBean.getRESULT())){
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            record.remove(position);
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
-//                            Utils.showToast(AddressCenterActivity.this, "删除成功");
-                                }else{
-                                    return;
-                                }
-                            } catch (XmlPullParserException e) {
-                                e.printStackTrace();
-                            }
+                @Override
+                public void onItemClick(int position) {
+                    Log.i("test", "点击了");
+                    AddressBean.RECORDBean recordBean = record.get(position);
+                    boolean isClick = recordBean.isClick;
+//                    String address = recordBean.RECEIVER + "/" + recordBean.PHONE + "/" + recordBean.ADDRESS;
+//                    Log.i("test", "address:" + address);
+                    Intent intent = new Intent();
+                    intent.putExtra(Constant.RECORD_BEAN, recordBean);
+                    setResult(300, intent);
+                    if (isWaitPay) {
+                        finish();
+                    }else{
+                        if (isClick){
+                            Intent intent1 = new Intent(AddressCenterActivity.this, AddAddressActivity.class);
+                            intent1.putExtra(Constant.RECORD_BEAN, recordBean);
+                            startActivity(intent1);
                         }
-                    });
+                    }
                 }
+
+                @Override
+                public void onCheckClick(int position) {
+                    Log.i(TAG,"position:"+position);
+                    for (int i = 0; i < record.size(); i++) {
+                        AddressBean.RECORDBean recordBean = record.get(i);
+                        if (position==i){
+                            recordBean.ISDEFAULT="1";
+                        }else{
+                            recordBean.ISDEFAULT="0";
+                        }
+                    }
+                    sendService(position);
+                    Log.i(TAG,"record:"+record.toString());
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onEditClick(int position) {
+                    AddressBean.RECORDBean recordBean = record.get(position);
+                    Intent intent1 = new Intent(AddressCenterActivity.this, AddAddressActivity.class);
+                    intent1.putExtra(Constant.RECORD_BEAN, recordBean);
+                    startActivity(intent1);
+                }
+            });
+        }, throwable -> {
+            Log.i(TAG,"throwable:"+throwable.toString());
+        });
+    }
+
+    private void sendService(int position) {
+        AddressBean.RECORDBean recordBean = record.get(position);
+        //TODO 修改地址
+        Log.i(TAG,"recordBean:"+recordBean.toString());
+        Map<String, String> params = new HashMap<>();
+        params.put(Constant.ARG0, recordBean.ID);
+        params.put(Constant.ARG1, memid);
+        params.put(Constant.ARG2, 1+"");
+        String ip = Constant.BASE_HOST;
+        Retrofit retrofit = new Retrofit.Builder().
+                addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+        retrofit.create(ApiService.class).updateAddressDefault(params).compose(RxSchedulers.io_main()).subscribe(s -> {
+            Log.i(TAG, "s:"+s);
+            String result = s.replace("<ns:updateAddressDefaultResponse xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
+            result = result.replace("</ns:return></ns:updateAddressDefaultResponse>", "");
+            Log.i(TAG,"result:"+result.toString());
+            BaseBean baseBean = new Gson().fromJson(result, BaseBean.class);
+            if (baseBean.RESULT.equals("0")) {
+                Utils.showToast(AddressCenterActivity.this, "设置默认地址成功");
+//                record.remove(recordBean);
+//                record.add(0,recordBean);
+                adapter.notifyDataSetChanged();
+            }else{
+                Utils.showToast(AddressCenterActivity.this, "设置默认地址失败");
             }
-        }).start();
+        }, throwable -> {
+            Log.i(TAG, "throwable:"+throwable);
+        });
+    }
+
+    public void deleteAddress(String id, String memid, final int position) {
+        Map<String, String> params = new HashMap<>();
+        params.put(Constant.ARG0, id);
+        params.put(Constant.ARG1, memid);
+        params.put(Constant.ARG2, "");
+        String ip = Constant.BASE_HOST;
+        Retrofit retrofit = new Retrofit.Builder().
+                addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+        retrofit.create(ApiService.class).deleteAddress(params).compose(RxSchedulers.io_main()).subscribe(s -> {
+            Log.i(TAG,"s:"+s.toString());
+            String result = s.replace("<ns:deleteAddressResponse xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
+            result = result.replace("</ns:return></ns:deleteAddressResponse>", "");
+            Log.i(TAG,"result:"+result.toString());
+            BaseBean baseBean = new Gson().fromJson(result, BaseBean.class);
+            if (baseBean.RESULT.equals("0")) {
+                record.remove(position);
+                adapter.notifyDataSetChanged();
+                Utils.showToast(AddressCenterActivity.this, "删除成功");
+            }else{
+                Utils.showToast(AddressCenterActivity.this, "删除失败，请重试");
+            }
+
+        }, throwable -> {
+            Log.i(TAG,"throwable:"+throwable.toString());
+        });
+    }
+
+    @OnClick({R.id.iv_back, R.id.tv_manage})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.iv_back:
+                finish();
+                break;
+            case R.id.tv_manage:
+                //TODO 管理收货地址
+                if (null!=record&&0!=record.size()) {
+                    boolean isClick = record.get(0).isClick;
+                    for (AddressBean.RECORDBean recordBean : record) {
+                        recordBean.isClick=!isClick;
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+        }
     }
 }

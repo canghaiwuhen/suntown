@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.suntown.cloudmonitoring.R;
 import com.suntown.cloudmonitoring.bean.BooleanBean;
 import com.suntown.cloudmonitoring.bean.PDBean;
-import com.suntown.cloudmonitoring.bean.inputBean;
 
 import java.util.List;
 

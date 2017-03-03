@@ -88,6 +88,8 @@ public class HasGoodsShelfActivity extends BaseActivity {
     private OkHttpClient client;
     private String sid;
     private String userId;
+    private String tinyip;
+
     public static List<Integer> indexList = new ArrayList<>();
     public static List<ShelfItemBean> beanList;
     public static Map<Integer, List<ShelfItemBean>> listMap = new HashMap<>();
@@ -129,7 +131,7 @@ public class HasGoodsShelfActivity extends BaseActivity {
         registerReceiver(receiver, intentFilter);
         etGoodsShelf.setOnClickListener(view -> requestFocus());
         etGoodsShelf.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (i == EditorInfo.IME_ACTION_DONE || (keyEvent != null && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+            if (i == EditorInfo.IME_FLAG_NAVIGATE_NEXT || i == EditorInfo.IME_ACTION_DONE || (keyEvent != null && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getCurrentFocus().getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 goodsShelf = etGoodsShelf.getText().toString().trim();
@@ -166,7 +168,7 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 //点击删除
                 if (isClick) {
                     int size = shelfItemBeanList.size();
-                    if (size > 6 && position == size - 1) {
+                    if (size > 3 && position == size - 1) {
                         shelfItemBeanList.remove(position);
                         mainAdapter.notifyDataSetChanged();
                     } else {
@@ -184,15 +186,6 @@ public class HasGoodsShelfActivity extends BaseActivity {
                             Utils.showToast(HasGoodsShelfActivity.this, "请选择货架");
                             return;
                         }
-//                        if (isOnScanner == false) {
-//                            Utils.showToast(HasGoodsShelfActivity.this, "请打开扫描");
-//                            return;
-//                        }
-                        //TODO 发送广播
-//                        Observable.timer(1, TimeUnit.SECONDS).subscribe(aLong -> {
-//                            Intent scannerIntent = new Intent(SCN_CUST_ACTION_START);
-//                            sendBroadcast(scannerIntent);
-//                        });
                     }
                 }
             }
@@ -202,12 +195,10 @@ public class HasGoodsShelfActivity extends BaseActivity {
             public void onChildItemDeleteClick(View view, int group, int position) {
                 List<ShelfItemBean> itemBeanList = listMap.get(group);
                 int size = itemBeanList.size();
-                if (size > 6) {
+                if (size > 3) {
                     itemBeanList.remove(position);
                     mainAdapter.notifyDataSetChanged();
                 }
-//                currentParentPosition=group;
-//                currentChildPosition=position;
             }
 
             //条目添加
@@ -249,6 +240,7 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 shelfItemBean.isTouch = false;
             }
         }
+        Log.i(TAG, "parent:" + parent + ",child:" + child);
         List<ShelfItemBean> shelfItemBeen = listMap.get(parent);
         ShelfItemBean shelfItemBean = shelfItemBeen.get(child);
         shelfItemBean.isTouch = true;
@@ -287,40 +279,46 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 ShelfInfoBean.ShelfBean shelfBean1 = shelfInfoBean.shelfBean;
 //                Log.i(TAG, "shelfBean1:" + shelfBean1.toString());
 //                Log.i(TAG, "shelf_allocations:" + shelf_allocations.toString());
-                for (Integer integer : indexList) {
-                    List<ShelfItemBean> shelfItemBeanList = listMap.get(integer);
-                    int size = shelfItemBeanList.size();
-                    if (size >6) {
-                        for (int i = 0; i < size - 6; i++) {
-                            shelfItemBeanList.remove(0);
-                        }
-                    }
-                    for (ShelfItemBean shelfItemBean : shelfItemBeanList) {
-                        shelfItemBean.barcode = "";
-                        shelfItemBean.gname = "";
-                        shelfItemBean.tag = "";
-                        shelfItemBean.isClick = false;
-                        shelfItemBean.isTouch = false;
-                    }
-                }
+//                for (Integer integer : indexList) {
+//                    List<ShelfItemBean> shelfItemBeanList = listMap.get(integer);
+//                    int size = shelfItemBeanList.size();
+//                    if (size >3) {
+//                        for (int i = 0; i < size - 3; i++) {
+//                            shelfItemBeanList.remove(0);
+//                        }
+//                    }
+//                    for (ShelfItemBean shelfItemBean : shelfItemBeanList) {
+//                        shelfItemBean.barcode = "";
+//                        shelfItemBean.gname = "";
+//                        shelfItemBean.tag = "";
+//                        shelfItemBean.isClick = false;
+//                        shelfItemBean.isTouch = false;
+//                    }
+//                }
+                initData(10);
                 if (null == shelfBean1) {
-//                    Utils.showToast(HasGoodsShelfActivity.this, "没有查询到该货架数据");
+                    Utils.showToast(HasGoodsShelfActivity.this, "没有查询到该货架数据");
                     etGoodsShelf.setText(goodsShelf);
                     etGoodsShelf.setFocusable(false);
+                    etNum.setText("");
                     mainAdapter.notifyDataSetChanged();
                 } else {
+                    etGoodsShelf.setText(goodsShelf);
+                    etGoodsShelf.setFocusable(false);
+                    etNum.setText("");
+                    mainAdapter.notifyDataSetChanged();
                     String exist = shelfBean1.Exist;
                     if (null != exist) {
                         Utils.showToast(HasGoodsShelfActivity.this, "此货架在其他门店已经存在");
                         runOnUiThread(() -> etGoodsShelf.setText(""));
                     } else if (null == shelf_allocations) {
+                        runOnUiThread(() -> etGoodsShelf.setText(""));
                         Utils.showToast(HasGoodsShelfActivity.this, "没有查询到该货架数据");
                     } else {
                         etGoodsShelf.setText(goodsShelf);
                         SPUtils.put(HasGoodsShelfActivity.this, Constant.SHELFGOODS, goodsShelf);
                         //设置数据
 //                        Log.i(TAG, "长度:" + shelf_allocations.size());
-                        ShelfInfoBean.ShelfBean shelfBean = shelfInfoBean.shelfBean;
                         int num = 0;
                         for (ShelfInfoBean.Shelf_Allocation shelf_allocation : shelf_allocations) {
                             int colNumber = Integer.parseInt(shelf_allocation.ColNumber);
@@ -352,12 +350,14 @@ public class HasGoodsShelfActivity extends BaseActivity {
                                 }
                             }
                         }
-                        Row = num;
-                    }
-                mainAdapter.notifyDataSetChanged();
-                }
+                        Row = Row > num ? Row : num;
+                        initRow(Row);
 //                setTouch(currentParentPosition,currentChildPosition);
-                mainAdapter.notifyDataSetChanged();
+                        locationData(tinyip);
+                        mainAdapter.notifyDataSetChanged();
+                    }
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
@@ -368,6 +368,32 @@ public class HasGoodsShelfActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 定位条目
+     *
+     * @param tinyip
+     */
+    private void locationData(String tinyip) {
+        int count = indexList.size();
+        for (int i = 0; i < indexList.size(); i++) {
+            List<ShelfItemBean> shelfItemBeen = listMap.get(indexList.get(i));
+            for (int i1 = 0; i1 < shelfItemBeen.size(); i1++) {
+                ShelfItemBean shelfItemBean = shelfItemBeen.get(i1);
+                shelfItemBean.isTouch = false;
+                shelfItemBean.isClick = false;
+                if (shelfItemBean.tag.equals(tinyip)) {
+                    count = i;
+                    shelfItemBean.isTouch = true;
+                    shelfItemBean.isClick = false;
+                    currentChildPosition = i1;
+                    currentParentPosition = count;
+                }
+            }
+        }
+        //TODO
+        Log.i(TAG, "tinyip:" + tinyip);
+        rlMain.scrollToPosition(count);
+    }
 
     /**
      * 点击事件
@@ -378,13 +404,11 @@ public class HasGoodsShelfActivity extends BaseActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
-                if ("".equals(etGoodsShelf.getText().toString())){
+                saveData();
+                Observable.timer(500, TimeUnit.MILLISECONDS).subscribe(aLong -> {
                     finish();
-                }else{
-                    showDialog();
-                }
+                });
                 break;
-
             //条目限制
             case R.id.tv_go:
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -393,6 +417,9 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 String lineNumStr = etNum.getText().toString().trim();
                 if (!"".equals(lineNumStr)) {
                     int i1 = Integer.parseInt(lineNumStr);
+                    if (i1 >= Row) {
+                        Row = i1;
+                    }
                     goodsShelf = etGoodsShelf.getText().toString().trim();
                     etGoodsShelf.setFocusable(false);
                     if ("".equals(goodsShelf)) {
@@ -401,13 +428,10 @@ public class HasGoodsShelfActivity extends BaseActivity {
                         Utils.showToast(this, "请输入货架编号");
                         return;
                     }
-                    if (i1 > 0 && i1 < indexList.size()) {
+                    if (Row > 0 && Row <= indexList.size()) {
                         Log.i(TAG, "Row:" + Row);
-                        if (i1 < Row) {
-                            i1 = Row;
-                        }
                         ArrayList<Integer> integers = new ArrayList<>();
-                        for (int i = indexList.size() - 1; i > indexList.size() - 1 - i1; i--) {
+                        for (int i = indexList.size() - 1; i > indexList.size() - 1 - Row; i--) {
                             Integer index = indexList.get(i);
                             integers.add(index);
                         }
@@ -422,16 +446,20 @@ public class HasGoodsShelfActivity extends BaseActivity {
                         }
                         listMap.clear();
                         listMap.putAll(map);
-                    } else if (i1 >= indexList.size()) {
+                        currentParentPosition = indexList.get(0);
+                        currentChildPosition = 0;
+                        setTouch(currentParentPosition, currentChildPosition);
+
+                    } else if (Row > indexList.size()) {
 //                        Log.i(TAG, "indexList-" + indexList.toString());
                         int y = 1;
-                        for (int i = indexList.size(); i < i1; i++) {
+                        for (int i = indexList.size(); i < Row; i++) {
                             y++;
                             Integer max = Collections.max(indexList);
 //                            Integer integer = indexList.get(indexList.size() - 1);
                             indexList.add(0, max + y);
                             beanList = new ArrayList<>();
-                            for (int j = 0; j < 6; j++) {
+                            for (int j = 0; j < 3; j++) {
                                 ShelfItemBean itemBean = new ShelfItemBean("", "", "");
                                 itemBean.isClick = false;
                                 itemBean.isTouch = false;
@@ -440,21 +468,24 @@ public class HasGoodsShelfActivity extends BaseActivity {
                             listMap.put(max + y, beanList);
                         }
                     }
-                    currentParentPosition = indexList.get(0);
-                    currentChildPosition = 0;
-                    setTouch(currentParentPosition, currentChildPosition);
-//                    querDataBase(goodsShelf);
+                    //清除数据
+                    deleteData();
                     queryShelfInfo(goodsShelf);
-                    mainAdapter.notifyDataSetChanged();
-//                    Log.i(TAG, "indexList-" + indexList.size());
-//                    Log.i(TAG, "indexList-" + indexList.toString());
+//                    mainAdapter.notifyDataSetChanged();
                 } else {
                     goodsShelf = etGoodsShelf.getText().toString().trim();
                     if (!"".equals(goodsShelf)) {
 //                        isClickShelf=false;
+                        clickParentPosition = indexList.get(0);
+                        clickChildPosition = 0;
+                        setTouch(clickParentPosition, clickChildPosition);
+                        //清除数据
+                        deleteData();
                         etGoodsShelf.setFocusable(false);
-//                        querDataBase(goodsShelf);
+//                        queryShelfInfo(true,goodsShelf);
                         queryShelfInfo(goodsShelf);
+                    } else {
+                        Utils.showToast(this, "货架不能为空");
                     }
                 }
                 mainAdapter.notifyDataSetChanged();
@@ -463,7 +494,6 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 //TODO 非空判断，提交数据
                 String goodsShelf = etGoodsShelf.getText().toString().trim();
                 if ("".equals(goodsShelf)) {
-//                    isClickShelf=true;
                     requestFocus();
                     Utils.showToast(this, "货架不能为空");
                     return;
@@ -471,14 +501,10 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 //将 集合转换成xml
                 TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
                 String szImei = TelephonyMgr.getDeviceId();
-//                ShelfItemBean shelfItemBean = listMap.get(9).get(0);
-//                Log.i(TAG,"shelfItemBean--"+shelfItemBean.toString());
                 goodsShelf = goodsShelf.toUpperCase();
                 if (goodsShelf.length() == 15) {
-//                    Log.i(TAG, "indexList--" + indexList.toString());
-//                    Log.i(TAG, "listMap--" + listMap.toString());
                     String xml = CommitShelfData.productData(indexList, listMap, goodsShelf, sid, szImei);
-//                    Log.i(TAG, "xml--" + xml);
+                    Log.i(TAG, "xml:" + xml);
                     subServer(xml);
                 } else {
                     Utils.showToast(this, "货架长度必须等于15");
@@ -495,6 +521,50 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 });
                 break;
         }
+    }
+
+    private void initRow(int i1) {
+        if (i1 < Row) {
+            i1 = Row;
+        }
+        Row = 0;
+        if (i1 > 0 && i1 < indexList.size()) {
+            ArrayList<Integer> integers = new ArrayList<>();
+            for (int i = indexList.size() - 1; i > indexList.size() - 1 - i1; i--) {
+                Integer index = indexList.get(i);
+                integers.add(index);
+            }
+            indexList.clear();
+            for (int i = 0; i < integers.size(); i++) {
+                indexList.add(0, integers.get(i));
+            }
+            Map<Integer, List<ShelfItemBean>> map = new HashMap<>();
+            for (Integer integer : indexList) {
+                List<ShelfItemBean> shelfItemBeanList = listMap.get(integer);
+                map.put(integer, shelfItemBeanList);
+            }
+            listMap.clear();
+            listMap.putAll(map);
+        } else if (i1 >= indexList.size()) {
+//                        Log.i(TAG, "indexList-" + indexList.toString());
+            int y = 1;
+            for (int i = indexList.size(); i < i1; i++) {
+                y++;
+                Integer max = Collections.max(indexList);
+//                            Integer integer = indexList.get(indexList.size() - 1);
+                indexList.add(0, max + y);
+                beanList = new ArrayList<>();
+                for (int j = 0; j < 3; j++) {
+                    ShelfItemBean itemBean = new ShelfItemBean("", "", "");
+                    itemBean.isClick = false;
+                    itemBean.isTouch = false;
+                    beanList.add(itemBean);
+                }
+                listMap.put(max + y, beanList);
+            }
+        }
+        etNum.setText("");
+        mainAdapter.notifyDataSetChanged();
     }
 
 
@@ -529,8 +599,14 @@ public class HasGoodsShelfActivity extends BaseActivity {
 //                    Log.i(TAG, "xml:" + xml);
                     if ("0".equals(xml)) {
                         Utils.showToast(HasGoodsShelfActivity.this, "数据提交成功");
-                        //删除数据库
+                        //删除数据库  数据清空
                         deleteData();
+                        initData(10);
+                        runOnUiThread(() -> {
+                            etNum.setText("");
+                            etGoodsShelf.setText("");
+                            mainAdapter.notifyDataSetChanged();
+                        });
                     } else {
                         Utils.showToast(HasGoodsShelfActivity.this, "数据提交成失败");
                     }
@@ -539,24 +615,6 @@ public class HasGoodsShelfActivity extends BaseActivity {
         }).start();
     }
 
-    /**
-     * 弹出对话框
-     */
-    private void showDialog() {
-        new SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
-                .setTitleText("提示")
-                .setContentText("您还没有提交数据，是否确认退出")
-                .setCancelText("取消")
-                .setConfirmText("确定")
-                .showCancelButton(true)
-                .setCancelClickListener(sDialog -> sDialog.dismiss()).setConfirmClickListener(sDialog -> {
-            saveData();
-            Observable.timer(500, TimeUnit.MILLISECONDS).subscribe(aLong -> {
-                finish();
-            });
-            sDialog.dismiss();
-        }).show();
-    }
 
     /**
      * 查询货架
@@ -589,6 +647,7 @@ public class HasGoodsShelfActivity extends BaseActivity {
                             if (null != sfid) {
                                 etGoodsShelf.setText(sfid);
                                 etGoodsShelf.setFocusable(false);
+                                etNum.setText("");
                                 querDataBase(sfid);
                             } else {
                                 requestFocus();
@@ -643,6 +702,9 @@ public class HasGoodsShelfActivity extends BaseActivity {
                         if (!"".equals(item2.GName) && null != item2.GName) {
                             String gName = item2.GName;
                             List<ShelfItemBean> shelfItemBeanList = listMap.get(currentParentPosition);
+                            if (null == shelfItemBeanList) {
+                                shelfItemBeanList = listMap.get(indexList.get(0));
+                            }
 //                            Log.i(TAG, "shelfItemBeanList --" + shelfItemBeanList.toString());
 //                            Log.i(TAG, "shelfItemBeanList --" + shelfItemBeanList.size());
                             ShelfItemBean shelfItemBean = shelfItemBeanList.get(i);
@@ -653,8 +715,14 @@ public class HasGoodsShelfActivity extends BaseActivity {
                             });
                         } else {
                             runOnUiThread(() -> {
+//                                List<ShelfItemBean> shelfItemBeanList = listMap.get(indexList.get(currentParentPosition));
+                                List<ShelfItemBean> shelfItemBeanList = listMap.get(currentParentPosition);
+                                if (null != shelfItemBeanList) {
+                                    ShelfItemBean shelfItemBean = shelfItemBeanList.get(i);
+                                    shelfItemBean.gname = "";
+                                    mainAdapter.notifyDataSetChanged();
+                                }
                                 Utils.showToast(HasGoodsShelfActivity.this, "没有该商品信息");
-//                                mainAdapter.notifyDataSetChanged();
                             });
                         }
                     } catch (XmlPullParserException e) {
@@ -679,7 +747,7 @@ public class HasGoodsShelfActivity extends BaseActivity {
         for (int i = 0; i < index; i++) {
             indexList.add(i);
             beanList = new ArrayList<>();
-            for (int j = 0; j < 6; j++) {
+            for (int j = 0; j < 3; j++) {
 //                beanList.add(new ShelfItemBean(j + "标签", j + "条码", j + "名称"));
                 ShelfItemBean itemBean = new ShelfItemBean("", "", "");
                 itemBean.isClick = false;
@@ -727,18 +795,16 @@ public class HasGoodsShelfActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            if ("".equals(etGoodsShelf.getText().toString())){
+            saveData();
+            Observable.timer(500, TimeUnit.MILLISECONDS).subscribe(aLong -> {
                 finish();
-            }else{
-                showDialog();
-            }
+            });
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
-
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -753,287 +819,331 @@ public class HasGoodsShelfActivity extends BaseActivity {
                 Log.i(TAG, "message:" + message);
                 if (etGoodsShelf.isFocusable()) {
                     //TODO 查询 货架
+                    clickParentPosition = 0;
+                    clickChildPosition = 0;
                     if (message.contains(".")) {
                         //TODO 查询货架 判断数据库中有无该货架信息
+                        tinyip = message;
                         queryData(message);
 //                        querDataBase(message);
                         //查询货架信息
-                    } else if (message.length()==15){
+                    } else if (message.length() == 15) {
                         querDataBase(message);
-                    }else {
+                    } else {
 //                        Utils.showToast(context, "请输入正确的货架信息");
                     }
                 } else {
-                        //多扫
-                        Log.i(TAG, "currentParentPosition:" + currentParentPosition + ",currentChildPosition:" + currentChildPosition);
-                        if (clickParentPosition != currentParentPosition || clickChildPosition != currentChildPosition) {
-                            clickParentPosition = currentParentPosition;
-                            clickChildPosition = currentChildPosition;
-                        } else {
-                            currentChildPosition++;
-                            clickChildPosition++;
-                        }
-                        Log.i(TAG, "clickParentPosition:" + clickParentPosition + ",clickChildPosition:" + clickChildPosition);
-                        Log.i(TAG, "i:" + currentChildPosition);
-                        List<ShelfItemBean> shelfItemBeanList = listMap.get(clickParentPosition);
-                        Log.i(TAG, "shelfItemBeanList:" + shelfItemBeanList.toString());
-                        if (clickChildPosition >= shelfItemBeanList.size()) {
-                            ShelfItemBean e = new ShelfItemBean("", "", "");
-                            e.isClick = false;
-                            e.isTouch = false;
-                            shelfItemBeanList.add(e);
-                        }
-                        setTouch(clickParentPosition, clickChildPosition);
-                        mainAdapter.notifyDataSetChanged();
-                        ShelfItemBean shelfItemBean = shelfItemBeanList.get(clickChildPosition);
-                        Log.i(TAG, "shelfItemBean:" + shelfItemBean);
-                        if (message.contains(".")) {
-                            isConstant = false;
-                            //TODO 查询是否存在于其他货架
-                            String ip = Constant.formatBASE_HOST(serverIp);
-                            String usercode = SPUtils.getString(context, Constant.USER_CODE);
-                            Log.i(TAG, "ip:" + ip + ":usercode:" + usercode);
-                            Retrofit retrofit = new Retrofit.Builder().
-                                    addConverterFactory(ScalarsConverterFactory.create())
-                                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
-                            String finalMessage = message;
-                            Log.i(TAG, "listMap3:" + listMap.toString());
-                            retrofit.create(ApiService.class).GetLabStatus2(message, sid).compose(RxSchedulers.io_main()).subscribe(s -> {
-                                Log.i(TAG, "listMap-3:" + listMap.toString());
-                                try {
-                                    String xml = s.toString();
-                                    xml = xml.replace("<ns:GetLabStatus2Response xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
-                                    Log.i(TAG, "xml:" + xml);
-                                    xml = xml.replace("</ns:return></ns:GetLabStatus2Response>", "");
-                                    xml = xml.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&#xd;", "");
-                                    Log.i(TAG, "xml:" + xml);
-                                    Log.i(TAG, "listMap4:" + listMap.toString());
-                                    ShopXmlBean shopXmlBean = null;
-                                    shopXmlBean = new Xml2Json(xml).pullXml2Bean();
-                                    String sfid = shopXmlBean.SFID;
-                                    goodsShelf = etGoodsShelf.getText().toString().trim();
-                                    Log.i(TAG, "sfid:" + sfid + ", goodsShelf" + goodsShelf);
-                                    if (!goodsShelf.equals(sfid) && null != sfid) {
-                                        new SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE)
-                                                .setTitleText("提示")
-                                                .setContentText("该标签已存在其他货架，是否替换")
-                                                .setCancelText("取消")
-                                                .setConfirmText("确定")
-                                                .showCancelButton(true)
-                                                .setCancelClickListener(sDialog -> sDialog.dismiss())
-                                                .setConfirmClickListener(sweetAlertDialog -> {
-                                                    for (int i = 0; i < indexList.size(); i++) {
-                                                        List<ShelfItemBean> shelfItemBeen = listMap.get(indexList.get(i));
-                                                        for (ShelfItemBean shelfItemBean1 : shelfItemBeen) {
-                                                            if (finalMessage.equals(shelfItemBean1.tag)) {
-                                                                isConstant = true;
-                                                                new SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE)
-                                                                        .setTitleText("提示")
-                                                                        .setContentText("该标签已存在该货架，是否替换")
-                                                                        .setCancelText("取消")
-                                                                        .setConfirmText("确定")
-                                                                        .showCancelButton(true)
-                                                                        .setCancelClickListener(sDialog -> sDialog.dismiss())
-                                                                        .setConfirmClickListener(sweetAlertDialog1 -> {
-                                                                            isConstant = false;
-                                                                            shelfItemBean1.tag = "";
-                                                                            shelfItemBean.tag = finalMessage;
-                                                                            mainAdapter.notifyDataSetChanged();
-                                                                            int num = indexList.size() - clickParentPosition;
-                                                                            Row = Row > num ? Row : num;
-                                                                            sweetAlertDialog1.dismiss();
-                                                                        })
-                                                                        .show();
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-                                                    if (!isConstant) {
-                                                        shelfItemBean.tag = finalMessage;
-                                                        int num = indexList.size() - clickParentPosition;
-                                                        Row = Row > num ? Row : num;
-                                                    }
-                                                    sweetAlertDialog.dismiss();
-                                                    mainAdapter.notifyDataSetChanged();
-                                                })
-                                                .show();
-                                        mainAdapter.notifyDataSetChanged();
-                                    } else {
-                                        Log.i(TAG, "listMap:" + listMap.toString());
-                                        for (Integer integer : indexList) {
-                                            List<ShelfItemBean> shelfItemBeen = listMap.get(integer);
-                                            for (ShelfItemBean shelfItemBean1 : shelfItemBeen) {
-                                                if (finalMessage.equals(shelfItemBean1.tag)) {
-                                                    Log.i(TAG, "finalMessage:" + finalMessage);
-                                                    isConstant = true;
-                                                    new SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE)
-                                                            .setTitleText("提示")
-                                                            .setContentText("该标签已存在该货架，是否替换")
-                                                            .setCancelText("取消")
-                                                            .setConfirmText("确定")
-                                                            .showCancelButton(true)
-                                                            .setCancelClickListener(sDialog -> sDialog.dismiss())
-                                                            .setConfirmClickListener(sweetAlertDialog1 -> {
-                                                                isConstant = false;
-                                                                shelfItemBean1.tag = "";
-                                                                shelfItemBean.tag = finalMessage;
-                                                                mainAdapter.notifyDataSetChanged();
-                                                                sweetAlertDialog1.dismiss();
-                                                                int num = indexList.size() - clickParentPosition;
-                                                                Row = Row > num ? Row : num;
-                                                            })
-                                                            .show();
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        if (!isConstant) {
-                                            shelfItemBean.tag = finalMessage;
-                                            int num = indexList.size() - clickParentPosition;
-                                            Row = Row > num ? Row : num;
-                                        }
-                                        mainAdapter.notifyDataSetChanged();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (XmlPullParserException e) {
-                                    e.printStackTrace();
+                    //多扫
+                    Log.i(TAG, "currentParentPosition:" + currentParentPosition + ",currentChildPosition:" + currentChildPosition);
+                    if (clickParentPosition != currentParentPosition || clickChildPosition != currentChildPosition) {
+                        clickParentPosition = currentParentPosition;
+                        clickChildPosition = currentChildPosition;
+                    } else {
+                        currentChildPosition++;
+                        clickChildPosition++;
+                    }
+                    Log.i(TAG, "clickParentPosition:" + clickParentPosition + ",clickChildPosition:" + clickChildPosition);
+                    Log.i(TAG, "i:" + currentChildPosition);
+                    Log.i(TAG, "listMap:" + listMap.toString());
+//                        Integer position = indexList.get(clickParentPosition);
+//                        List<ShelfItemBean> shelfItemBeanList = listMap.get(position);
+                    List<ShelfItemBean> shelfItemBeanList = listMap.get(clickParentPosition);
+                    int position;
+                    if (null == shelfItemBeanList || shelfItemBeanList.size() == 0) {
+                        Integer o = indexList.get(0);
+                        shelfItemBeanList = listMap.get(o);
+                        position = o;
+                    } else {
+                        position = clickParentPosition;
+                    }
+                    //todo 标签去除重复
+
+                    Log.i(TAG, "shelfItemBeanList:" + shelfItemBeanList.toString());
+                    if (clickChildPosition >= shelfItemBeanList.size()) {
+                        ShelfItemBean e = new ShelfItemBean("", "", "");
+                        e.isClick = false;
+                        e.isTouch = false;
+                        shelfItemBeanList.add(e);
+                    }
+//                        setTouch(position, clickChildPosition);
+//                    setTouch(clickParentPosition, clickChildPosition);
+                    ShelfItemBean shelfItemBean = shelfItemBeanList.get(clickChildPosition);
+                    Log.i(TAG, "shelfItemBean:" + shelfItemBean);
+                    if (message.contains(".")) {
+                        shelfItemBean.tag = message;
+                        //                        //TODO 查询是否存在于其他货架
+                        for (int i = 0; i < indexList.size(); i++) {
+                            List<ShelfItemBean> shelfItemBeen = listMap.get(indexList.get(i));
+                            for (ShelfItemBean shelfItemBean1 : shelfItemBeen) {
+                                if (message.equals(shelfItemBean1.tag)) {
+                                    shelfItemBean1.tag = "";
+                                    shelfItemBean.tag = message;
+                                    mainAdapter.notifyDataSetChanged();
                                 }
-                            });
-                        } else {
-                            shelfItemBean.barcode = message;
-                            int num = indexList.size() - clickParentPosition;
-                            Row = Row > num ? Row : num;
-                        }
-                        if (!"".equals(shelfItemBean.barcode)) {
-                            //TODO 查询商品信息
-                            Log.i(TAG, "position:" + clickChildPosition);
-                            getGoodsName(shelfItemBean.barcode, clickChildPosition);
-                        }
-//                    mainAdapter.notifyDataSetChanged();
-                    }
-                    mainAdapter.notifyDataSetChanged();
-                    }
-
-            }
-    };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(receiver);
-    }
-
-    /**
-     * 查询数据库
-     *
-     * @param sfid
-     */
-    private void querDataBase(String sfid) {
-        etGoodsShelf.setText(sfid);
-        etGoodsShelf.setFocusable(false);
-        try {
-            List<ShelfItemBean> shelfItemBeanList = db.selector(ShelfItemBean.class).where("sid", "=", sid).and("user", "=", userId).and("sfid", "=", sfid).findAll();
-            if (null != shelfItemBeanList && 0 != shelfItemBeanList.size()) {
-                for (Integer integer : indexList) {
-                    List<ShelfItemBean> shelfItemBeen = listMap.get(integer);
-                    for (ShelfItemBean shelfItemBean : shelfItemBeen) {
-                        shelfItemBean.barcode = "";
-                        shelfItemBean.gname = "";
-                        shelfItemBean.tag = "";
-                    }
-                }
-                Log.i(TAG, "shelfItemBeanList1-" + shelfItemBeanList.toString());
-                int num = 0;
-                for (ShelfItemBean shelfItemBean : shelfItemBeanList) {
-                    String barcode = shelfItemBean.barcode;
-                    String tinyip = shelfItemBean.tag;
-                    String gname = shelfItemBean.gname;
-                    String RowNumber = shelfItemBean.RowNumber;
-                    String ColNumber = shelfItemBean.ColNumber;
-                    int rowNumber = Integer.parseInt(RowNumber);
-                    int colNumber = Integer.parseInt(ColNumber);
-                    num = num > rowNumber ? num : rowNumber;
-                    int size = indexList.size();
-                    if (rowNumber <= size) {
-                        Integer integer = indexList.get(size - rowNumber);
-                        List<ShelfItemBean> shelfItemBeen = listMap.get(integer);
-                        int i = colNumber - 1;
-                        if (shelfItemBeen.size() > i) {
-                            shelfItemBeen.add(colNumber - 1, new ShelfItemBean(tinyip, barcode, gname));
-                            shelfItemBeen.remove(colNumber);
-                        } else {
-                            for (int i1 = shelfItemBeen.size(); i1 < colNumber - 1; i1++) {
-                                shelfItemBeen.add(new ShelfItemBean("", "", ""));
                             }
-                            shelfItemBeen.add(colNumber - 1, new ShelfItemBean(tinyip, barcode, gname));
                         }
                     }
-                    setTouch(currentParentPosition, currentChildPosition);
-                    runOnUiThread(() -> mainAdapter.notifyDataSetChanged());
-                }
-                Row = num;
-            } else {
-                //联网查询数据
-                queryShelfInfo(sfid);
-            }
-        } catch (DbException e) {
-            e.printStackTrace();
-        }
-    }
+//                        isConstant = false;
+//                        String ip = Constant.formatBASE_HOST(serverIp);
+//                        String usercode = SPUtils.getString(context, Constant.USER_CODE);
+//                        Log.i(TAG, "ip:" + ip + ":usercode:" + usercode);
+//                        Retrofit retrofit = new Retrofit.Builder().
+//                                addConverterFactory(ScalarsConverterFactory.create())
+//                                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()).baseUrl(ip).build();
+//                        String finalMessage = message;
+//                        Log.i(TAG, "listMap3:" + listMap.toString());
+//                        retrofit.create(ApiService.class).GetLabStatus2(message, sid).compose(RxSchedulers.io_main()).subscribe(s -> {
+//                            Log.i(TAG, "listMap-3:" + listMap.toString());
+//                            try {
+//                                String xml = s.toString();
+//                                xml = xml.replace("<ns:GetLabStatus2Response xmlns:ns=\"http://services.suntown.com\"><ns:return>", "");
+//                                Log.i(TAG, "xml:" + xml);
+//                                xml = xml.replace("</ns:return></ns:GetLabStatus2Response>", "");
+//                                xml = xml.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&#xd;", "");
+//                                Log.i(TAG, "xml:" + xml);
+//                                Log.i(TAG, "listMap4:" + listMap.toString());
+//                                ShopXmlBean shopXmlBean = null;
+//                                shopXmlBean = new Xml2Json(xml).pullXml2Bean();
+//                                String sfid = shopXmlBean.SFID;
+//                                goodsShelf = etGoodsShelf.getText().toString().trim();
+//                                Log.i(TAG, "sfid:" + sfid + ", goodsShelf" + goodsShelf);
+//                                if (!goodsShelf.equals(sfid) && null != sfid) {
+//                                    new SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE)
+//                                            .setTitleText("提示")
+//                                            .setContentText("该标签已存在其他货架，是否替换")
+//                                            .setCancelText("取消")
+//                                            .setConfirmText("确定")
+//                                            .showCancelButton(true)
+//                                            .setCancelClickListener(sDialog -> sDialog.dismiss())
+//                                            .setConfirmClickListener(sweetAlertDialog -> {
+//                                                for (int i = 0; i < indexList.size(); i++) {
+//                                                    List<ShelfItemBean> shelfItemBeen = listMap.get(indexList.get(i));
+//                                                    for (ShelfItemBean shelfItemBean1 : shelfItemBeen) {
+//                                                        if (finalMessage.equals(shelfItemBean1.tag)) {
+//                                                            isConstant = true;
+//                                                            new SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE)
+//                                                                    .setTitleText("提示")
+//                                                                    .setContentText("该标签已存在该货架，是否替换")
+//                                                                    .setCancelText("取消")
+//                                                                    .setConfirmText("确定")
+//                                                                    .showCancelButton(true)
+//                                                                    .setCancelClickListener(sDialog -> sDialog.dismiss())
+//                                                                    .setConfirmClickListener(sweetAlertDialog1 -> {
+//                                                                        isConstant = false;
+//                                                                        shelfItemBean1.tag = "";
+//                                                                        shelfItemBean1.gname ="";
+//                                                                        shelfItemBean.tag = finalMessage;
+//                                                                        mainAdapter.notifyDataSetChanged();
+//                                                                        int num = indexList.size() - clickParentPosition;
+//                                                                        Row = Row > num ? Row : num;
+//                                                                        sweetAlertDialog1.dismiss();
+//                                                                    })
+//                                                                    .show();
+//                                                            break;
+//                                                        }
+//                                                    }
+//                                                }
+//                                                if (!isConstant) {
+//                                                    shelfItemBean.tag = finalMessage;
+//                                                    shelfItemBean.gname="";
+//                                                    int num = indexList.size() - clickParentPosition;
+//                                                    Row = Row > num ? Row : num;
+//                                                }
+//                                                sweetAlertDialog.dismiss();
+//                                                mainAdapter.notifyDataSetChanged();
+//                                            })
+//                                            .show();
+//                                    mainAdapter.notifyDataSetChanged();
+//                                } else {
+//                                    Log.i(TAG, "listMap:" + listMap.toString());
+//                                    for (Integer integer : indexList) {
+//                                        List<ShelfItemBean> shelfItemBeen = listMap.get(integer);
+//                                        for (ShelfItemBean shelfItemBean1 : shelfItemBeen) {
+//                                            if (finalMessage.equals(shelfItemBean1.tag)) {
+//                                                Log.i(TAG, "finalMessage:" + finalMessage);
+//                                                isConstant = true;
+//                                                new SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE)
+//                                                        .setTitleText("提示")
+//                                                        .setContentText("该标签已存在该货架，是否替换")
+//                                                        .setCancelText("取消")
+//                                                        .setConfirmText("确定")
+//                                                        .showCancelButton(true)
+//                                                        .setCancelClickListener(sDialog -> sDialog.dismiss())
+//                                                        .setConfirmClickListener(sweetAlertDialog1 -> {
+//                                                            isConstant = false;
+//                                                            shelfItemBean1.tag = "";
+//                                                            shelfItemBean1.gname ="";
+//                                                            shelfItemBean.tag = finalMessage;
+//                                                            mainAdapter.notifyDataSetChanged();
+//                                                            sweetAlertDialog1.dismiss();
+//                                                            int num = indexList.size() - clickParentPosition;
+//                                                            Row = Row > num ? Row : num;
+//                                                        })
+//                                                        .show();
+//                                                break;
+//                                            }
+//                                        }
+//                                    }
+//                                    if (!isConstant) {
+//                                        shelfItemBean.tag = finalMessage;
+//                                        shelfItemBean.gname ="";
+//                                        int num = indexList.size() - clickParentPosition;
+//                                        Row = Row > num ? Row : num;
+//                                    }
+//                                    mainAdapter.notifyDataSetChanged();
+//                                }
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            } catch (XmlPullParserException e) {
+//                                e.printStackTrace();
+//                            }
+//                        });
+                            else {
+                                shelfItemBean.barcode = message;
+                                shelfItemBean.gname = "";
+                                int num = indexList.size() - clickParentPosition;
+                                Row = Row > num ? Row : num;
+//                    }
+                                if (!"".equals(shelfItemBean.barcode)) {
+                                    //TODO 查询商品信息
+                                    Log.i(TAG, "position:" + currentChildPosition + " position" + clickChildPosition);
+                                    getGoodsName(shelfItemBean.barcode, clickChildPosition);
+                                }
+                                setTouch(position, clickChildPosition);
+//                    mainAdapter.notifyDataSetChanged();
+                            }
+                            mainAdapter.notifyDataSetChanged();
+                        }
 
-    /**
-     * 保存数据到数据库
-     */
-    public void saveData() {
-        String shelfNum = etGoodsShelf.getText().toString().trim();
-        try {
-            if (!"".equals(shelfNum)) {
-                deleteData();
-//                isClickShelf=false;
-                etGoodsShelf.setFocusable(false);
-                for (int i = 0; i < indexList.size(); i++) {
-                    int rowNumber = indexList.size() - i;
-                    List<ShelfItemBean> shelfItemBeanList = listMap.get(indexList.get(i));
-                    for (int y = 0; y < shelfItemBeanList.size(); y++) {
-                        int colNumber = y + 1;
-                        long times = System.currentTimeMillis();
-                        ShelfItemBean shelfItemBean = shelfItemBeanList.get(y);
+                    }
+                }
+            }
+            ;
+
+            @Override
+            protected void onDestroy () {
+                super.onDestroy();
+                unregisterReceiver(receiver);
+            }
+
+            /**
+             * 查询数据库
+             * @param sfid
+             */
+
+        private void querDataBase(String sfid) {
+            etGoodsShelf.setText(sfid);
+            etNum.setText("");
+            etGoodsShelf.setFocusable(false);
+            try {
+                List<ShelfItemBean> shelfItemBeanList = db.selector(ShelfItemBean.class).where("sid", "=", sid).and("user", "=", userId).and("sfid", "=", sfid).findAll();
+                if (null != shelfItemBeanList && 0 != shelfItemBeanList.size()) {
+                    for (Integer integer : indexList) {
+                        List<ShelfItemBean> shelfItemBeen = listMap.get(integer);
+                        for (ShelfItemBean shelfItemBean : shelfItemBeen) {
+                            shelfItemBean.barcode = "";
+                            shelfItemBean.gname = "";
+                            shelfItemBean.tag = "";
+                            shelfItemBean.isClick = false;
+                            shelfItemBean.isTouch = false;
+                        }
+                    }
+                    Log.i(TAG, "shelfItemBeanList1-" + shelfItemBeanList.toString());
+                    int num = 0;
+                    for (ShelfItemBean shelfItemBean : shelfItemBeanList) {
                         String barcode = shelfItemBean.barcode;
+                        String tinyip = shelfItemBean.tag;
                         String gname = shelfItemBean.gname;
-                        String tag = shelfItemBean.tag;
-                        shelfItemBean.sfid = shelfNum;
-                        shelfItemBean.sid = sid;
-                        shelfItemBean.user = userId;
-                        shelfItemBean.ColNumber = colNumber + "";
-                        shelfItemBean.RowNumber = rowNumber + "";
-                        Log.i(TAG, shelfItemBean.toString());
-                        shelfItemBean.time = times;
-                        if (!"".equals(tag) || !"".equals(barcode)) {
-                            db.save(shelfItemBean);
+                        String RowNumber = shelfItemBean.RowNumber;
+                        String ColNumber = shelfItemBean.ColNumber;
+                        int rowNumber = Integer.parseInt(RowNumber);
+                        int colNumber = Integer.parseInt(ColNumber);
+                        num = num > rowNumber ? num : rowNumber;
+                        int size = indexList.size();
+                        if (rowNumber <= size) {
+                            Integer integer = indexList.get(size - rowNumber);
+                            List<ShelfItemBean> shelfItemBeen = listMap.get(integer);
+                            int i = colNumber - 1;
+                            if (shelfItemBeen.size() > i) {
+                                shelfItemBeen.add(colNumber - 1, new ShelfItemBean(tinyip, barcode, gname));
+                                shelfItemBeen.remove(colNumber);
+                            } else {
+                                for (int i1 = shelfItemBeen.size(); i1 < colNumber - 1; i1++) {
+                                    shelfItemBeen.add(new ShelfItemBean("", "", ""));
+                                }
+                                shelfItemBeen.add(colNumber - 1, new ShelfItemBean(tinyip, barcode, gname));
+                            }
+                        }
+
+                    }
+                    Row = num;
+                    initRow(Row);
+                    locationData(tinyip);
+//                setTouch(currentParentPosition, currentChildPosition);
+                    runOnUiThread(() -> mainAdapter.notifyDataSetChanged());
+                } else {
+                    //联网查询数据
+                    queryShelfInfo(sfid);
+                }
+            } catch (DbException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * 保存数据到数据库
+         */
+        public void saveData() {
+            String shelfNum = etGoodsShelf.getText().toString().trim();
+            try {
+                if (!"".equals(shelfNum)) {
+                    deleteData();
+//                isClickShelf=false;
+                    etGoodsShelf.setFocusable(false);
+                    for (int i = 0; i < indexList.size(); i++) {
+                        int rowNumber = indexList.size() - i;
+                        List<ShelfItemBean> shelfItemBeanList = listMap.get(indexList.get(i));
+                        for (int y = 0; y < shelfItemBeanList.size(); y++) {
+                            int colNumber = y + 1;
+                            long times = System.currentTimeMillis();
+                            ShelfItemBean shelfItemBean = shelfItemBeanList.get(y);
+                            String barcode = shelfItemBean.barcode;
+                            String gname = shelfItemBean.gname;
+                            String tag = shelfItemBean.tag;
+                            shelfItemBean.sfid = shelfNum;
+                            shelfItemBean.sid = sid;
+                            shelfItemBean.user = userId;
+                            shelfItemBean.ColNumber = colNumber + "";
+                            shelfItemBean.RowNumber = rowNumber + "";
+                            shelfItemBean.isClick = false;
+                            shelfItemBean.isTouch = false;
+                            Log.i(TAG, shelfItemBean.toString());
+                            shelfItemBean.time = times;
+                            if (!"".equals(tag) || !"".equals(barcode)) {
+                                db.save(shelfItemBean);
+                            }
                         }
                     }
                 }
+            } catch (DbException e) {
+                e.printStackTrace();
             }
-        } catch (DbException e) {
-            e.printStackTrace();
         }
-    }
 
-    /**
-     * 删除数据
-     */
-    public void deleteData() {
-        String shelfNum = etGoodsShelf.getText().toString().trim();
-        try {
-            List<ShelfItemBean> shelfItemBeanList = db.selector(ShelfItemBean.class).where("sid", "=", sid).and("user", "=", userId).and("sfid", "=", shelfNum).findAll();
-            if (null!=shelfItemBeanList) {
-                Log.i(TAG,"shelfItemBeanList:"+shelfItemBeanList.toString());
-                db.delete(shelfItemBeanList);
+        /**
+         * 删除数据
+         */
+        public void deleteData() {
+            String shelfNum = etGoodsShelf.getText().toString().trim();
+            try {
+                List<ShelfItemBean> shelfItemBeanList = db.selector(ShelfItemBean.class).where("sid", "=", sid).and("user", "=", userId).and("sfid", "=", shelfNum).findAll();
+                if (null != shelfItemBeanList) {
+                    Log.i(TAG, "shelfItemBeanList:" + shelfItemBeanList.toString());
+                    db.delete(shelfItemBeanList);
+                }
+            } catch (DbException e) {
+                e.printStackTrace();
             }
-        } catch (DbException e) {
-            e.printStackTrace();
         }
-    }
 
-}
+    }

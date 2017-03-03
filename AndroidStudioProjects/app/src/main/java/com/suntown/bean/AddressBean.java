@@ -1,5 +1,8 @@
 package com.suntown.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 /**
@@ -7,7 +10,7 @@ import java.util.List;
  */
 public class AddressBean {
 
-    /**
+    /**>
      * RESULT : 0
      * RECORD : [{"ID":"761","ADDDATE":"2016-08-22 13:48:14.0","MEMID":"1352","ADDRESS":"杭州西湖","ISDEFAULT":"0","PHONE":"15537450621","RECEIVER":"汤振"},{"ID":"762","ADDDATE":"2016-08-22 14:00:34.0","MEMID":"1352","ADDRESS":"浙江省杭州市西湖区振华路西港新界西区，A憧16楼","ISDEFAULT":"1","PHONE":"12345678977","RECEIVER":"汤振"}]
      */
@@ -41,14 +44,23 @@ public class AddressBean {
         this.RECORD = RECORD;
     }
 
-    public static class RECORDBean {
-        private String ID;
-        private String ADDDATE;
-        private String MEMID;
-        private String ADDRESS;
-        private String ISDEFAULT;
-        private String PHONE;
-        private String RECEIVER;
+    @Override
+    public String toString() {
+        return "AddressBean{" +
+                "RESULT='" + RESULT + '\'' +
+                ", RECORD=" + RECORD +
+                '}';
+    }
+
+    public static class RECORDBean implements Parcelable {
+        public String ID;
+        public String ADDDATE;
+        public String MEMID;
+        public String ADDRESS;
+        public String ISDEFAULT;
+        public String PHONE;
+        public String RECEIVER;
+        public boolean isClick=false;
 
         public RECORDBean(String ID, String ADDDATE, String MEMID, String ADDRESS, String ISDEFAULT, String PHONE, String RECEIVER) {
             this.ID = ID;
@@ -60,60 +72,59 @@ public class AddressBean {
             this.RECEIVER = RECEIVER;
         }
 
-        public String getID() {
-            return ID;
+
+        @Override
+        public String toString() {
+            return "RECORDBean{" +
+                    "ID='" + ID + '\'' +
+                    ", ADDDATE='" + ADDDATE + '\'' +
+                    ", MEMID='" + MEMID + '\'' +
+                    ", ADDRESS='" + ADDRESS + '\'' +
+                    ", ISDEFAULT='" + ISDEFAULT + '\'' +
+                    ", PHONE='" + PHONE + '\'' +
+                    ", RECEIVER='" + RECEIVER + '\'' +
+                    ", isClick=" + isClick +
+                    '}';
         }
 
-        public void setID(String ID) {
-            this.ID = ID;
+        @Override
+        public int describeContents() {
+            return 0;
         }
 
-        public String getADDDATE() {
-            return ADDDATE;
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(this.ID);
+            dest.writeString(this.ADDDATE);
+            dest.writeString(this.MEMID);
+            dest.writeString(this.ADDRESS);
+            dest.writeString(this.ISDEFAULT);
+            dest.writeString(this.PHONE);
+            dest.writeString(this.RECEIVER);
+            dest.writeByte(this.isClick ? (byte) 1 : (byte) 0);
         }
 
-        public void setADDDATE(String ADDDATE) {
-            this.ADDDATE = ADDDATE;
+        protected RECORDBean(Parcel in) {
+            this.ID = in.readString();
+            this.ADDDATE = in.readString();
+            this.MEMID = in.readString();
+            this.ADDRESS = in.readString();
+            this.ISDEFAULT = in.readString();
+            this.PHONE = in.readString();
+            this.RECEIVER = in.readString();
+            this.isClick = in.readByte() != 0;
         }
 
-        public String getMEMID() {
-            return MEMID;
-        }
+        public static final Parcelable.Creator<RECORDBean> CREATOR = new Parcelable.Creator<RECORDBean>() {
+            @Override
+            public RECORDBean createFromParcel(Parcel source) {
+                return new RECORDBean(source);
+            }
 
-        public void setMEMID(String MEMID) {
-            this.MEMID = MEMID;
-        }
-
-        public String getADDRESS() {
-            return ADDRESS;
-        }
-
-        public void setADDRESS(String ADDRESS) {
-            this.ADDRESS = ADDRESS;
-        }
-
-        public String getISDEFAULT() {
-            return ISDEFAULT;
-        }
-
-        public void setISDEFAULT(String ISDEFAULT) {
-            this.ISDEFAULT = ISDEFAULT;
-        }
-
-        public String getPHONE() {
-            return PHONE;
-        }
-
-        public void setPHONE(String PHONE) {
-            this.PHONE = PHONE;
-        }
-
-        public String getRECEIVER() {
-            return RECEIVER;
-        }
-
-        public void setRECEIVER(String RECEIVER) {
-            this.RECEIVER = RECEIVER;
-        }
+            @Override
+            public RECORDBean[] newArray(int size) {
+                return new RECORDBean[size];
+            }
+        };
     }
 }

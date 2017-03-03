@@ -110,6 +110,7 @@ public class DeviceSettingActivity extends BaseActivity {
                     intent.putExtra(Constant.TAG_NAME,tagNum);
                     SPUtils.put(DeviceSettingActivity.this,Constant.TAG_NAME,tagNum);
                     startActivity(intent);
+                    finish();
                 }
             }
         }
@@ -160,14 +161,13 @@ public class DeviceSettingActivity extends BaseActivity {
         setContentView(R.layout.activity_device_setting);
         llMain = ((LinearLayout) findViewById(R.id.ll_main));
         llMain.setClickable(false);
-        Intent intent = getIntent();
+//        Intent intent = getIntent();
 //        SPUtils.put(this,Constant.TAG_NAME,"");
         module_ip = SPUtils.getString(this, Constant.MODULE_IP);
         ctx = this;
         Log.i(TAG,module_ip);
         client = new OkHttpClient();
         getServerInfo();
-
     }
 
     public void overBind(View view) {
@@ -184,30 +184,32 @@ public class DeviceSettingActivity extends BaseActivity {
     public void bindGoods(View view) {
         boolean is_off = SPUtils.getBoolean(this, Constant.IS_OFF);
         Log.i("DeviceSettingActivity","IS_OFF:"+is_off);
-        if (is_off){
-            Intent intent = new Intent(DeviceSettingActivity.this, BindGoodsActivity.class);
-            intent.putExtra(Constant.TAG_NAME,tagNum);
-            SPUtils.put(DeviceSettingActivity.this,Constant.TAG_NAME,tagNum);
-            startActivity(intent);
-        }else{
+//        if (is_off){
+//            Intent intent = new Intent(DeviceSettingActivity.this, BindGoodsActivity.class);
+//            intent.putExtra(Constant.TAG_NAME,tagNum);
+//            SPUtils.put(DeviceSettingActivity.this,Constant.TAG_NAME,tagNum);
+//            startActivity(intent);
+//            finish();
+//        }else{
             stopBindTAG();
-        }
+//        }
     }
 
     //配置服务
     public void configService(View view) {
         startActivity(new Intent(this,DeviceConfigActivity.class));
+        finish();
         stopSocket();
     }
 
-    private void startSocket() {
+    private void startSocket(){
         final byte[]  bytes = SmartSocketUtils.makeBytes(Constant.GET_TAGINFO, new byte[]{0x00},this);
 //        final byte[] bytes = SmartSocketUtils.makeBytes(Constant.HIBERNATE_TAG, new byte[]{0x0A});
         Log.i(TAG, "bytes:" + bytes);
         // 设置ip端口，连接超时时长 TODO 创建socket 获取标签IP
         new Thread(() -> {
-                socketThread = new SocThread(mhandler, mhandlerSend, ctx,module_ip,bytes);
-                socketThread.start();
+            socketThread = new SocThread(mhandler, mhandlerSend, ctx,module_ip,bytes);
+            socketThread.start();
 //                socketThread.send(bytes);
         }).start();
     }

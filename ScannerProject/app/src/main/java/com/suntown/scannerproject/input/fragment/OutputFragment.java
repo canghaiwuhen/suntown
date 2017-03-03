@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +26,7 @@ import com.suntown.scannerproject.R;
 import com.suntown.scannerproject.bean.Item2;
 import com.suntown.scannerproject.input.InputAndOutputActivity;
 import com.suntown.scannerproject.input.OutputCheckActivity;
-import com.suntown.scannerproject.input.adapter.NoteAdapter;
+import com.suntown.scannerproject.input.adapter.Note1Adapter;
 import com.suntown.scannerproject.input.adapter.OutNumAdapter;
 import com.suntown.scannerproject.input.bean.InOutBean;
 import com.suntown.scannerproject.input.bean.InputBean;
@@ -42,7 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -51,7 +52,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import rx.Observable;
 
 /**
  * Created by Administrator on 2016/10/28.
@@ -63,7 +63,7 @@ public class OutputFragment extends Fragment {
     public List<InputBean> inputBeanList = new ArrayList<>();
     public List<String> stringList;
     private List<InOutBean> inOutBelist = new ArrayList<>();
-    private NoteAdapter adapter;
+    private Note1Adapter adapter;
     private OutNumAdapter outAdapter;
     private OkHttpClient client;
     private String serverIP;
@@ -74,7 +74,7 @@ public class OutputFragment extends Fragment {
     private TextView tvNumTitle;
     private TextView tvNum;
     private RelativeLayout rlTitle;
-    private ListView lvItem;
+    private RecyclerView lvItem;
     private ListView lvOldItem;
     private String oddNum ;
     private String sid;
@@ -159,7 +159,7 @@ public class OutputFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         });
-        adapter = new NoteAdapter(getActivity(), inputBeanList);
+
         outAdapter = new OutNumAdapter(getActivity(),stringList);
         client = ((InputAndOutputActivity) getActivity()).client;
         serverIP = ((InputAndOutputActivity) getActivity()).serverIP;
@@ -174,9 +174,12 @@ public class OutputFragment extends Fragment {
         rlTitle = (RelativeLayout) inflate.findViewById(R.id.rl_title);
         inflate.findViewById(R.id.tv_delete).setVisibility(View.GONE);
         //扫描数据
-        lvItem = (ListView) inflate.findViewById(R.id.lv_item);
+        lvItem = (RecyclerView) inflate.findViewById(R.id.lv_item);
         //历史数据
         lvOldItem = (ListView) inflate.findViewById(R.id.lv_old_item);
+        lvItem.setHasFixedSize(true);
+        lvItem.setLayoutManager(new LinearLayoutManager(getActivity()));
+        adapter = new Note1Adapter(R.layout.input_item,inputBeanList);
         lvItem.setAdapter(adapter);
         //
         lvOldItem.setAdapter(outAdapter);
@@ -319,7 +322,7 @@ public class OutputFragment extends Fragment {
                         if (null!=(gName) && null!=barcode) {
                             String time = Utils.Time();
                             Log.i(TAG, "barcode:" + barcode + ",+gName:" + gName + ",time:" + time);
-                            InputBean bean = new InputBean(barcode, gName, "1", "1", time);
+                            InputBean bean = new InputBean(barcode, gName, "", "", time);
                             if (!inputBeanList.contains(bean)) {
                                 inputBeanList.add(0,bean);
                             }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.suntown.smartscreen">
+
+    <!-- android:versionCode="@string/versionCode" -->
+    <!-- android:versionName="@string/versionName" -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS" />
+
+    <application
+        android:name=".base.BaseApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".WelcomeActivity" android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".login.LoginActivity" />
+        <activity android:name=".GuideActivity" />
+        <activity android:name=".updatePsw.UpdatePswActivity" />
+        <activity android:name=".server.ChooseServerActvity" />
+        <activity android:name=".price.UpdatePriceActivity" />
+        <activity android:name=".price.chooseShop.ChooseShopActivity" />
+        <activity android:name=".CreamaActivity" />
+        <activity android:name=".price.changePrice.ChangePriceActivity" />
+        <activity android:name=".price.HistortyActivity" />
+        <activity android:name=".price.HistoryDetialActivity" />
+        <activity android:name=".maintain.MainTainActivity" />
+        <activity android:name=".maintain.detial.MainTainDetialActivity" />
+        <activity android:name=".maintain.allocation.AllocationActivity" />
+        <activity android:name=".shopCenter.ShopCenterActivity" />
+        <activity android:name=".shopCenter.detial.ShopDetialActivity" />
+        <activity android:name=".shopCenter.detial.ApDetialActivity" />
+        <activity android:name=".shopCenter.detial.BoardDetialActivity" />
+        <activity android:name=".shopCenter.AllocatingTaskActivity" />
+        <activity android:name=".spaceShelf.SpaceShelfActivity" />
+        <activity android:name=".spaceShelf.ShelfDetialActivity"></activity>
+    </application>
+
+</manifest>

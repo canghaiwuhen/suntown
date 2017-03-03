@@ -34,7 +34,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class GoodsDetialActivity extends Activity {
+public class GoodsDetialActivity extends BaseActivity {
 
     private static final String TAG = "GoodsDetialActivity";
     @BindView(R.id.tv_code)

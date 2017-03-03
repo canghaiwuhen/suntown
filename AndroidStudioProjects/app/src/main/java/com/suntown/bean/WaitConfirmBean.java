@@ -299,11 +299,13 @@ public class WaitConfirmBean {
 
         public static class ORDERINFOBean implements Parcelable {
             private String BARCODE;
+            private String NUM;
             private String DTYPE;
             private String TINYIP;
             private String GNAME;
             private String ORIGIN;
             private String IMGPATH;
+
 
             public String getBARCODE() {
                 return BARCODE;
@@ -311,6 +313,14 @@ public class WaitConfirmBean {
 
             public void setBARCODE(String BARCODE) {
                 this.BARCODE = BARCODE;
+            }
+
+            public String getNUM() {
+                return NUM;
+            }
+
+            public void setNUM(String NUM) {
+                this.NUM = NUM;
             }
 
             public String getDTYPE() {
@@ -354,6 +364,19 @@ public class WaitConfirmBean {
             }
 
             @Override
+            public String toString() {
+                return "ORDERINFOBean{" +
+                        "BARCODE='" + BARCODE + '\'' +
+                        ", NUM='" + NUM + '\'' +
+                        ", DTYPE='" + DTYPE + '\'' +
+                        ", TINYIP='" + TINYIP + '\'' +
+                        ", GNAME='" + GNAME + '\'' +
+                        ", ORIGIN='" + ORIGIN + '\'' +
+                        ", IMGPATH='" + IMGPATH + '\'' +
+                        '}';
+            }
+
+            @Override
             public int describeContents() {
                 return 0;
             }
@@ -361,6 +384,7 @@ public class WaitConfirmBean {
             @Override
             public void writeToParcel(Parcel dest, int flags) {
                 dest.writeString(this.BARCODE);
+                dest.writeString(this.NUM);
                 dest.writeString(this.DTYPE);
                 dest.writeString(this.TINYIP);
                 dest.writeString(this.GNAME);
@@ -373,6 +397,7 @@ public class WaitConfirmBean {
 
             protected ORDERINFOBean(Parcel in) {
                 this.BARCODE = in.readString();
+                this.NUM = in.readString();
                 this.DTYPE = in.readString();
                 this.TINYIP = in.readString();
                 this.GNAME = in.readString();
@@ -421,7 +446,7 @@ public class WaitConfirmBean {
             dest.writeString(this.MSGID);
             dest.writeString(this.MSGSENDFLAG);
             dest.writeString(this.FNAME);
-            dest.writeList(this.ORDERINFO);
+            dest.writeTypedList(this.ORDERINFO);
         }
 
         public RECORDBean() {
@@ -449,8 +474,7 @@ public class WaitConfirmBean {
             this.MSGID = in.readString();
             this.MSGSENDFLAG = in.readString();
             this.FNAME = in.readString();
-            this.ORDERINFO = new ArrayList<ORDERINFOBean>();
-            in.readList(this.ORDERINFO, ORDERINFOBean.class.getClassLoader());
+            this.ORDERINFO = in.createTypedArrayList(ORDERINFOBean.CREATOR);
         }
 
         public static final Parcelable.Creator<RECORDBean> CREATOR = new Parcelable.Creator<RECORDBean>() {

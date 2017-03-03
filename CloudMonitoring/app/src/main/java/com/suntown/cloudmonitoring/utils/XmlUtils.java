@@ -1,7 +1,7 @@
 package com.suntown.cloudmonitoring.utils;
 
+import com.suntown.cloudmonitoring.bean.InputBean;
 import com.suntown.cloudmonitoring.bean.PDBean;
-import com.suntown.cloudmonitoring.bean.inputBean;
 
 import java.util.List;
 
@@ -45,10 +45,10 @@ public class XmlUtils {
 //    <PASSUSER>suntown</PASSUSER>
 //    </GOODS_INS>
 //    </GOODS_IN>
-    public static String List2Xml(List<inputBean> inputBeanList,String userId,String oddNum,String sid) {
+    public static String List2Xml(List<InputBean> inputBeanList, String userId, String oddNum, String sid) {
         String time = Utils.Time();
         String xml = "<GOODS_IN>";
-        for (inputBean inputBean : inputBeanList) {
+        for (InputBean inputBean : inputBeanList) {
             String barcode = inputBean.Barcode;
             String num = inputBean.num;
             String date = inputBean.Date;
@@ -61,7 +61,7 @@ public class XmlUtils {
             xml+="<INNUM>"+num+"</INNUM>";
             xml+="<PDate>"+date+"</PDate></GOODS_IN_LIST>";
         }
-        for (inputBean inputBean : inputBeanList) {
+        for (InputBean inputBean : inputBeanList) {
             String date = inputBean.Date;
             xml+="<GOODS_INS>";
             xml+="<INUSER>"+userId+"</INUSER>";
@@ -74,10 +74,10 @@ public class XmlUtils {
         xml+="</GOODS_IN>";
         return xml;
     }
-    public static String ListXml(List<inputBean> inputBeanList,String userId,String oddNum,String sid) {
+    public static String ListXml(List<InputBean> inputBeanList, String userId, String oddNum, String sid) {
         String time = Utils.Time();
-        String xml = "<GOODS_IN>";
-        for (inputBean inputBean : inputBeanList) {
+        String xml = "<GOODS_OUT>";
+        for (InputBean inputBean : inputBeanList) {
             String barcode = inputBean.Barcode;
             String num = inputBean.num;
             String date = inputBean.Date;
@@ -90,7 +90,7 @@ public class XmlUtils {
             xml+="<OUTNUM>"+num+"</OUTNUM>";
             xml+="<PDate>"+date+"</PDate></GOODS_OUT_LIST>";
         }
-        for (inputBean inputBean : inputBeanList) {
+        for (InputBean inputBean : inputBeanList) {
             String date = inputBean.Date;
             xml+="<GOODS_OUTS>";
             xml+="<OUTUSER>"+userId+"</OUTUSER>";
@@ -103,7 +103,6 @@ public class XmlUtils {
         xml+="</GOODS_OUT>";
         return xml;
     }
-
 
 //        <?xml version="1.0" encoding="utf-8"?>
 //    <GOODS_OUT>
@@ -140,10 +139,10 @@ public class XmlUtils {
 //    <PASSUSER>suntown</PASSUSER>
 //    </GOODS_OUTS>
 //    </GOODS_OUT>
-    public static String List2Xml2(List<inputBean> inputBeanList, String userId, String oddNum, String sid) {
+    public static String List2Xml2(List<InputBean> inputBeanList, String userId, String oddNum, String sid) {
         String time = Utils.Time();
         String xml ="<GOODS_OUT>";
-        for (inputBean inputBean : inputBeanList) {
+        for (InputBean inputBean : inputBeanList) {
             String barcode = inputBean.Barcode;
             String num = inputBean.num;
             String date = inputBean.Date;
@@ -156,7 +155,7 @@ public class XmlUtils {
             xml+="<OUTNUM>"+num+"</OUTNUM>";
             xml+="<PDate>"+date+"</PDate></GOODS_OUT_LIST>";
         }
-        for (inputBean inputBean : inputBeanList) {
+        for (InputBean inputBean : inputBeanList) {
             String date = inputBean.Date;
             xml+="<GOODS_OUTS>";
             xml+="<OUTUSER>"+userId+"</OUTUSER>";
