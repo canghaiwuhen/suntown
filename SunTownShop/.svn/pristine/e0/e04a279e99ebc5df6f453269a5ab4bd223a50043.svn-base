@@ -1,0 +1,178 @@
+package com.suntown.suntownshop;
+
+import java.util.HashMap;
+
+import org.json.JSONObject;
+
+import com.suntown.suntownshop.asynctask.PostAsyncTask;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.utils.FormatValidation;
+import com.suntown.suntownshop.utils.Md5Manager;
+import com.suntown.suntownshop.utils.XmlParser;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.text.InputType;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.TextView;
+/**
+ * 绑定会员卡
+ *
+ * @author 钱凯
+ * @version 2015年4月21日 上午9:33:40
+ *
+ */
+public class BindCardActivity extends Activity {
+	private EditText etCardNo;
+	private EditText etIdNo;
+	private Button btnConfirm;
+	private TextView tvErrMsg;
+	private String mIdNo;
+	private String mCardNo;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.myaccount_bindcard);
+
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		boolean isLogin = sharedPreferences.getBoolean("islogin", false);
+		String userId = sharedPreferences.getString("userId", "");
+
+		if (!isLogin || "".equalsIgnoreCase(userId)) {
+
+			Intent intent = new Intent(this, LoginActivity.class);
+			startActivity(intent);
+			finish();
+		}
+		etCardNo = (EditText) findViewById(R.id.et_cardno);
+		etIdNo = (EditText) findViewById(R.id.et_idno);
+		btnConfirm = (Button) findViewById(R.id.btn_confirm);
+		tvErrMsg = (TextView) findViewById(R.id.tv_errmsg);
+	}
+
+	private boolean checkCardNo() {
+		mCardNo = etCardNo.getText().toString();
+		if (!FormatValidation.isCharacterOrNumber(mCardNo)) {
+			tvErrMsg.setVisibility(View.VISIBLE);
+			tvErrMsg.setText("会员卡号不合法!");
+			return false;
+		}
+		return true;
+	}
+
+	private boolean checkIdNo() {
+		mIdNo = etIdNo.getText().toString();
+		if (!FormatValidation.isIdCard(mIdNo)) {
+			tvErrMsg.setVisibility(View.VISIBLE);
+			tvErrMsg.setText("身份证号码不合法!");
+			return false;
+		}
+		return true;
+	}
+
+	public void close(View v) {
+		finish();
+	}
+
+	public void confirm(View v) {
+		if (checkCardNo() && checkIdNo()) {
+			showProgress(true);
+			HashMap<String, String> params = new HashMap<String, String>();
+			SharedPreferences mSharedPreferences = getSharedPreferences(
+					"suntownshop", 0);
+			String userId = mSharedPreferences.getString("userId", "");
+			String voucher = mSharedPreferences.getString("m_voucher", "");
+			params.put("memid", userId);
+			params.put("logintoken", voucher);
+			params.put("memno", mCardNo);
+			params.put("cardno", mIdNo);
+			PostAsyncTask postAsyncTask = new PostAsyncTask(URL, callback);
+			postAsyncTask.execute(params);
+		}
+	}
+
+	private final static String URL = Constants.DOMAIN_NAME+"axis2/services/sunteslwebservice/memberbind";
+
+	private OnCompleteCallback callback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					System.out.println("msg------>" + msg);
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						Toast.makeText(getApplicationContext(), "绑定成功!",
+								Toast.LENGTH_SHORT).show();
+						SharedPreferences mSharedPreferences = getSharedPreferences(
+								"suntownshop", 0);
+						SharedPreferences.Editor mEditor = mSharedPreferences
+								.edit();
+						mEditor.putString("menno", mCardNo);
+						mEditor.putBoolean("isvip",
+								mCardNo == null || "".equals(mCardNo) ? false
+										: true);
+						mEditor.commit();
+					} else {
+						Toast.makeText(getApplicationContext(), "绑定失败，请重试!",
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+			showProgress(false);
+		}
+	};
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(BindCardActivity.this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+}

@@ -1,0 +1,1051 @@
+package com.suntown.suntownshop;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.suntown.suntownshop.db.ShopCartDb;
+import com.suntown.suntownshop.model.Goods;
+import com.suntown.suntownshop.runnable.GetJsonRunnable;
+import com.suntown.suntownshop.service.LocalService;
+import com.suntown.suntownshop.utils.BLEUtils;
+import com.suntown.suntownshop.utils.FileManager;
+import com.suntown.suntownshop.utils.IsChineseOrNot;
+import com.suntown.suntownshop.utils.JsonParser;
+import com.suntown.suntownshop.widget.ConfirmDialog;
+import com.suntown.zxing.activity.CaptureActivity;
+
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.IntentFilter.MalformedMimeTypeException;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Parcelable;
+import android.provider.Settings;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTabHost;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TabHost.OnTabChangeListener;
+import android.widget.Toast;
+import android.widget.TabHost.TabSpec;
+import android.widget.TextView;
+
+/**
+ * @author ken 功能描述：自定义TabHost
+ */
+public class MainTabActivity extends FragmentActivity {
+	private String mUId = "";
+	private String mShopId = "";
+	private TextView tvCartNum;
+
+	private static final int REQUEST_MSG_ENABLE_NETWORK_LOCATION = 3;
+	// 定义FragmentTabHost对象
+	private FragmentTabHost mTabHost;
+
+	// 定义一个布局
+	private LayoutInflater layoutInflater;
+
+	// 定义数组来存放Fragment界面
+	private Class fragmentArray[] = { FragmentPage1.class, FragmentPage3.class,
+			FragmentPage4.class, FragmentPage5.class };
+
+	// 定义数组来存放按钮图片
+	private int mImageViewArray[] = { R.drawable.tab_home_btn,
+			R.drawable.tab_hot_btn, R.drawable.tab_shopcart_btn,
+			R.drawable.tab_myshop_btn };
+
+	// Tab选项卡的文字
+	private String mTextviewArray[] = { "首页", "热门", "购物车", "我的" };
+
+	private String lastTabTag = "首页";
+	private String curTabTag = "首页";
+	private long exitTime = 0;
+
+	private LocalService mService;
+	private boolean isBindService = false;
+	// 定位
+	private LocationManager lm;
+	/**
+	 * imageloader相关
+	 */
+	DisplayImageOptions options;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+
+	private void initOptions() {
+		options = new DisplayImageOptions.Builder()
+				.showImageOnLoading(R.drawable.picture_loading_200x200)
+				.showImageForEmptyUri(R.drawable.picture_noimg_200x200)
+				.showImageOnFail(R.drawable.picture_holder_200x200)
+				.cacheInMemory(true).cacheOnDisk(true).build();
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			/*
+			 * 原分类模块按返回键退回到大类列表，分类模块已取消 if (mTabHost.getCurrentTab() == 1) {
+			 * FragmentManager frgman = getSupportFragmentManager(); if
+			 * (!((FragmentPage2) frgman
+			 * .findFragmentByTag(mTextviewArray[1])).backKeyDown()) { return
+			 * true; } }
+			 */
+			if (mTabHost.getCurrentTab() == 0) {
+				if ((System.currentTimeMillis() - exitTime) > 2000) {
+					Toast.makeText(getApplicationContext(),
+							getString(R.string.retrytoexit_text),
+							Toast.LENGTH_SHORT).show();
+					exitTime = System.currentTimeMillis();
+				} else {
+					// logout();
+					finish();
+				}
+			} else {
+				mTabHost.setCurrentTab(0);
+			}
+			return true;
+		}
+
+		return super.onKeyDown(keyCode, event);
+	}
+
+	private static final String TAG = "suntownshop";
+	NfcAdapter mNfcAdapter;
+	PendingIntent mNfcPendingIntent;
+	IntentFilter[] mNdefExchangeFilters;
+
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main_tab_layout);
+
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		mUId = sharedPreferences.getString("userId", "");
+		SharedPreferences.Editor mEditor = sharedPreferences.edit();
+		mEditor.putString("shopid", "");
+		mEditor.putString("shopfullname", "");
+		mEditor.putString("floors", "");
+		mEditor.putString("floornames", "");
+		mEditor.commit();
+		IntentFilter filter = new IntentFilter(
+				Constants.ACTION_SHOPCART_CHANGED);
+		registerReceiver(shopcartReceiver, filter);
+
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+		Constants.displayWidth = displayMetrics.widthPixels;
+		Constants.displayHeight = displayMetrics.heightPixels;
+
+		initView();
+
+		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+		if (mNfcAdapter == null) {
+			Toast.makeText(this, "该设备不支持NFC!", Toast.LENGTH_SHORT).show();
+		} else if (!mNfcAdapter.isEnabled()) {
+			handler.sendEmptyMessage(MSG_SET_NFC);
+		}
+
+		mNfcPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this,
+				getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+
+		// Intent filters for reading a note from a tag or exchanging over
+		// p2p.
+		IntentFilter ndefDetected = new IntentFilter(
+				NfcAdapter.ACTION_NDEF_DISCOVERED);
+		try {
+			ndefDetected.addDataType("text/plain");
+		} catch (MalformedMimeTypeException e) {
+		}
+		mNdefExchangeFilters = new IntentFilter[] { ndefDetected };
+
+		checkNetWork();
+
+		networkLocation();
+
+	}
+
+	// 网络定位
+	private void networkLocation() {
+		// 获取到LocationManager对象
+		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		// 判断GPS是否正常启动
+		if (!lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+			Toast.makeText(this, "请开启网络定位...", Toast.LENGTH_SHORT).show();
+			// 返回开启GPS导航设置界面
+			Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			startActivityForResult(intent, REQUEST_MSG_ENABLE_NETWORK_LOCATION);
+			return;
+		}
+
+		// 根据设置的Criteria对象，获取最符合此标准的provider对象
+		String currentProvider = lm.getBestProvider(getCriteria(), true);
+		Log.d("Location", "currentProvider: " + currentProvider);
+		// 根据当前provider对象获取最后一次位置信息
+		// Location currentLocation = lm.getLastKnownLocation(currentProvider);
+		// 如果位置信息为null，则请求更新位置信息
+		// if(currentLocation == null){
+		lm.requestLocationUpdates(currentProvider, 0, 0, locationListener);
+
+	}
+
+	/**
+	 * 返回查询条件
+	 * 
+	 * @return
+	 */
+	private Criteria getCriteria() {
+		Criteria criteria = new Criteria();
+		// 设置定位精确度 Criteria.ACCURACY_COARSE比较粗略，Criteria.ACCURACY_FINE则比较精细
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		// 设置是否要求速度
+		criteria.setSpeedRequired(false);
+		// 设置是否允许运营商收费
+		criteria.setCostAllowed(false);
+		// 设置是否需要方位信息
+		criteria.setBearingRequired(false);
+		// 设置是否需要海拔信息
+		criteria.setAltitudeRequired(false);
+		// 设置对电源的需求
+		criteria.setPowerRequirement(Criteria.POWER_LOW);
+		return criteria;
+	}
+
+	// 位置监听
+	private LocationListener locationListener = new LocationListener() {
+
+		/**
+		 * 位置信息变化时触发
+		 */
+		public void onLocationChanged(Location location) {
+			// getNearbyShop(120.17291399, 30.27861720);
+			getNearbyShop(location.getLongitude(), location.getLatitude());
+			// Log.i(TAG, "时间：" + location.getTime());
+			// Log.i(TAG, "经度：" + location.getLongitude());
+			// Log.i(TAG, "纬度：" + location.getLatitude());
+			// Log.i(TAG, "海拔：" + location.getAltitude());
+		}
+
+		/**
+		 * GPS状态变化时触发
+		 */
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+			switch (status) {
+			// GPS状态为可见时
+			case LocationProvider.AVAILABLE:
+				// Log.i(TAG, "当前GPS状态为可见状态");
+				break;
+			// GPS状态为服务区外时
+			case LocationProvider.OUT_OF_SERVICE:
+				// Log.i(TAG, "当前GPS状态为服务区外状态");
+				break;
+			// GPS状态为暂停服务时
+			case LocationProvider.TEMPORARILY_UNAVAILABLE:
+				// Log.i(TAG, "当前GPS状态为暂停服务状态");
+				break;
+			}
+		}
+
+		/**
+		 * GPS开启时触发
+		 */
+		public void onProviderEnabled(String provider) {
+
+		}
+
+		/**
+		 * GPS禁用时触发
+		 */
+		public void onProviderDisabled(String provider) {
+
+		}
+
+	};
+
+	/**
+	 * 检查网络
+	 */
+	private void checkNetWork() {
+		if (!Constants.isConnect(this)) {
+			handler.sendEmptyMessage(MSG_SET_NETWORK);
+		}
+	}
+
+	public void showLogin(View v) {
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		boolean isLogin = sharedPreferences.getBoolean("islogin", false);
+		if (!isLogin) {
+			Intent intent = new Intent(MainTabActivity.this,
+					LoginActivity.class);
+			startActivity(intent);
+		} else {
+			Intent intent = new Intent(MainTabActivity.this,
+					AvatarModifyActivity.class);
+			startActivity(intent);
+		}
+	}
+
+	public void goSetting(View v) {
+		Intent intent = new Intent(MainTabActivity.this, SettingActivity.class);
+		startActivity(intent);
+	}
+
+	public void onScan(View v) {
+		// TODO Auto-generated method stub
+		try {
+			Intent openCameraIntent = new Intent(MainTabActivity.this,
+					CaptureActivity.class);
+			startActivityForResult(openCameraIntent, 0);
+		} catch (Exception e) {
+			Toast.makeText(MainTabActivity.this, e.getMessage(),
+					Toast.LENGTH_LONG).show();
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+
+		System.out.println("requestCode:" + requestCode + " resultCode:"
+				+ resultCode);
+		if (requestCode == REQUEST_MSG_ENABLE_NETWORK_LOCATION) {
+			if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+				networkLocation();
+			}
+		} else if (resultCode == Activity.RESULT_OK) {
+			if (mTabHost.getCurrentTab() == 1) {
+				FragmentManager frgman = getSupportFragmentManager();
+				frgman.findFragmentByTag(mTextviewArray[1]).onActivityResult(
+						requestCode, resultCode, data);
+				return;
+			}
+			Bundle bundle = data.getExtras();
+			String scanResult = bundle.getString("result");
+			String format = bundle.getString("format");
+			System.out.println("Scan Result---------->" + scanResult);
+			if (format.equalsIgnoreCase("QR_CODE")) { // 二维码
+				String UTF_Str = "";
+				String GB_Str = "";
+				boolean is_cN = false;
+				try {
+					UTF_Str = new String(scanResult.getBytes("ISO-8859-1"),
+							"UTF-8");
+					System.out.println("这是转了UTF-8的" + UTF_Str);
+					is_cN = IsChineseOrNot.isChineseCharacter(UTF_Str);
+					// 防止有人特意使用乱码来生成二维码来判断的情况
+					boolean b = IsChineseOrNot.isSpecialCharacter(scanResult);
+					if (b) {
+						is_cN = true;
+					}
+					System.out.println("是为:" + is_cN);
+					if (!is_cN) {
+						GB_Str = new String(scanResult.getBytes("ISO-8859-1"),
+								"GB2312");
+						System.out.println("这是转了GB2312的" + GB_Str);
+					}
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (is_cN) {
+					scanResult = UTF_Str;
+				} else {
+					scanResult = GB_Str;
+				}
+
+				int l = scanResult.indexOf("BC:");
+				// int len = scanResult.length();
+				
+				int r = scanResult.indexOf(";",l); //
+				String barCode = "";
+				if (l >= 0 && r > l) {
+					barCode = scanResult.substring(l + 3, r);
+					
+					add2Cart(barCode,"2");
+				} else {
+					Toast.makeText(MainTabActivity.this,
+							getString(R.string.qrcode_cantfind),
+							Toast.LENGTH_SHORT).show();
+				}
+			} else { // 条码
+				add2Cart(scanResult,"1");
+			}
+
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	/**
+	 * 初始化组件
+	 */
+	private void initView() {
+		// 实例化布局对象
+		layoutInflater = LayoutInflater.from(this);
+
+		// 实例化TabHost对象，得到TabHost
+		mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
+		mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+
+		// 得到fragment的个数
+		int count = fragmentArray.length;
+
+		for (int i = 0; i < count; i++) {
+			// 为每一个Tab按钮设置图标、文字和内容
+			TabSpec tabSpec = mTabHost.newTabSpec(mTextviewArray[i])
+					.setIndicator(getTabItemView(i));
+			// 将Tab按钮添加进Tab选项卡中
+			mTabHost.addTab(tabSpec, fragmentArray[i], null);
+			// 设置Tab按钮的背景
+			/*
+			 * mTabHost.getTabWidget().getChildAt(i)
+			 * .setBackgroundResource(R.drawable.selector_tab_background);
+			 */
+
+		}
+		mTabHost.setOnTabChangedListener(new OnTabChangeListener() {
+
+			@Override
+			public void onTabChanged(String tabId) {
+				// TODO Auto-generated method stub
+				lastTabTag = curTabTag;
+				curTabTag = tabId;
+			}
+		});
+
+	}
+
+	private void enableNdefExchangeMode() {
+		if (mNfcAdapter != null && mNfcAdapter.isEnabled()) {
+			mNfcAdapter.enableForegroundDispatch(this, mNfcPendingIntent,
+					mNdefExchangeFilters, null);
+		}
+	}
+
+	private void disableNdefExchangeMode() {
+		if (mNfcAdapter != null && mNfcAdapter.isEnabled()) {
+			mNfcAdapter.disableForegroundDispatch(this);
+		}
+	}
+
+	/**
+	 * 加入购物车
+	 * 
+	 * @param barCode
+	 * @param type 1-扫条码  2-扫二维码  3-NFC
+	 */
+	private void add2Cart(String barCode, String type) {
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		mUId = sharedPreferences.getString("userId", "");
+		mShopId = sharedPreferences.getString("shopid", "");
+		showProgress(true);
+		System.out.println(URL + barCode
+				+ "&memid=" + mUId + "&datype=" + type + "&sidDate=" + mShopId);
+		GetJsonRunnable getJsonRunnable = new GetJsonRunnable(URL + barCode
+				+ "&memid=" + mUId + "&datype=" + type + "&sidDate=" + mShopId,
+				MSG_GETGOODDETAIL_COMPLETE, handler);
+		new Thread(getJsonRunnable).start();
+	}
+
+	private final static int MSG_GETGOODDETAIL_COMPLETE = 1;
+	private final static int MSG_GETGOODSLIST_COMPLETE = 2;
+	private final static int MSG_ERR_NETWORKERR = -1;
+	private final static int MSG_GETKINDS_COMPLETE = 3;
+	private final static int MSG_GETSHOP_COMPLETE = 4;
+	private final static int MSG_SET_NETWORK = 5;
+	private final static int MSG_SET_NFC = 6;
+	private String URL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/Getgoods_info?Barcode=";
+
+	private String URL_GETSHOP = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/getNearbyShop";
+
+	/**
+	 * 获取附近超市
+	 * 
+	 * 
+	 */
+	private void getNearbyShop(double lng, double lat) {
+		lm.removeUpdates(locationListener);
+		// showProgress(true);
+		GetJsonRunnable getJsonRunnable = new GetJsonRunnable(URL_GETSHOP
+				+ "?lng=" + lng + "&lat=" + lat, MSG_GETSHOP_COMPLETE, handler);
+		new Thread(getJsonRunnable).start();
+	}
+
+	private void refreshLocation(String shopName) {
+		FragmentManager frgman = getSupportFragmentManager();
+		((FragmentPage1) frgman.findFragmentByTag(mTextviewArray[0]))
+				.refreshLocation(shopName);
+		;
+	}
+
+	private Handler handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			if (MainTabActivity.this == null
+					|| MainTabActivity.this.isFinishing()) {
+				return;
+			}
+			showProgress(false);
+			Bundle bundle;
+			String strMsg;
+			JSONObject jsonObj;
+			JSONArray jsonArray;
+			boolean isDone = false;
+			switch (msg.what) {
+			case MSG_SET_NFC:
+				ConfirmDialog dialog = new ConfirmDialog(MainTabActivity.this,
+						"开启NFC可以快速扫描商品，是否开启?", "温馨提醒", "是", "否");
+				if (dialog.ShowDialog()) {
+					startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
+				}
+				break;
+			case MSG_SET_NETWORK:
+				ConfirmDialog dialogNetwrok = new ConfirmDialog(
+						MainTabActivity.this, "网络出错，请检查网络配置",
+						getString(R.string.tips_text), "退出", "设置");
+				if (dialogNetwrok.ShowDialog()) {
+					finish();
+				} else {
+					Constants.setNetWork(MainTabActivity.this);
+				}
+				break;
+			case MSG_GETSHOP_COMPLETE:
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_JSON");
+				try {
+					jsonObj = new JSONObject(strMsg);
+					int state = jsonObj.getInt("RESULT");
+					if (state == 0) {
+						jsonObj = jsonObj.getJSONObject("RECORD");
+						mShopId = jsonObj.getString("SID");
+						String shopFname = jsonObj.getString("FNAME");
+						jsonArray = jsonObj.getJSONArray("FLOORS");
+						String floors = "";
+						String floorNames = "";
+						for (int i = 0; i < jsonArray.length(); i++) {
+							jsonObj = (JSONObject) jsonArray.opt(i);
+							floors += jsonObj.getString("FLOORNO");
+							floors += ";";
+							floorNames += jsonObj.getString("FLOORNAME");
+							floorNames += ";";
+						}
+						SharedPreferences mSharedPreferences = getSharedPreferences(
+								"suntownshop", 0);
+						SharedPreferences.Editor mEditor = mSharedPreferences
+								.edit();
+						mEditor.putString("shopid", mShopId);
+						mEditor.putString("shopfullname", shopFname);
+						mEditor.putString("floors", floors);
+						mEditor.putString("floornames", floorNames);
+						mEditor.commit();
+
+						refreshLocation(shopFname);
+
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_LONG).show();
+				}
+				break;
+			case MSG_GETGOODDETAIL_COMPLETE:
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_JSON");
+				try {
+					jsonObj = new JSONObject(strMsg);
+					jsonArray = jsonObj.getJSONArray("INFO");
+					if (jsonArray.length() > 0) {
+						jsonObj = (JSONObject) jsonArray.opt(0);
+						String barCode = jsonObj.getString("BARCODE");
+						String gCode = jsonObj.getString("GCODE");
+						String gName = jsonObj.getString("GNAME");
+						String gKind = jsonObj.getString("KIND");
+						String gUnit = jsonObj.getString("UNIT");
+						String gOriPrice = jsonObj.getString("ORIPRICE");
+						String gMemPrice = jsonObj.getString("MEMPRICE");
+						String gUptPrice = jsonObj.getString("UPTPRICE");
+						String gSpec = jsonObj.getString("SPEC");
+						String gClass = jsonObj.getString("GCLASS");
+						String gProvider = jsonObj.getString("PROVIDER");
+						String gBrand = jsonObj.getString("BRAND");
+						String gOrigin = jsonObj.getString("ORIGIN");
+						String gImgPath = jsonObj.getString("IMGPATH");
+						int priceType = jsonObj.getInt("PRICETYPE");
+						int deliverType = jsonObj.getInt("DELIVERYMODE");
+						Goods goods = new Goods(barCode, gCode, gName, gKind,
+								gUnit, gOriPrice, gMemPrice, gUptPrice, gSpec,
+								gClass, gProvider, gBrand, gOrigin, gImgPath,
+								priceType, deliverType);
+						try {
+							SharedPreferences mSharedPreferences = getSharedPreferences(
+									"suntownshop", 0);
+							String userId = mSharedPreferences.getString(
+									"userId", "");
+							boolean isVip = mSharedPreferences.getBoolean(
+									"isvip", false);
+							ShopCartDb scdb = new ShopCartDb(
+									MainTabActivity.this, userId);
+							double curPrice = goods.getCurPrice(isVip);
+							if (scdb.insertGoods(goods.getBarCode(),
+									goods.getName(), goods.getImgPath(),
+									goods.getSpec(), curPrice, 1,
+									goods.getDeliverType())) {
+								Toast.makeText(getApplicationContext(),
+										"加入购物车成功", Toast.LENGTH_SHORT).show();
+								isDone = true;
+							} else {
+								Toast.makeText(getApplicationContext(),
+										"加入购物车失败", Toast.LENGTH_SHORT).show();
+							}
+							scdb.Close();
+						} catch (Exception e) {
+							// TODO: handle exception
+							Toast.makeText(getApplicationContext(),
+									"ERROR:加入购物车错误" + e.getMessage(),
+									Toast.LENGTH_LONG).show();
+						}
+					} else {
+						Toast.makeText(getApplicationContext(),
+								getString(R.string.qrcode_cantfind),
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(getApplicationContext(),
+							"ERROR:" + e.getMessage(), Toast.LENGTH_SHORT)
+							.show();
+					e.printStackTrace();
+				}
+
+				break;
+			case MSG_ERR_NETWORKERR:
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_ERR");
+				Toast.makeText(getApplicationContext(), "ERROR:" + strMsg,
+						Toast.LENGTH_LONG).show();
+				break;
+			}
+
+			if (isDone) {
+				if (mTabHost.getCurrentTab() == 2) {
+
+					FragmentManager frgman = getSupportFragmentManager();
+					((FragmentPage4) frgman
+							.findFragmentByTag(mTextviewArray[2])).initViews();
+				} else {
+					mTabHost.setCurrentTab(2);
+				}
+			}
+			super.handleMessage(msg);
+		}
+
+	};
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(MainTabActivity.this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+
+	/**
+	 * 根据条形码跳转到商品详情页
+	 * 
+	 * @param barCode
+	 */
+	private void showGoodsDetail(String barCode) {
+		System.out.println("barCode--------->" + barCode);
+		Intent intent = new Intent(MainTabActivity.this,
+				GoodsDetailActivity.class);
+		Bundle b = new Bundle();
+		b.putString("barCode", barCode);
+		intent.putExtras(b);
+		startActivity(intent);
+	}
+
+	/**
+	 * 根据intent获取NdefMessage
+	 * 
+	 * @param intent
+	 * @return
+	 */
+	NdefMessage[] getNdefMessages(Intent intent) {
+		// Parse the intent
+		NdefMessage[] msgs = null;
+		String action = intent.getAction();
+		if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
+				|| NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+			Parcelable[] rawMsgs = intent
+					.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+			if (rawMsgs != null) {
+				msgs = new NdefMessage[rawMsgs.length];
+				for (int i = 0; i < rawMsgs.length; i++) {
+					msgs[i] = (NdefMessage) rawMsgs[i];
+				}
+			} else {
+				// Unknown tag type
+				byte[] empty = new byte[] {};
+				NdefRecord record = new NdefRecord(NdefRecord.TNF_UNKNOWN,
+						empty, empty, empty);
+				NdefMessage msg = new NdefMessage(new NdefRecord[] { record });
+				msgs = new NdefMessage[] { msg };
+			}
+		} else {
+			Log.d(TAG, "Unknown intent.");
+			finish();
+		}
+		return msgs;
+	}
+
+	public void backLastTab() {
+		if (lastTabTag != null && !"".equals(lastTabTag)) {
+			mTabHost.setCurrentTabByTag(lastTabTag);
+		}
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		// TODO Auto-generated method stub
+		super.onNewIntent(intent);
+		setIntent(intent);
+
+		if (getIntent().hasExtra("gototab")) {
+
+			Bundle b = getIntent().getExtras();
+			int index = b.getInt("gototab");
+
+			if (index == 2 && mTabHost.getCurrentTab() == index) {
+
+				FragmentManager frgman = getSupportFragmentManager();
+				((FragmentPage4) frgman.findFragmentByTag(mTextviewArray[2]))
+						.initViews();
+			} else if (mTabHost.getCurrentTab() != index) {
+				mTabHost.setCurrentTab(index);
+			}
+		}
+		if (getIntent().hasExtra("login")) {
+			if (getIntent().getBooleanExtra("login", false)) {
+				SharedPreferences mSharedPreferences = getSharedPreferences(
+						"suntownshop", 0);
+
+				String mobile = mSharedPreferences.getString("mobile", "");
+				if (mobile == null || "".equals(mobile)) {
+					ConfirmDialog dialog = new ConfirmDialog(this,
+							"您还未设置手机号码，现在设置吗?", getString(R.string.tips_text),
+							getString(R.string.confirm_text),
+							getString(R.string.cancel_text));
+					if (dialog.ShowDialog()) {
+						Intent i = new Intent(this, ModifyMobileActivity.class);
+						startActivity(i);
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		if (isBindService) {
+			unbindService(conn);
+			isBindService = false;
+		}
+		disableNdefExchangeMode();
+	}
+
+	public void addressManage(View v) {
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		boolean isLogin = sharedPreferences.getBoolean("islogin", false);
+		String userId = sharedPreferences.getString("userId", "");
+		if (!isLogin || "".equalsIgnoreCase(userId)) {
+			Intent intent = new Intent(MainTabActivity.this,
+					LoginActivity.class);
+			startActivity(intent);
+		} else {
+			Intent intent = new Intent(MainTabActivity.this,
+					AddressManageActivity.class);
+			startActivity(intent);
+		}
+	}
+
+	public void myfavorite(View v) {
+		Intent intent = new Intent(MainTabActivity.this, FavoriteActivity.class);
+		startActivity(intent);
+	}
+
+	/**
+	 * 未完成订单和历史订单整合到同一个页面
+	 * 
+	 * @param v
+	 */
+	public void myOrders(View v) {
+		showOrders(0);
+	}
+
+	public void myDoingOrders(View v) {
+		showOrders(0);
+	}
+
+	/**
+	 * 摇一摇
+	 * 
+	 * @param v
+	 */
+	public void shake(View v) {
+		Intent intent = new Intent(MainTabActivity.this, ShakeActivity.class);
+		startActivity(intent);
+	}
+
+	/**
+	 * 意见反馈
+	 * 
+	 * @param v
+	 */
+	public void suggest(View v) {
+
+	}
+
+	public void myCoupons(View v) {
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		boolean isLogin = sharedPreferences.getBoolean("islogin", false);
+		String userId = sharedPreferences.getString("userId", "");
+		if (!isLogin || "".equalsIgnoreCase(userId)) {
+			Intent intent = new Intent(MainTabActivity.this,
+					LoginActivity.class);
+			startActivity(intent);
+			return;
+		} else {
+			Intent intent = new Intent(MainTabActivity.this,
+					MyTicketsActivity.class);
+			startActivity(intent);
+		}
+	}
+
+	private void showOrders(int type) {
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		boolean isLogin = sharedPreferences.getBoolean("islogin", false);
+		String userId = sharedPreferences.getString("userId", "");
+		String username = sharedPreferences.getString("username", "");
+		String password = sharedPreferences.getString("password", "");
+		if (!isLogin || "".equalsIgnoreCase(userId)) {
+			Intent intent = new Intent(MainTabActivity.this,
+					LoginActivity.class);
+			startActivity(intent);
+			return;
+		} else {
+			Intent intent = new Intent(MainTabActivity.this,
+					MyOrdersActivity.class);
+			Bundle b = new Bundle();
+			b.putString("userId", userId);
+			b.putInt("ordertype", type);
+			intent.putExtras(b);
+			startActivity(intent);
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		// 注销购物车广播接收
+		unregisterReceiver(shopcartReceiver);
+		lm.removeUpdates(locationListener);
+		super.onDestroy();
+	}
+
+	private ServiceConnection conn = new ServiceConnection() {
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			// TODO Auto-generated method stub
+
+			mService = ((LocalService.LocalBinder) service).getService();
+			mService.readMessage(true);
+			isBindService = true;
+			System.out.println("绑定服务成功");
+		}
+	};
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		Intent intent = getIntent();
+		if (intent.hasExtra("fromnotification")) {
+			if (intent.getBooleanExtra("fromnotification", false)) {
+				Intent intentService = new Intent(
+						"com.suntown.suntownshop.SERVICE");// new
+				bindService(intentService, conn, BIND_AUTO_CREATE);
+			}
+		}
+		if (mNfcAdapter != null && mNfcAdapter.isEnabled()) {
+			if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent()
+					.getAction())) {
+				NdefMessage[] messages = getNdefMessages(getIntent());
+				byte[] payload = messages[0].getRecords()[0].getPayload();
+
+				// payload长度
+				int payloadLen = payload.length;
+
+				// 第一位为语言版本长度
+				int langLen = payload[0];
+
+				byte[] content = new byte[payloadLen - 1];
+				System.arraycopy(payload, 1, content, 0, payloadLen - 1);
+				try {
+
+					System.out.println("payload:" + langLen
+							+ new String(content, "GBK"));
+					System.out.println("payload:" + langLen
+							+ new String(content, "GB2312"));
+					System.out.println("payload:" + langLen
+							+ new String(content, "ISO-8859-1"));
+					System.out.println("payload:" + langLen
+							+ new String(content, "UTF-8"));
+					System.out.println("payload:" + langLen
+							+ new String(content, "UTF-16"));
+
+				} catch (UnsupportedEncodingException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				// 文本长度为payload长度-语言版本长度-1
+				int textLen = payloadLen - langLen - 1;
+				byte[] text = new byte[textLen];
+				System.arraycopy(payload, 1 + langLen, text, 0, textLen);
+				String body;
+				try {
+					body = new String(text, "UTF-8");
+					add2Cart(body,"3");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				setIntent(new Intent()); // Consume this intent.
+			}
+			enableNdefExchangeMode();
+		}
+	}
+
+	/**
+	 * 给Tab按钮设置图标和文字
+	 */
+	private View getTabItemView(int index) {
+		View view = layoutInflater.inflate(R.layout.tab_item_view, null);
+
+		ImageView imageView = (ImageView) view.findViewById(R.id.imageview);
+		imageView.setImageResource(mImageViewArray[index]);
+
+		TextView textView = (TextView) view.findViewById(R.id.textview);
+		textView.setText(mTextviewArray[index]);
+		if (index == 2) {
+			tvCartNum = (TextView) view.findViewById(R.id.tv_cartnum);
+			refreshCartNum();
+		}
+		return view;
+	}
+
+	// 购物车刷新广播接收者
+	private BroadcastReceiver shopcartReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// TODO Auto-generated method stub
+			refreshCartNum();
+		}
+	};
+
+	/**
+	 * 刷新购物车商品数量
+	 */
+	public void refreshCartNum() {
+		SharedPreferences sharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		mUId = sharedPreferences.getString("userId", "");
+		ShopCartDb db = new ShopCartDb(MainTabActivity.this, mUId);
+		int count = db.getCount();
+		db.Close();
+		if (count > 0) {
+			tvCartNum.setVisibility(View.VISIBLE);
+			tvCartNum.setText(count + "");
+		} else {
+			tvCartNum.setVisibility(View.GONE);
+		}
+	}
+
+	/*
+	 * 预采购清单
+	 */
+	public void prepareList(View v) {
+		Intent intent = new Intent(this, PrepareToBuyActivity.class);
+		startActivity(intent);
+	}
+}

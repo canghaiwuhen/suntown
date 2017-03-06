@@ -131,7 +131,10 @@ public class UndoneFragment extends Fragment {
         lvFragment = (ListView) inflate.findViewById(R.id.lv_fragment);
         noDevice = ((LinearLayout) inflate.findViewById(R.id.ll_no_device));
         Button startDevice = (Button)inflate.findViewById(R.id.btn_connDevice);
-        startDevice.setOnClickListener(v -> startActivity(new Intent(getActivity(), DeviceListActivity.class)));
+        startDevice.setOnClickListener(v -> {
+            getActivity().finish();
+            startActivity(new Intent(getActivity(), DeviceListActivity.class));
+        });
         final String Memid =  ((OrderCenterActivity) getActivity()).memid;
         final String ssid =  ((OrderCenterActivity) getActivity()).ssid;
 //        getUserInfo(Memid,ssid);

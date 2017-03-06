@@ -1,0 +1,240 @@
+package com.suntown.suntownshop;
+
+import java.util.HashMap;
+
+import org.json.JSONObject;
+
+import com.suntown.suntownshop.asynctask.PostAsyncTask;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.utils.FormatValidation;
+import com.suntown.suntownshop.utils.Md5Manager;
+import com.suntown.suntownshop.utils.XmlParser;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.text.InputType;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.TextView;
+/**
+ * 修改密码
+ *
+ * @author 钱凯
+ * @version 2015年4月21日 上午9:43:08
+ *
+ */
+public class ModifyPWDActivity extends Activity {
+	private EditText etOldPwd;
+	private EditText etNewPwd;
+	private EditText etNewPwd2;
+	private CheckBox cbShowOldPwd;
+	// private CheckBox cbShowNewPwd;
+	private Button btnConfirm;
+	private TextView tvErrMsg;
+	private String oldPass;
+	private String newPass;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.myaccount_modifypwd);
+		etOldPwd = (EditText) findViewById(R.id.et_oldpass);
+		etNewPwd = (EditText) findViewById(R.id.et_newpass);
+		etNewPwd2 = (EditText) findViewById(R.id.et_newpass2);
+		cbShowOldPwd = (CheckBox) findViewById(R.id.cb_showoldpass);
+		// cbShowNewPwd = (CheckBox) findViewById(R.id.cb_shownewpass);
+		btnConfirm = (Button) findViewById(R.id.btn_confirm);
+		tvErrMsg = (TextView) findViewById(R.id.tv_errmsg);
+
+		cbShowOldPwd.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				// TODO Auto-generated method stub
+				// int sel = etOldPwd.getSelectionStart();
+				if (isChecked) {
+					etOldPwd.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+					etNewPwd.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+					etNewPwd2
+							.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+				} else {
+					etOldPwd.setInputType(InputType.TYPE_CLASS_TEXT
+							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
+					etNewPwd.setInputType(InputType.TYPE_CLASS_TEXT
+							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
+					etNewPwd2.setInputType(InputType.TYPE_CLASS_TEXT
+							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				}
+				// etOldPwd.setSelection(sel);
+			}
+		});
+
+	}
+
+	private boolean checkPassword() {
+		String pass = etOldPwd.getText().toString();
+		boolean oldOk = false;
+		boolean newOk = false;
+		if (pass == null || "".equals(pass)) {
+			tvErrMsg.setText("密码不能为空!");
+		} else if (pass.length() < 6 || pass.length() > 20) {
+			tvErrMsg.setText("密码必须为6-20位!");
+		} else if (FormatValidation.isCharacter(pass)) {
+			tvErrMsg.setText("密码不能全为字母!");
+		} else if (FormatValidation.isNumeric(pass)) {
+			tvErrMsg.setText("密码不能全为数字!");
+		} else if (FormatValidation.isSymbol(pass)) {
+			tvErrMsg.setText("密码不能全为符号!");
+		} else {
+			oldPass = pass;
+			oldOk = true;
+		}
+		pass = etNewPwd.getText().toString();
+		String pass2 = etNewPwd2.getText().toString();
+		if (pass == null || "".equals(pass) || pass2 == null
+				|| "".equals(pass2)) {
+			tvErrMsg.setText("新密码不能为空!");
+		} else if (!pass.equals(pass2)) {
+			tvErrMsg.setText("两次输入的新密码不相符!");
+		} else if (pass.length() < 6 || pass.length() > 20) {
+			tvErrMsg.setText("新密码必须为6-20位!");
+		} else if (FormatValidation.isCharacter(pass)) {
+			tvErrMsg.setText("新密码不能全为字母!");
+		} else if (FormatValidation.isNumeric(pass)) {
+			tvErrMsg.setText("新密码不能全为数字!");
+		} else if (FormatValidation.isSymbol(pass)) {
+			tvErrMsg.setText("新密码不能全为符号!");
+		} else {
+			newPass = pass;
+			newOk = true;
+		}
+		if (oldOk && newOk) {
+			tvErrMsg.setVisibility(View.GONE);
+			return true;
+		} else {
+			tvErrMsg.setVisibility(View.VISIBLE);
+			return false;
+		}
+	}
+
+	public void close(View v) {
+		finish();
+	}
+
+	public void confirm(View v) {
+		if (checkPassword()) {
+			showProgress(true);
+			HashMap<String, String> params = new HashMap<String, String>();
+			oldPass = Md5Manager.md5(oldPass);
+			newPass = Md5Manager.md5(newPass);
+			SharedPreferences mSharedPreferences = getSharedPreferences(
+					"suntownshop", 0);
+			String userId = mSharedPreferences.getString("userId", "");
+			params.put("memid", userId);
+			params.put("opwd", oldPass);
+			params.put("npwd", newPass);
+			PostAsyncTask postAsyncTask = new PostAsyncTask(URL, callback);
+			postAsyncTask.execute(params);
+		}
+	}
+
+	private final static String URL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/updatepwd";
+
+	private OnCompleteCallback callback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+			showProgress(false);
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					System.out.println("msg------>" + msg);
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						Toast.makeText(getApplicationContext(), "密码修改成功!",
+								Toast.LENGTH_SHORT).show();
+						SharedPreferences mSharedPreferences = getSharedPreferences(
+								"suntownshop", 0);
+						SharedPreferences.Editor mEditor = mSharedPreferences
+								.edit();
+						mEditor.putBoolean("islogin", false);
+						mEditor.putString("userId", "");
+						mEditor.putString("showname", "");
+						mEditor.putString("nickname", "");
+						mEditor.putString("mobile", "");
+						mEditor.putString("avatar", "");
+						mEditor.putString("m_voucher", "");
+						mEditor.putBoolean("isvip", false);
+						mEditor.commit();
+						// 刷新购物车
+						sendBroadcast(new Intent(
+								Constants.ACTION_SHOPCART_CHANGED));
+						startActivity(new Intent(ModifyPWDActivity.this,
+								LoginActivity.class));
+						finish();
+					} else {
+						Toast.makeText(getApplicationContext(),
+								"您输入的原密码有误，请重试!", Toast.LENGTH_SHORT).show();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+
+		}
+	};
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(ModifyPWDActivity.this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+	
+	public void RtnPwdClick(View v){
+		Intent intent = new Intent(this, RetrievePasswordActivity.class);
+		startActivity(intent);
+		finish();
+	}
+}

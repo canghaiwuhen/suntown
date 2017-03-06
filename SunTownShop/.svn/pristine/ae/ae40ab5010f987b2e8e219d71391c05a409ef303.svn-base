@@ -1,0 +1,924 @@
+package com.suntown.suntownshop;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import org.apache.http.util.EncodingUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.suntown.suntownshop.db.ShopCartDb;
+import com.suntown.suntownshop.model.CartGoods;
+import com.suntown.suntownshop.model.Category;
+import com.suntown.suntownshop.model.Goods;
+import com.suntown.suntownshop.runnable.GetJsonRunnable;
+import com.suntown.suntownshop.utils.FileManager;
+import com.suntown.suntownshop.utils.JsonParser;
+import com.suntown.suntownshop.widget.PullUpRefreshListView;
+import com.suntown.suntownshop.widget.PullUpRefreshListView.OnRefreshListener;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Paint;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+/**
+ * 分类显示及搜索入口页
+ *
+ * @author 钱凯
+ * @version 2015年1月13日 上午9:39:17
+ *
+ */
+public class FragmentPage2 extends Fragment {
+	private LinkedHashMap<Integer, Category> categorys;
+	private LinkedHashMap<Integer, Category> subCategorys;
+	private View mFragmentView = null;
+	private String dataPath;
+	private ListView listview;
+	private ListView subListView;
+	private View mLoadingView;
+	private View mGoodsListView;
+	private View mSubcatListView;
+	private View mTopCatView;
+	private PullUpRefreshListView goodsListView;
+	private TextView tvTitle;
+	private String curGoodsUrl = "";
+	private LinearLayout viewBack;
+	private LinearLayout viewSubCat;
+	private LinearLayout viewSearch;
+	private View mSearchView;
+	private int goodsCount;
+	/**
+	 * 每次加载的商品数量
+	 */
+	private int loadOnceCount = 20;
+	private int tempCount = 0;
+	private int curCategory = 0;
+	private int curMCat = -1;
+	private int curSCat = -1;
+	private int curCatId = 0;
+	private String curCatName = "";
+	private int goods_list_index = 1;
+	private final static int STATE_LOADING = 0;
+	private final static int STATE_CATEGORY = 1;
+	private final static int STATE_GOODSLIST = 2;
+	private final static int STATE_SUBCATEGORY = 3;
+	private int curState = STATE_LOADING;
+	private ArrayList<String> barCodeList = new ArrayList<String>();
+	private ArrayList<Goods> goodsList = new ArrayList<Goods>();
+	private boolean mIsVip = false;
+	private boolean loadSuccess = false;
+	/**
+	 * imageloader相关
+	 */
+	DisplayImageOptions options;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+
+	private void initOptions() {
+		options = new DisplayImageOptions.Builder()
+				.showImageOnLoading(R.drawable.picture_loading_200x200)
+				.showImageForEmptyUri(R.drawable.picture_holder_200x200)
+				.showImageOnFail(R.drawable.picture_holder_200x200)
+				.cacheInMemory(true).cacheOnDisk(true).build();
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		if (mFragmentView == null||!loadSuccess) {
+			initOptions();
+			SharedPreferences mSharedPreferences = getActivity()
+					.getSharedPreferences("suntownshop", 0);
+			mIsVip = mSharedPreferences.getBoolean("isvip", false);
+			mFragmentView = inflater.inflate(R.layout.fragment_2, null);
+			categorys = new LinkedHashMap<Integer, Category>();
+			subCategorys = new LinkedHashMap<Integer, Category>();
+			GetJsonRunnable getKindsRunnable = new GetJsonRunnable(URL_KINDS,
+					MSG_GETKINDS_COMPLETE, handler);
+			System.out.println("开始获取类目");
+			new Thread(getKindsRunnable).start();
+
+			mSearchView = mFragmentView.findViewById(R.id.view_search);
+			mSearchView.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					Intent intent = new Intent(getActivity(), SearchActivity.class);
+					if(curMCat==-1){
+						intent.putExtra("type", 1);
+					}else if(curSCat==-1){
+						intent.putExtra("type", 2);
+					}else{
+						intent.putExtra("type", 3);
+					}
+					intent.putExtra("kid", curCatId);
+					startActivity(intent);
+				}
+			});
+			
+			tvTitle = (TextView) mFragmentView
+					.findViewById(R.id.tv_category_title);
+			// 加载页面和商品列表
+			mLoadingView = mFragmentView.findViewById(R.id.loading);
+			mGoodsListView = mFragmentView
+					.findViewById(R.id.category_goodslist);
+
+			viewBack = (LinearLayout) mFragmentView
+					.findViewById(R.id.view_category_back);
+			viewBack.setOnClickListener(backClick);
+			viewSubCat = (LinearLayout) mFragmentView
+					.findViewById(R.id.view_subcategory);
+			viewSearch = (LinearLayout) mFragmentView
+					.findViewById(R.id.view_main_header_right);
+			viewSearch.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					Intent intent = new Intent(getActivity(),
+							SearchActivity.class);
+					startActivity(intent);
+				}
+			});
+			viewSubCat.setOnClickListener(subCatClick);
+			mSubcatListView = mFragmentView.findViewById(R.id.view_subcatlist);
+			mTopCatView = mFragmentView.findViewById(R.id.view_topcat);
+			mTopCatView.setOnClickListener(topCatClick);
+			goodsListView = (PullUpRefreshListView) mGoodsListView
+					.findViewById(R.id.lv_category_goodslist);
+
+			listview = (ListView) mFragmentView.findViewById(R.id.lv_category);
+			listview.setAdapter(adapter);
+			subListView = (ListView) mFragmentView
+					.findViewById(R.id.lv_subcategory);
+			subListView.setAdapter(subCatAdapter);
+			subListView.setOnItemClickListener(subCatItemClick);
+			listview.setOnItemClickListener(categoryItemClick);
+			goodsListView.setAdapter(goodsAdapter);
+			goodsListView.setonRefreshListener(refreshListener);
+			curState = STATE_LOADING;
+			initViews(curState);
+		}
+		return mFragmentView;
+
+	}
+
+	@Override
+	public void onDestroyView() {
+		// TODO Auto-generated method stub
+		if (mFragmentView != null) {
+			((ViewGroup) mFragmentView.getParent()).removeView(mFragmentView);
+		}
+		super.onDestroyView();
+	}
+
+	private OnClickListener subCatClick = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			curState = STATE_SUBCATEGORY;
+			initViews(curState);
+		}
+	};
+
+	private boolean isShowSubcatView() {
+		boolean isShow = false;
+
+		if (curMCat == -1) {
+			List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+					categorys.entrySet());
+			Category cat = list.get(curCategory).getValue();
+			subCategorys = cat.getSubCategorys();
+			curSCat = -1;
+			if (subCategorys != null && subCategorys.size() > 0) {
+				isShow = true;
+			}
+		} else if (curSCat == -1 && subCategorys != null
+				&& subCategorys.size() > 0) {
+			List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+					categorys.entrySet());
+			Category cat = list.get(curCategory).getValue();
+			subCategorys = cat.getSubCategorys();
+			if (subCategorys != null && subCategorys.size() > 0) {
+				list = new ArrayList<Entry<Integer, Category>>(
+						subCategorys.entrySet());
+				cat = list.get(curMCat).getValue();
+				subCategorys = cat.getSubCategorys();
+				if (subCategorys != null && subCategorys.size() > 0) {
+					isShow = true;
+				}
+			}
+		}
+
+		return isShow;
+	}
+
+	private OnClickListener topCatClick = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			curState = STATE_GOODSLIST;
+			initViews(curState);
+		}
+	};
+
+	private OnClickListener backClick = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			curState = STATE_CATEGORY;
+			initViews(curState);
+		}
+	};
+	private boolean isAll = false;
+	private OnRefreshListener refreshListener = new OnRefreshListener() {
+
+		@Override
+		public void onRefresh() {
+			// TODO Auto-generated method stub
+			if (!isAll) {
+				GetJsonRunnable getJsonRunnable = new GetJsonRunnable(
+						curGoodsUrl + curCatId + "&startIndex="
+								+ goods_list_index + "&length=" + loadOnceCount,
+						MSG_GETGOODSLIST_COMPLETE, handler);
+
+				new Thread(getJsonRunnable).start();
+			} else {
+				goodsListView.onRefreshComplete();
+			}
+		}
+	};
+
+	public boolean backKeyDown() {
+		boolean isDone = false;
+		if (curState == STATE_CATEGORY) {
+			isDone = true;
+		} else {
+			curState = STATE_CATEGORY;
+			initViews(curState);
+		}
+		return isDone;
+	}
+
+	private void initViews(int state) {
+
+		switch (state) {
+		case STATE_CATEGORY:
+			barCodeList.clear();
+			goodsList.clear();
+			tempCount = 0;
+			curCategory = 0;
+			goods_list_index = 1;
+			curMCat = -1;
+			curSCat = -1;
+			curGoodsUrl = URL_GOODSLIST;
+			tvTitle.setText(getString(R.string.class_text));
+			mLoadingView.setVisibility(View.GONE);
+			mGoodsListView.setVisibility(View.GONE);
+			viewBack.setVisibility(View.GONE);
+			viewSubCat.setVisibility(View.GONE);
+			mSubcatListView.setVisibility(View.GONE);
+			listview.setVisibility(View.VISIBLE);
+			viewSearch.setVisibility(View.VISIBLE);
+			break;
+		case STATE_SUBCATEGORY:
+
+			tvTitle.setText(curCatName);
+			mLoadingView.setVisibility(View.GONE);
+			mGoodsListView.setVisibility(View.GONE);
+			viewBack.setVisibility(View.VISIBLE);
+			mSubcatListView.setVisibility(View.VISIBLE);
+			viewSubCat.setVisibility(View.GONE);
+			viewSearch.setVisibility(View.GONE);
+			listview.setVisibility(View.GONE);
+			subCatAdapter.notifyDataSetChanged();
+			break;
+		case STATE_GOODSLIST:
+			tvTitle.setText(curCatName);
+			viewSubCat.setVisibility(isShowSubcatView() ? View.VISIBLE
+					: View.GONE);
+			mLoadingView.setVisibility(View.GONE);
+			listview.setVisibility(View.GONE);
+			mSubcatListView.setVisibility(View.GONE);
+			viewBack.setVisibility(View.VISIBLE);
+			mGoodsListView.setVisibility(View.VISIBLE);
+			viewSearch.setVisibility(View.GONE);
+			goodsListView.onRefreshComplete();
+			break;
+		case STATE_LOADING:
+			listview.setVisibility(View.GONE);
+			mGoodsListView.setVisibility(View.GONE);
+			viewBack.setVisibility(View.GONE);
+			mSubcatListView.setVisibility(View.GONE);
+			mLoadingView.setVisibility(View.VISIBLE);
+			viewSubCat.setVisibility(View.GONE);
+			viewSearch.setVisibility(View.GONE);
+			tvTitle.setText(getString(R.string.loading_text));
+			goodsListView.setAdapter(goodsAdapter);
+			goodsListView.setonRefreshListener(refreshListener);
+			break;
+		}
+
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+
+	}
+
+	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+
+		super.onStart();
+	}
+
+	private class OnItemClick implements OnClickListener {
+		private int index;
+
+		public OnItemClick(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			String barCode = goodsList.get(index).getBarCode();
+			showGoodsDetail(barCode);
+		}
+
+	}
+
+	private class OnAddinCartClick implements OnClickListener {
+		private int index;
+
+		public OnAddinCartClick(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			Goods goods = goodsList.get(index);
+			try {
+				SharedPreferences mSharedPreferences = getActivity()
+						.getSharedPreferences("suntownshop", 0);
+				String userId = mSharedPreferences.getString("userId", "");
+				mIsVip = mSharedPreferences.getBoolean("isvip", false);
+				ShopCartDb scdb = new ShopCartDb(getActivity(),userId);
+
+				double curPrice = goods.getCurPrice(mIsVip);
+
+				if (scdb.insertGoods(goods.getBarCode(), goods.getName(),
+						goods.getImgPath(), goods.getSpec(), curPrice, 1,goods.getDeliverType())) {
+					Toast.makeText(getActivity(), "加入购物车成功", Toast.LENGTH_SHORT)
+							.show();
+				} else {
+					Toast.makeText(getActivity(), "加入购物车失败", Toast.LENGTH_SHORT)
+							.show();
+				}
+				scdb.Close();
+			} catch (Exception e) {
+				// TODO: handle exception
+				Toast.makeText(getActivity(), "ERROR:加入购物车错误" + e.getMessage(),
+						Toast.LENGTH_LONG).show();
+			}
+		}
+
+	}
+
+	/**
+	 * 根据条形码跳转到商品详情页
+	 * 
+	 * @param barCode
+	 */
+	private void showGoodsDetail(String barCode) {
+		Intent intent = new Intent(getActivity(), GoodsDetailActivity.class);
+		Bundle b = new Bundle();
+		b.putString("barCode", barCode);
+		intent.putExtras(b);
+		startActivity(intent);
+	}
+
+	static class GoodsViewHolder {
+		ImageView ivAddinCart;
+		ImageView ivMain;
+		TextView tvName;
+		TextView tvPrice;
+		ImageView ivPriceType;
+		TextView tvCurPrice;
+	}
+
+	static class SubCatViewHolder {
+		TextView tvName;
+	}
+
+	private BaseAdapter subCatAdapter = new BaseAdapter() {
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			SubCatViewHolder viewHolder;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(getActivity()).inflate(
+						R.layout.subcategory_item, null);
+				viewHolder = new SubCatViewHolder();
+				viewHolder.tvName = (TextView) convertView
+						.findViewById(R.id.tv_subcatname);
+
+				convertView.setTag(viewHolder);
+			} else {
+				viewHolder = (SubCatViewHolder) convertView.getTag();
+			}
+			List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+					subCategorys.entrySet());
+			Category cat = list.get(position).getValue();
+			viewHolder.tvName.setText(cat.getName());
+			return convertView;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+					subCategorys.entrySet());
+			Category cat = list.get(position).getValue();
+			return cat;
+		}
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return subCategorys.size();
+		}
+	};
+
+	private BaseAdapter goodsAdapter = new BaseAdapter() {
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			GoodsViewHolder holder;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(getActivity()).inflate(
+						R.layout.goodslist_item, null);
+				holder = new GoodsViewHolder();
+
+				holder.ivAddinCart = (ImageView) convertView
+						.findViewById(R.id.product_list_listview_cell_btn_cart);
+				holder.ivMain = (ImageView) convertView
+						.findViewById(R.id.product_list_listview_cell_imageview);
+				holder.tvName = (TextView) convertView
+						.findViewById(R.id.product_list_listview_cell_product_name);
+				holder.tvPrice = (TextView) convertView
+						.findViewById(R.id.product_list_listview_cell_price);
+				holder.ivPriceType = (ImageView) convertView
+						.findViewById(R.id.goods_list_pricetype);
+				holder.tvCurPrice = (TextView) convertView
+						.findViewById(R.id.goods_list_curprice);
+				convertView.setTag(holder);
+			} else {
+				holder = (GoodsViewHolder) convertView.getTag();
+			}
+			OnItemClick onItemClick = new OnItemClick(position);
+			convertView.setOnClickListener(onItemClick);
+			OnAddinCartClick onAddinCartClick = new OnAddinCartClick(position);
+			holder.ivAddinCart.setOnClickListener(onAddinCartClick);
+			Goods goods = goodsList.get(position);
+			holder.tvName.setText(goods.getName());
+			
+			if (goods.getPriceType() != 0&&goods.getOriPriceInNumc()>0) {
+				double orip = goods.getOriPriceInNumc();
+				if(orip>0){
+					holder.tvPrice.setVisibility(View.VISIBLE);
+					holder.tvPrice.setText(getString(R.string.currency_symbol_text)
+							+ String.format("%.2f", orip));
+				}else{
+					holder.tvPrice.setVisibility(View.GONE);
+				}
+				holder.tvPrice.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+				holder.tvPrice.setTextColor(getResources().getColor(R.color.greyfont));
+				holder.ivPriceType.setVisibility(View.VISIBLE);
+				holder.tvCurPrice.setVisibility(View.VISIBLE);
+				holder.tvCurPrice.setText(getString(R.string.currency_symbol_text)
+					+ String.format("%.2f", goods.getCurPrice()));
+				if(goods.getPriceType()==2){
+					holder.ivPriceType.setImageResource(R.drawable.mini_channel_vip);
+				}else{
+					holder.ivPriceType.setImageResource(R.drawable.mini_channel_hui);
+				}
+			}else{
+				holder.tvPrice.setText(getString(R.string.currency_symbol_text)
+						+ String.format("%.2f", goods.getCurPrice(mIsVip)));
+				holder.tvPrice.getPaint().setFlags(0);
+				holder.tvPrice.setTextColor(getResources().getColor(R.color.btn_color));
+				holder.ivPriceType.setVisibility(View.GONE);
+				holder.tvCurPrice.setVisibility(View.GONE);
+			}
+			String imgPath = goods.getImgPath();
+			if (imgPath != null && imgPath.length() > 0) {
+				imageLoader.displayImage("http://" + imgPath, holder.ivMain,
+						options);
+			} else {
+				holder.ivMain
+						.setImageResource(R.drawable.picture_noimg_200x200);
+			}
+			return convertView;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			return goodsList.get(position);
+		}
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return goodsList.size();
+		}
+	};
+	// 商品分类接口
+	private String URL_KINDS = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/Getgoods_all_kind";
+	private String URL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/Getgoods_info?Barcode=";
+	private String URL_GOODSLIST = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/Getgoods_by_lkind?lkid=";
+	private String URL_MGOODSLIST = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/Getgoods_by_mkind?mkid=";
+	private String URL_SGOODSLIST = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/Getgoods_by_skind?skid=";
+	private final static int MSG_GETGOODDETAIL_COMPLETE = 1;
+	private final static int MSG_GETGOODSLIST_COMPLETE = 2;
+	private final static int MSG_GETGOODSLIST_COMPLETE_FIRST = 4;
+	private final static int MSG_ERR_NETWORKERR = -1;
+	private final static int MSG_GETKINDS_COMPLETE = 3;
+
+	private Handler handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			if(getActivity()==null||getActivity().isFinishing()){
+				return;
+			}
+			Bundle bundle;
+			String strMsg;
+			JSONObject jsonObj;
+			JSONArray jsonArray;
+			loadSuccess = true;
+			switch (msg.what) {
+			case MSG_GETGOODDETAIL_COMPLETE:
+				if (barCodeList.size() <= 0) {
+					break;
+				}
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_JSON");
+				try {
+					jsonObj = new JSONObject(strMsg);
+					jsonArray = jsonObj.getJSONArray("INFO");
+					jsonObj = (JSONObject) jsonArray.opt(0);
+					String barCode = jsonObj.getString("BARCODE");
+					String gCode = jsonObj.getString("GCODE");
+					String gName = jsonObj.getString("GNAME");
+					String gKind = jsonObj.getString("KIND");
+					String gUnit = jsonObj.getString("UNIT");
+					String gOriPrice = jsonObj.getString("ORIPRICE");
+					String gMemPrice = jsonObj.getString("MEMPRICE");
+					String gUptPrice = jsonObj.getString("UPTPRICE");
+					String gSpec = jsonObj.getString("SPEC");
+					String gClass = jsonObj.getString("GCLASS");
+					String gProvider = jsonObj.getString("PROVIDER");
+					String gBrand = jsonObj.getString("BRAND");
+					String gOrigin = jsonObj.getString("ORIGIN");
+					String gImgPath = jsonObj.getString("IMGPATH");
+					int priceType = jsonObj.getInt("PRICETYPE");
+					int deliverType = jsonObj.getInt("DELIVERYMODE");
+					Goods goods = new Goods(barCode, gCode, gName, gKind,
+							gUnit, gOriPrice, gMemPrice, gUptPrice, gSpec,
+							gClass, gProvider, gBrand, gOrigin, gImgPath,
+							priceType,deliverType);
+					goodsList.add(goods);
+					barCodeList.remove(0);
+					if ((tempCount < loadOnceCount) && barCodeList.size() > 0) {
+						GetJsonRunnable getJsonRunnable = new GetJsonRunnable(
+								URL + barCodeList.get(0),
+								MSG_GETGOODDETAIL_COMPLETE, ++tempCount,
+								handler);
+						new Thread(getJsonRunnable).start();
+					} else {
+						tempCount = 0;
+						curState = STATE_GOODSLIST;
+						initViews(curState);
+
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(getActivity(), "数据错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+					curState = STATE_CATEGORY;
+					initViews(curState);
+					e.printStackTrace();
+				}
+
+				break;
+			case MSG_GETGOODSLIST_COMPLETE_FIRST:
+			case MSG_GETGOODSLIST_COMPLETE:
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_JSON");
+				try {
+					jsonObj = new JSONObject(strMsg);
+					jsonArray = jsonObj.getJSONArray("RECORD");
+					tempCount = jsonArray.length();
+					if (tempCount > 0
+							&& msg.what == MSG_GETGOODSLIST_COMPLETE_FIRST) {
+						goods_list_index = 1;
+						goodsList.clear();
+						if (curMCat == -1) {
+							curMCat = curPosition;
+							curGoodsUrl = URL_MGOODSLIST;
+						} else if (curSCat == -1) {
+							curSCat = curPosition;
+							curGoodsUrl = URL_SGOODSLIST;
+						}
+
+						List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+								subCategorys.entrySet());
+						Category cat = list.get(curPosition).getValue();
+						curCatId = cat.getCatID();
+						curCatName = cat.getName();
+					}
+					for (int i = 0; i < tempCount; i++) {
+						jsonObj = (JSONObject) jsonArray.opt(i);
+						String barCode = jsonObj.getString("BARCODE");
+						String gCode = jsonObj.getString("GCODE");
+						String gName = jsonObj.getString("GNAME");
+						String gKind = jsonObj.getString("KIND");
+						String gUnit = jsonObj.getString("UNIT");
+						String gOriPrice = jsonObj.getString("ORIPRICE");
+						String gMemPrice = jsonObj.getString("MEMPRICE");
+						String gUptPrice = jsonObj.getString("UPTPRICE");
+						String gSpec = jsonObj.getString("SPEC");
+						String gClass = jsonObj.getString("GCLASS");
+						String gProvider = jsonObj.getString("PROVIDER");
+						String gBrand = jsonObj.getString("BRAND");
+						String gOrigin = jsonObj.getString("ORIGIN");
+						String gImgPath = jsonObj.getString("IMGPATH");
+						int priceType = jsonObj.getInt("PRICETYPE");
+						int deliverType = jsonObj.getInt("DELIVERYMODE");
+						Goods goods = new Goods(barCode, gCode, gName, gKind,
+								gUnit, gOriPrice, gMemPrice, gUptPrice, gSpec,
+								gClass, gProvider, gBrand, gOrigin, gImgPath,
+								priceType,deliverType);
+						goodsList.add(goods);
+
+					}
+					goodsListView
+							.setRefreshable(tempCount < loadOnceCount ? false
+									: true);
+					goods_list_index += tempCount;
+					if (msg.what != MSG_GETGOODSLIST_COMPLETE_FIRST
+							&& tempCount == 0) {
+						isAll = true;
+					} else {
+						isAll = false;
+					}
+					if (msg.what == MSG_GETGOODSLIST_COMPLETE_FIRST
+							&& tempCount == 0) {
+						Toast.makeText(getActivity(), "该分类暂无商品",
+								Toast.LENGTH_SHORT).show();
+						curState = STATE_SUBCATEGORY;
+						initViews(curState);
+					} else if (goods_list_index > 1) {
+						curState = STATE_GOODSLIST;
+						initViews(curState);
+					} else {
+						Toast.makeText(getActivity(), "该分类暂无商品",
+								Toast.LENGTH_SHORT).show();
+						curState = STATE_CATEGORY;
+						initViews(curState);
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(getActivity(),
+							"ERROR:分类商品解析错误:" + e.getMessage(),
+							Toast.LENGTH_SHORT).show();
+					curState = STATE_CATEGORY;
+					initViews(curState);
+					e.printStackTrace();
+				}
+				break;
+			case MSG_GETKINDS_COMPLETE:
+				System.out.println("获取类目成功，开始解析");
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_JSON");
+				try {
+					categorys = JsonParser.CategoryParse(strMsg);
+					adapter.notifyDataSetChanged();
+					curState = STATE_CATEGORY;
+					initViews(curState);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(getActivity(),
+							"ERROR:商品分类解析错误:" + e.getMessage(),
+							Toast.LENGTH_SHORT).show();
+					curState = STATE_CATEGORY;
+					initViews(curState);
+					e.printStackTrace();
+				}
+				System.out.println("解析完成，显示类目");
+				break;
+			case MSG_ERR_NETWORKERR:
+				loadSuccess = false;
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_ERR");
+				Toast.makeText(getActivity(), "连接超时，请稍后重试...",
+						Toast.LENGTH_LONG).show();
+				curState = STATE_CATEGORY;
+				initViews(curState);
+				break;
+			}
+			super.handleMessage(msg);
+		}
+
+	};
+	private int curPosition = 0;
+	private OnItemClickListener subCatItemClick = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
+			// TODO Auto-generated method stub
+			GetJsonRunnable getJsonRunnable;
+			try {
+				curState = STATE_LOADING;
+				initViews(curState);
+				curPosition = position;
+				String url = "";
+				if (curMCat == -1) {
+					url = URL_MGOODSLIST;
+				} else if (curSCat == -1) {
+					url = URL_SGOODSLIST;
+				}
+
+				List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+						subCategorys.entrySet());
+				Category cat = list.get(position).getValue();
+
+				getJsonRunnable = new GetJsonRunnable(url + cat.getCatID()
+						+ "&startIndex=1&length=" + loadOnceCount,
+						MSG_GETGOODSLIST_COMPLETE_FIRST, handler);
+
+				new Thread(getJsonRunnable).start();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	};
+
+	private OnItemClickListener categoryItemClick = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
+			// TODO Auto-generated method stub
+			GetJsonRunnable getJsonRunnable;
+			try {
+				curState = STATE_LOADING;
+				initViews(curState);
+				goodsList.clear();
+				curCategory = position;
+				List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+						categorys.entrySet());
+				Category cat = list.get(position).getValue();
+				curCatId = cat.getCatID();
+				curCatName = cat.getName();
+				curGoodsUrl = URL_GOODSLIST;
+				getJsonRunnable = new GetJsonRunnable(URL_GOODSLIST + curCatId
+						+ "&startIndex=" + goods_list_index + "&length="
+						+ loadOnceCount, MSG_GETGOODSLIST_COMPLETE, handler);
+				new Thread(getJsonRunnable).start();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	};
+
+	static class ViewHolder {
+		TextView tv;
+		TextView tvsec;
+		ImageView iv;
+	}
+
+	private BaseAdapter adapter = new BaseAdapter() {
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			ViewHolder holder;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(getActivity()).inflate(
+						R.layout.category_item, null);
+
+				holder = new ViewHolder();
+				holder.tv = (TextView) convertView
+						.findViewById(R.id.category_list_cell_text);
+				holder.tvsec = (TextView) convertView
+						.findViewById(R.id.category_list_cell_secondary);
+				holder.iv = (ImageView) convertView
+						.findViewById(R.id.category_list_cell_image);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
+			}
+			List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+					categorys.entrySet());
+			Category cat = list.get(position).getValue();
+			String imgPath = cat.getIcon();
+			if (imgPath != null && !"".equals(imgPath)) {
+				imageLoader.displayImage("http://" + cat.getIcon(), holder.iv,
+						options);
+			}
+			holder.tv.setText(cat.getName());
+			holder.tvsec.setText(cat.getSubCatNames());
+			return convertView;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			List<Entry<Integer, Category>> list = new ArrayList<Entry<Integer, Category>>(
+					categorys.entrySet());
+			Category cat = list.get(position).getValue();
+			return cat;
+		}
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return categorys.size();
+		}
+	};
+
+}

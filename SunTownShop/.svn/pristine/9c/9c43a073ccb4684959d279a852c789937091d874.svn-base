@@ -1,0 +1,465 @@
+package com.suntown.suntownshop;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import org.apache.http.util.EncodingUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.handmark.pulltorefresh.library.ILoadingLayout;
+import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.suntown.suntownshop.adapter.GridGoodsListAdapter;
+import com.suntown.suntownshop.db.RouteGoodsDb;
+import com.suntown.suntownshop.db.ShopCartDb;
+import com.suntown.suntownshop.listener.OnImageMoveListener;
+import com.suntown.suntownshop.listener.OnMoveViewListener;
+import com.suntown.suntownshop.listener.ShakeListener;
+import com.suntown.suntownshop.listener.ShakeListener.OnShakeListener;
+import com.suntown.suntownshop.model.CartGoods;
+import com.suntown.suntownshop.model.Category;
+import com.suntown.suntownshop.model.Goods;
+import com.suntown.suntownshop.model.ParcelableGoods;
+import com.suntown.suntownshop.runnable.GetJsonRunnable;
+import com.suntown.suntownshop.service.LocalService;
+import com.suntown.suntownshop.service.LocalService.OnBeaconFoundListener;
+import com.suntown.suntownshop.utils.FileManager;
+import com.suntown.suntownshop.utils.ImageMoveAnimation;
+import com.suntown.suntownshop.utils.IsChineseOrNot;
+import com.suntown.suntownshop.utils.JsonParser;
+import com.suntown.suntownshop.utils.MyMath;
+import com.suntown.suntownshop.widget.ConfirmDialog;
+import com.suntown.suntownshop.widget.PullUpRefreshListView;
+import com.suntown.suntownshop.widget.UnScrollGridView;
+import com.suntown.suntownshop.widget.PullUpRefreshListView.OnRefreshListener;
+import com.suntown.zxing.activity.CaptureActivity;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.graphics.Paint;
+import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RadioButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class ShakeActivity extends Activity implements OnShakeListener {
+
+	private final static int MSG_ERR_NETWORKERR = -1;
+
+	private LocalService mService;
+	private boolean isOnShaking = false;
+	private HashMap<String, Boolean> beaconMap;
+	// 摇一摇 相关
+	private ShakeListener mShakeListener;
+	private SoundPool sndPool;
+	private HashMap<Integer, Integer> soundPoolMap = new HashMap<Integer, Integer>();
+	private RelativeLayout mImgUp;
+	private RelativeLayout mImgDn;
+	private PopupWindow pw;
+	private ImageView ivShakeHand;
+	private ImageView ivShakeCircle;
+	private ImageView ivShakeGift;
+	private ImageView ivShakeHongbao;
+	/**
+	 * imageloader相关
+	 */
+	DisplayImageOptions options;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+
+	private void initOptions() {
+		options = new DisplayImageOptions.Builder()
+				.showImageOnLoading(R.drawable.picture_loading_200x200)
+				.showImageForEmptyUri(R.drawable.picture_noimg_200x200)
+				.showImageOnFail(R.drawable.picture_holder_200x200)
+				.cacheInMemory(true).cacheOnDisk(true).build();
+	}
+
+	private Handler handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			Bundle bundle;
+			String strMsg;
+			switch (msg.what) {
+
+			case MSG_ERR_NETWORKERR:
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_ERR");
+				Toast.makeText(ShakeActivity.this, "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+				break;
+			}
+			super.handleMessage(msg);
+		}
+
+	};
+
+	private ServiceConnection conn = new ServiceConnection() {
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			// TODO Auto-generated method stub
+			mService = ((LocalService.LocalBinder) service).getService();
+			mService.setOnBeaconFoundListener(foundListener);
+
+		}
+	};
+
+	private OnBeaconFoundListener foundListener = new OnBeaconFoundListener() {
+
+		@Override
+		public void OnFound(String name) {
+			// 检查是否是新发现的设备,如果是新发现的且动画没有播放则进入动画播放
+			if (!beaconMap.containsKey(name)) {
+				beaconMap.put(name, false);
+			}
+			mLastFoundTime = System.currentTimeMillis();
+			/*if (!isOnShaking) {
+				// 需在主线程中更新UI，否则可能会导致Fragment切换时显示异常
+				ShakeActivity.this.runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						shaking();
+					}
+				});
+				isOnShaking = true;
+			}*/
+
+		}
+	};
+	private long mLastFoundTime = 0;
+	private int BEACON_FIND_INTTERVAL = 10000;
+	// 检查是否离开IBeacon区域
+	private Runnable mCheckShakingRunnable = new Runnable() {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			long now = System.currentTimeMillis();
+			if (now - mLastFoundTime > BEACON_FIND_INTTERVAL) {
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						unShaking();
+					}
+				});
+			} else {
+				handler.postDelayed(mCheckShakingRunnable, 1000);
+			}
+		}
+	};
+
+	private void shaking() {
+		//handler.postDelayed(mCheckShakingRunnable, 200);
+		isOnShaking = true;
+		// 加速度传感器
+		mShakeListener.start();
+	}
+
+	private void unShaking() {
+		isOnShaking = false;
+		mShakeListener.stop();
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_shake);
+		initOptions();
+
+		mImgUp = (RelativeLayout) findViewById(R.id.shakeImgUp);
+		mImgDn = (RelativeLayout) findViewById(R.id.shakeImgDown);
+		ivShakeHand = (ImageView) findViewById(R.id.iv_shake_hand);
+		ivShakeCircle = (ImageView)findViewById(R.id.iv_shake_circle);
+		ivShakeGift = (ImageView)findViewById(R.id.iv_shake_gift);
+		ivShakeHongbao = (ImageView)findViewById(R.id.iv_shake_hongbao);
+		loadSound();
+
+		// 获取传感器管理服务
+		mShakeListener = new ShakeListener(this);
+		mShakeListener.setOnShakeListener(this);
+		beaconMap = new HashMap<String, Boolean>();
+
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+
+		shaking();
+		Intent intent = new Intent("com.suntown.suntownshop.SERVICE");
+		bindService(intent, conn, Context.BIND_AUTO_CREATE);
+		super.onResume();
+	}
+
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		// 注销监听
+		if (mService != null) {
+			mService.unSetOnBeaconFoundListener();
+			unbindService(conn);
+			mShakeListener.stop();
+		}
+		super.onPause();
+	}
+
+	@Override
+	public void onShake() {
+		// TODO Auto-generated method stub
+		if (pw != null && pw.isShowing()) {
+			pw.dismiss();
+		}
+		startShakeHandAnim();
+		int[] start_location = new int[2];
+
+		ivShakeGift.getLocationInWindow(start_location);
+		System.out.println("礼物X:"+start_location[0]+" Y:"+start_location[1]);
+		int[] end_location = new int[2];
+		ivShakeCircle.getLocationInWindow(end_location);
+		// 计算位移
+		int endX = end_location[0] - start_location[0];
+		int endY = end_location[1] - start_location[1];
+		
+		slideview(ivShakeGift,0,endX,0,endY,1000,0);
+		start_location = new int[2];
+
+		ivShakeHongbao.getLocationInWindow(start_location);
+		System.out.println("红包X:"+start_location[0]+" Y:"+start_location[1]);
+		// 计算位移
+		endX = end_location[0]+ivShakeCircle.getWidth() - start_location[0];
+		endY = end_location[1]+ivShakeCircle.getHeight() - start_location[1];
+		
+		slideview(ivShakeHongbao,0,endX,0,endY,1000,0);
+
+		mShakeListener.stop();
+		sndPool.play(soundPoolMap.get(0), (float) 1, (float) 1, 0, 0,
+				(float) 1.2);
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				
+				ivShakeHand.clearAnimation();
+				
+				showAward();
+				mShakeListener.start();
+
+			}
+		}, 1000);
+	}
+
+	private void startShakeHandAnim(){
+		Animation animation = AnimationUtils.loadAnimation(
+				getApplicationContext(), R.anim.beacon_shake);
+		ivShakeHand.startAnimation(animation);
+	}
+	
+	public void slideview(final View view,final float fX,final float tX, final float fY, final float tY,
+			long durationMillis, long delayMillis) {
+		Animation mScaleAnimation = new ScaleAnimation(0.5f, 1f, 0.5f, 1f,
+				Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+				0.5f);
+		mScaleAnimation.setDuration(durationMillis);
+		mScaleAnimation.setStartOffset(delayMillis);
+		mScaleAnimation.setFillAfter(true);
+		TranslateAnimation animation = new TranslateAnimation(fX, tX, fY, tY);
+		animation.setInterpolator(new OvershootInterpolator());
+		animation.setDuration(durationMillis);
+		animation.setStartOffset(delayMillis);
+		animation.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				view.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				view.setVisibility(View.INVISIBLE);
+			}
+		});
+		AnimationSet mAnimationSet = new AnimationSet(false);
+		// 这块要注意，必须设为false,不然组件动画结束后，不会归位。
+		mAnimationSet.setFillAfter(false);
+		mAnimationSet.addAnimation(mScaleAnimation);
+		mAnimationSet.addAnimation(animation);
+		view.startAnimation(mAnimationSet);
+	}
+	
+	
+	private void loadSound() {
+
+		sndPool = new SoundPool(3, AudioManager.STREAM_SYSTEM, 5);
+		new Thread() {
+			public void run() {
+				try {
+					soundPoolMap.put(
+							0,
+							sndPool.load(
+									getAssets().openFd(
+											"sound/shake_sound_male.mp3"), 1));
+
+					soundPoolMap.put(1, sndPool.load(
+							getAssets().openFd("sound/shake_match.mp3"), 1));
+					
+					soundPoolMap.put(2, sndPool.load(
+							getAssets().openFd("sound/shake_nomatch.mp3"), 1));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+
+	public void startAnim() { // 定义摇一摇动画动画
+		AnimationSet animup = new AnimationSet(true);
+		TranslateAnimation mytranslateanimup0 = new TranslateAnimation(
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f,
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF,
+				-0.5f);
+		mytranslateanimup0.setDuration(1000);
+		TranslateAnimation mytranslateanimup1 = new TranslateAnimation(
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f,
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF,
+				+0.5f);
+		mytranslateanimup1.setDuration(1000);
+		mytranslateanimup1.setStartOffset(1000);
+		animup.addAnimation(mytranslateanimup0);
+		animup.addAnimation(mytranslateanimup1);
+		mImgUp.startAnimation(animup);
+
+		AnimationSet animdn = new AnimationSet(true);
+		TranslateAnimation mytranslateanimdn0 = new TranslateAnimation(
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f,
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF,
+				+0.5f);
+		mytranslateanimdn0.setDuration(1000);
+		TranslateAnimation mytranslateanimdn1 = new TranslateAnimation(
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f,
+				Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF,
+				-0.5f);
+		mytranslateanimdn1.setDuration(1000);
+		mytranslateanimdn1.setStartOffset(1000);
+		animdn.addAnimation(mytranslateanimdn0);
+		animdn.addAnimation(mytranslateanimdn1);
+		mImgDn.startAnimation(animdn);
+	}
+
+	private void showAward() {
+		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View mView = inflater.inflate(R.layout.get_award_popup, null);
+		
+		if (pw == null) {
+			// 生成PopupWindow对象
+			pw = new PopupWindow(mView, LayoutParams.FILL_PARENT,
+					LayoutParams.FILL_PARENT);
+			pw.setOutsideTouchable(true);
+		} else {
+			pw.setContentView(mView);
+		}
+		View viewDialog = mView.findViewById(R.id.view_dialog);
+		ImageView iv = (ImageView) mView.findViewById(R.id.iv_award);
+		TextView tvMsg = (TextView) mView.findViewById(R.id.tv_award_msg);
+		TextView tvNum = (TextView) mView.findViewById(R.id.tv_award_num);
+		int index = MyMath.getRandom(1, 100);
+		long now = System.currentTimeMillis();
+		
+		if ((index <= 50) && (now - mLastFoundTime < BEACON_FIND_INTTERVAL)) {
+			sndPool.play(soundPoolMap.get(1), (float) 1, (float) 1, 0, 0,
+					(float) 1.0);
+			imageLoader.displayImage("assets://image/award.jpg", iv);
+			tvMsg.setText("奖品\n【清风2层抽取式面巾纸】1包");
+			tvNum.setText("共50份奖品，您是第" + index + "位获奖者");
+			viewDialog.setBackgroundResource(R.drawable.shake_award_bg);
+		} else {
+			sndPool.play(soundPoolMap.get(2), (float) 1, (float) 1, 0, 0,
+					(float) 1.0);
+			imageLoader.displayImage("assets://image/girl_shock.png", iv);
+			tvMsg.setText("真遗憾\n差一点就拿到大奖了");
+			tvNum.setText("别灰心\n下次再努力哦");
+			viewDialog.setBackgroundResource(R.drawable.shake_award_fail_bg);
+		}
+		mView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (pw != null && pw.isShowing()) {
+					pw.dismiss();
+				}
+			}
+		});
+		pw.setAnimationStyle(R.style.popwindow_anim_style);
+		pw.setFocusable(true);
+
+		pw.setBackgroundDrawable(new ColorDrawable(0x7f000000));
+
+		pw.showAtLocation(mImgUp, Gravity.CENTER, 0, 0);
+	}
+	
+	public void close(View v){
+		finish();
+	}
+}

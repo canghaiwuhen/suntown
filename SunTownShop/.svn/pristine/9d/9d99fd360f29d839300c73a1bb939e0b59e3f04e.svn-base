@@ -1,0 +1,790 @@
+package com.suntown.suntownshop;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.suntown.suntownshop.db.FavoriteDb;
+import com.suntown.suntownshop.db.RouteGoodsDb;
+import com.suntown.suntownshop.db.ShopCartDb;
+import com.suntown.suntownshop.model.CartGoods;
+import com.suntown.suntownshop.model.FavoriteGoods;
+import com.suntown.suntownshop.model.Goods;
+import com.suntown.suntownshop.model.ParcelableGoods;
+import com.suntown.suntownshop.utils.IsChineseOrNot;
+import com.suntown.suntownshop.utils.JsonParser;
+import com.suntown.suntownshop.widget.ConfirmDialog;
+import com.suntown.suntownshop.widget.SlideCutListView;
+import com.suntown.suntownshop.widget.SlideCutListView.RemoveDirection;
+import com.suntown.suntownshop.widget.SlideCutListView.RemoveListener;
+import com.suntown.suntownshop.widget.SwipeListView;
+import com.suntown.zxing.activity.CaptureActivity;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RadioButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout.LayoutParams;
+
+public class FavoriteActivity extends Activity implements RemoveListener,
+		OnClickListener {
+	private ArrayList<FavoriteGoods> list = new ArrayList<FavoriteGoods>();
+	SwipeListView listview;
+	BaseAdapter adapter;
+	boolean isManDoes = true;
+	CheckBox cbAll;
+	Button btnDel;
+	private View viewShow;
+	private View viewEmpty;
+	private String userId;
+	private int mRightWidth = 0;
+	private HashMap<String, FavoriteGoods> checkGoods = new HashMap<String, FavoriteGoods>();
+	private ArrayList<ParcelableGoods> routeList;
+	private Button btnRouter;
+	/**
+	 * imageloader相关
+	 */
+	DisplayImageOptions options;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+	private PopupWindow pw;
+	private final static int MSG_GET_LOCATION_GOODS = 4;
+	private final static int MSG_ERR_NETWORKERR = -1;
+	private final String URL_GOODSDETAIL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/Getgoods_info?Barcode=";
+
+	private void initOptions() {
+		options = new DisplayImageOptions.Builder()
+				.showImageOnLoading(R.drawable.picture_loading_200x200)
+				.showImageForEmptyUri(R.drawable.picture_holder_200x200)
+				.showImageOnFail(R.drawable.picture_holder_200x200)
+				.cacheInMemory(true).cacheOnDisk(true).build();
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		initOptions();
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_favorite);
+		listview = (SwipeListView) findViewById(R.id.lv_favorite);
+		SharedPreferences mSharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		userId = mSharedPreferences.getString("userId", "");
+
+		initAdapter();
+		routeList = new ArrayList<ParcelableGoods>();
+		btnRouter = (Button) findViewById(R.id.btn_favorite_router);
+		cbAll = (CheckBox) findViewById(R.id.cb_favorite_checkall);
+		cbAll.setOnCheckedChangeListener(mOnCheckAll);
+		btnDel = (Button) findViewById(R.id.btn_favorite_delete);
+		viewShow = findViewById(R.id.layout_show);
+		viewEmpty = findViewById(R.id.empty_chopcart);
+		ImageView ivEmpty = (ImageView) findViewById(R.id.iv_emptyimg);
+		ivEmpty.setImageResource(R.drawable.collection_empty);
+		TextView tvEmpty = (TextView) findViewById(R.id.tv_emptymsg);
+		tvEmpty.setText(getString(R.string.favorite_empty_msg));
+
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		FavoriteDb fdb = new FavoriteDb(this, userId);
+		list = fdb.getAll();
+		fdb.Close();
+		refreshViews();
+		changeEnabled();
+		checkRouteList();
+		refreshRouter();
+		super.onResume();
+	}
+
+	private void checkRouteList() {
+		ArrayList<ParcelableGoods> removeList = new ArrayList<ParcelableGoods>();
+		for (ParcelableGoods pGoods : routeList) {
+			boolean isRemove = true;
+			for (FavoriteGoods fGoods : list) {
+				if (fGoods.getBarCode().equals(pGoods.getBarCode())) {
+					isRemove = false;
+					break;
+				}
+			}
+			if (isRemove) {
+				removeList.add(pGoods);
+			}
+		}
+		if (removeList.size() > 0) {
+			routeList.removeAll(removeList);
+		}
+	}
+
+	private void refreshViews() {
+		if (list == null || list.size() <= 0) {
+			viewShow.setVisibility(View.GONE);
+			viewEmpty.setVisibility(View.VISIBLE);
+		} else {
+			viewShow.setVisibility(View.VISIBLE);
+			viewEmpty.setVisibility(View.GONE);
+		}
+	}
+
+	public void close(View v) {
+		finish();
+	}
+
+	public void delete(View v) {
+		try {
+
+			ConfirmDialog dialog = new ConfirmDialog(FavoriteActivity.this,
+					getString(R.string.msg_delete_favorite_confirm_text),
+					getString(R.string.tips_text),
+					getString(R.string.confirm_text),
+					getString(R.string.cancel_text));
+			if (dialog.ShowDialog()) {
+				FavoriteDb fdb = new FavoriteDb(this, userId);
+				if (checkGoods.size() == list.size()) {
+					fdb.clear();
+				} else {
+					Set<Entry<String, FavoriteGoods>> sets = checkGoods
+							.entrySet();
+					for (Entry<String, FavoriteGoods> entry : sets) {
+						FavoriteGoods goods = entry.getValue();
+						fdb.delete(goods.getBarCode());
+					}
+				}
+				checkGoods.clear();
+				list = fdb.getAll();
+				fdb.Close();
+				adapter.notifyDataSetChanged();
+				refreshViews();
+				changeEnabled();
+				changeChecked();
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			Toast.makeText(getApplicationContext(), e.getMessage(),
+					Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
+		}
+	}
+
+	private void changeChecked() {
+		isManDoes = false;
+		cbAll.setChecked((list.size() == checkGoods.size())
+				&& checkGoods.size() > 0);
+		isManDoes = true;
+	}
+
+	private class OnItemCheckedChangeListener implements
+			OnCheckedChangeListener {
+		private int index;
+
+		public OnItemCheckedChangeListener(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			// TODO Auto-generated method stub
+			FavoriteGoods goods = list.get(index);
+
+			if (isChecked) {
+				if (!checkGoods.containsKey(goods.getBarCode())) {
+					checkGoods.put(goods.getBarCode(), goods);
+				}
+			} else {
+				checkGoods.remove(goods.getBarCode());
+			}
+			isManDoes = false;
+			changeChecked();
+			changeEnabled();
+		}
+
+	}
+
+	private void changeEnabled() {
+		cbAll.setEnabled(list.size() > 0);
+		btnDel.setEnabled(checkGoods.size() > 0);
+	}
+
+	private OnCheckedChangeListener mOnCheckAll = new OnCheckedChangeListener() {
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			// TODO Auto-generated method stub
+			if (isManDoes) {
+				checkGoods.clear();
+				if (isChecked) {
+					for (FavoriteGoods goods : list) {
+						checkGoods.put(goods.getBarCode(), goods);
+					}
+				}
+				adapter.notifyDataSetChanged();
+				changeEnabled();
+			}
+		}
+	};
+
+	static class ViewHolder {
+		RelativeLayout item_left;
+		RelativeLayout item_right;
+
+		TextView tv_name;
+		TextView tv_psec;
+		TextView tv_price;
+		ImageView imgView;
+		CheckBox cb;
+		ImageView ivRoute;
+	}
+
+	private void initAdapter() {
+		mRightWidth = listview.getRightViewWidth();
+		adapter = new BaseAdapter() {
+
+			@Override
+			public int getCount() {
+				// TODO Auto-generated method stub
+				return list.size();
+			}
+
+			@Override
+			public Object getItem(int position) {
+				// TODO Auto-generated method stub
+				return list.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				// TODO Auto-generated method stub
+				return position;
+			}
+
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				// TODO Auto-generated method stub
+				ViewHolder holder;
+				if (convertView == null) {
+					convertView = LayoutInflater.from(getApplicationContext())
+							.inflate(R.layout.favorite_item, null);
+					holder = new ViewHolder();
+					holder.tv_name = (TextView) convertView
+							.findViewById(R.id.tv_name_favorite_item);
+					holder.tv_psec = (TextView) convertView
+							.findViewById(R.id.tv_spec_favorite_item);
+					holder.tv_price = (TextView) convertView
+							.findViewById(R.id.tv_price_favorite_item);
+					holder.imgView = (ImageView) convertView
+							.findViewById(R.id.iv_favorite_item);
+					holder.cb = (CheckBox) convertView
+							.findViewById(R.id.cb_favorite_item);
+					holder.ivRoute = (ImageView) convertView
+							.findViewById(R.id.iv_route);
+					holder.item_left = (RelativeLayout) convertView
+							.findViewById(R.id.item_left);
+					holder.item_right = (RelativeLayout) convertView
+							.findViewById(R.id.item_right);
+					LinearLayout.LayoutParams lp1 = new LayoutParams(
+							LayoutParams.MATCH_PARENT,
+							LayoutParams.MATCH_PARENT);
+					holder.item_left.setLayoutParams(lp1);
+					LinearLayout.LayoutParams lp2 = new LayoutParams(
+							mRightWidth, LayoutParams.MATCH_PARENT);
+					holder.item_right.setLayoutParams(lp2);
+					convertView.setTag(holder);
+				} else {
+					holder = (ViewHolder) convertView.getTag();
+				}
+
+				if (convertView.getScrollX() > 0) {
+					convertView.scrollTo(0, 0);
+				}
+				// 点击跳转商品详情页
+				OnItemClick itemClick = new OnItemClick(position);
+				holder.item_left.setOnClickListener(itemClick);
+
+				FavoriteGoods goods = list.get(position);
+
+				String barCode = goods.getBarCode();
+				if (goods.getShelfId() == null || goods.getFloorName() == null
+						|| "".equals(goods.getShelfId())
+						|| "".equals(goods.getFloorName())) {
+					holder.ivRoute.setVisibility(View.GONE);
+				} else {
+					holder.ivRoute.setVisibility(View.VISIBLE);
+					if (checkIsInRouteList(barCode)) {
+						holder.ivRoute
+								.setImageResource(R.drawable.icon_favorite_route_press);
+						holder.ivRoute.setTag(R.id.route_tag_action, "remove");
+					} else {
+						holder.ivRoute
+								.setImageResource(R.drawable.icon_favorite_route_normal);
+						holder.ivRoute.setTag(R.id.route_tag_action, "add");
+					}
+					holder.ivRoute.setTag(R.id.route_tag_goods, goods);
+					holder.ivRoute.setOnClickListener(FavoriteActivity.this);
+				}
+				holder.cb.setChecked(checkGoods.containsKey(barCode));
+				holder.item_right.setTag(barCode);
+				holder.item_right.setOnClickListener(FavoriteActivity.this);
+				OnItemCheckedChangeListener cbOnCheckedChange = new OnItemCheckedChangeListener(
+						position);
+				holder.cb.setOnCheckedChangeListener(cbOnCheckedChange);
+				String imgPath = goods.getImagePath();
+				if (imgPath != null && imgPath.length() > 0) {
+					// Toast.makeText(getActivity(), imgPath,
+					// Toast.LENGTH_SHORT).show();
+					imageLoader.displayImage("http://" + imgPath,
+							holder.imgView, options);
+				} else {
+					holder.imgView
+							.setImageResource(R.drawable.picture_noimg_200x200);
+				}
+				holder.tv_name.setText(goods.getName());
+				holder.tv_psec.setText(getString(R.string.goods_spec_text)
+						+ goods.getSpec());
+				holder.tv_price.setText("￥" + goods.getPrice());
+				return convertView;
+			}
+
+		};
+		listview.setAdapter(adapter);
+	}
+
+	private class OnItemClick implements OnClickListener {
+		private int index;
+
+		public OnItemClick(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			String barCode = list.get(index).getBarCode();
+			showGoodsDetail(barCode);
+		}
+
+	}
+
+	/**
+	 * 根据条形码跳转到商品详情页
+	 * 
+	 * @param barCode
+	 */
+	private void showGoodsDetail(String barCode) {
+		Intent intent = new Intent(FavoriteActivity.this,
+				GoodsDetailActivity.class);
+		Bundle b = new Bundle();
+		b.putString("barCode", barCode);
+		intent.putExtras(b);
+		startActivity(intent);
+	}
+
+	/**
+	 * 检查商品是否已加入导航列表
+	 * 
+	 * @param barCode
+	 * @return
+	 */
+	private boolean checkIsInRouteList(String barCode) {
+		if (routeList != null) {
+			for (ParcelableGoods goods : routeList) {
+				if (barCode.equals(goods.getBarCode())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 添加导航商品
+	 * 
+	 * @param goods
+	 */
+	private void addInRouteList(FavoriteGoods goods) {
+		ParcelableGoods pGoods = new ParcelableGoods(goods.getBarCode(),
+				goods.getName(), goods.getShelfId(), goods.getFloorName());
+		routeList.add(pGoods);
+		refreshRouter();
+	}
+
+	/**
+	 * 删除导航商品
+	 * 
+	 * @param barCode
+	 */
+	private void removeRouteList(String barCode) {
+		for (ParcelableGoods goods : routeList) {
+			if (barCode.equals(goods.getBarCode())) {
+				routeList.remove(goods);
+				break;
+			}
+		}
+		refreshRouter();
+	}
+
+	/**
+	 * 刷新导航按钮
+	 */
+	private void refreshRouter() {
+		if (routeList != null && routeList.size() > 0) {
+			btnRouter.setText("一键导航(" + routeList.size() + ")");
+			btnRouter.setEnabled(true);
+		} else {
+			btnRouter.setText("一键导航");
+			btnRouter.setEnabled(false);
+		}
+	}
+
+	@Override
+	public void removeItem(RemoveDirection direction, int position) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.item_right:
+			String barCode = (String) v.getTag();
+			delete(barCode);
+			break;
+		case R.id.iv_route:
+			String action = (String) v.getTag(R.id.route_tag_action);
+			FavoriteGoods goods = (FavoriteGoods) v
+					.getTag(R.id.route_tag_goods);
+			ImageView iv = (ImageView) v;
+			if ("add".equals(action)) {
+				addInRouteList(goods);
+				v.setTag(R.id.route_tag_action, "remove");
+				iv.setImageResource(R.drawable.icon_favorite_route_press);
+			} else {
+				removeRouteList(goods.getBarCode());
+				v.setTag(R.id.route_tag_action, "add");
+				iv.setImageResource(R.drawable.icon_favorite_route_normal);
+			}
+			break;
+		}
+	}
+
+	private void delete(String barCode) {
+		try {
+
+			ConfirmDialog dialog = new ConfirmDialog(FavoriteActivity.this,
+					getString(R.string.msg_delete_favorite_confirm_text),
+					getString(R.string.tips_text),
+					getString(R.string.confirm_text),
+					getString(R.string.cancel_text));
+			if (dialog.ShowDialog()) {
+				FavoriteDb fdb = new FavoriteDb(this, userId);
+				fdb.delete(barCode);
+				checkGoods.clear();
+				list = fdb.getAll();
+				fdb.Close();
+				adapter.notifyDataSetChanged();
+				// 同时在导航列表中删除商品
+				removeRouteList(barCode);
+				refreshRouter();
+				refreshViews();
+				changeEnabled();
+				changeChecked();
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			Toast.makeText(getApplicationContext(), e.getMessage(),
+					Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
+		}
+	}
+
+	public void navigate(View v) {
+		if (routeList == null || routeList.size() == 0) {
+			return;
+		}
+		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View mView = inflater.inflate(R.layout.select_location_popup, null);
+
+		if (pw == null) {
+			// 生成PopupWindow对象
+			pw = new PopupWindow(mView, LayoutParams.FILL_PARENT,
+					LayoutParams.FILL_PARENT);
+			pw.setOutsideTouchable(true);
+		} else {
+			pw.setContentView(mView);
+		}
+		View locationGate = mView.findViewById(R.id.location_gate);
+		View locationScan = mView.findViewById(R.id.location_scan);
+		View viewOk = mView.findViewById(R.id.view_ok);
+		View viewCancel = mView.findViewById(R.id.view_cancel);
+		final RadioButton rbGate = (RadioButton) mView
+				.findViewById(R.id.rb_gate);
+		final RadioButton rbScan = (RadioButton) mView
+				.findViewById(R.id.rb_scan);
+		rbGate.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isChecked) {
+					rbScan.setChecked(false);
+				}
+			}
+		});
+		rbScan.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isChecked) {
+					rbGate.setChecked(false);
+				}
+			}
+		});
+		viewOk.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (pw != null && pw.isShowing()) {
+					pw.dismiss();
+				}
+				if (rbGate.isChecked()) {
+					navigate("1号入口", "1号入口", "1F");
+				} else {
+
+					Intent openCameraIntent = new Intent(FavoriteActivity.this,
+							CaptureActivity.class);
+					startActivityForResult(openCameraIntent, 0);
+				}
+			}
+		});
+		viewCancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (pw != null && pw.isShowing()) {
+					pw.dismiss();
+				}
+			}
+		});
+		pw.setFocusable(true);
+
+		pw.setBackgroundDrawable(new ColorDrawable(0x7f000000));
+
+		pw.showAtLocation(viewShow, Gravity.CENTER, 0, 0);
+	}
+
+	private void navigate(String title, String location, String floorName) {
+		if (title == null || location == null || floorName == null
+				|| "".equals(title) || "".equals(location)
+				|| "".equals(floorName)) {
+			Toast.makeText(this, "找不到该商品的位置，请更换起始地重试...", Toast.LENGTH_SHORT)
+					.show();
+			return;
+		}
+		Intent i = new Intent(this, MapActivity.class);
+		i.putParcelableArrayListExtra("goodslist", routeList);
+		i.putExtra("location", location);
+		i.putExtra("title", title);
+		i.putExtra("floor", floorName);
+		startActivity(i);
+
+	}
+
+	private void findLocation(String barcode) {
+		showProgress(true);
+		com.suntown.suntownshop.runnable.GetJsonRunnable getJsonRunnable = new com.suntown.suntownshop.runnable.GetJsonRunnable(
+				URL_GOODSDETAIL + barcode, MSG_GET_LOCATION_GOODS, handler);
+		new Thread(getJsonRunnable).start();
+	}
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+		System.out.println("requestCode:" + requestCode + " resultCode:"
+				+ resultCode);
+		if (resultCode == Activity.RESULT_OK) {
+
+			Bundle bundle = data.getExtras();
+			String scanResult = bundle.getString("result");
+			String format = bundle.getString("format");
+			System.out.println("Scan Result---------->" + scanResult);
+			if (format.equalsIgnoreCase("QR_CODE")) { // 二维码
+				String UTF_Str = "";
+				String GB_Str = "";
+				boolean is_cN = false;
+				try {
+					UTF_Str = new String(scanResult.getBytes("ISO-8859-1"),
+							"UTF-8");
+					System.out.println("这是转了UTF-8的" + UTF_Str);
+					is_cN = IsChineseOrNot.isChineseCharacter(UTF_Str);
+					// 防止有人特意使用乱码来生成二维码来判断的情况
+					boolean b = IsChineseOrNot.isSpecialCharacter(scanResult);
+					if (b) {
+						is_cN = true;
+					}
+					System.out.println("是为:" + is_cN);
+					if (!is_cN) {
+						GB_Str = new String(scanResult.getBytes("ISO-8859-1"),
+								"GB2312");
+						System.out.println("这是转了GB2312的" + GB_Str);
+					}
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (is_cN) {
+					scanResult = UTF_Str;
+				} else {
+					scanResult = GB_Str;
+				}
+
+				int l = scanResult.indexOf("BC:");
+				// int len = scanResult.length();
+				int r = scanResult.indexOf(";"); //
+				String barCode = "";
+				if (l >= 0 && r > l) {
+					barCode = scanResult.substring(l + 3, r);
+					findLocation(barCode);
+				} else {
+					Toast.makeText(this, getString(R.string.qrcode_cantfind),
+							Toast.LENGTH_SHORT).show();
+				}
+			} else { // 条码
+				findLocation(scanResult);
+			}
+
+		}
+	}
+
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			showProgress(false);
+			Bundle bundle;
+			String strMsg;
+			JSONObject jsonObj;
+			JSONArray jsonArray;
+			switch (msg.what) {
+			case MSG_GET_LOCATION_GOODS:
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_JSON");
+				try {
+					jsonObj = new JSONObject(strMsg);
+					jsonArray = jsonObj.getJSONArray("INFO");
+					if (jsonArray.length() > 0) {
+						jsonObj = (JSONObject) jsonArray.opt(0);
+						String barCode = jsonObj.getString("BARCODE");
+						String gName = jsonObj.getString("GNAME");
+						String shelfId = jsonObj.getString("SFID");
+						String floorName = jsonObj.getString("FLOORNAME");
+						ConfirmDialog dialog = new ConfirmDialog(
+								FavoriteActivity.this, "确定要从" + gName
+										+ "附近开始导航吗?",
+								getString(R.string.tips_text),
+								getString(R.string.confirm_text),
+								getString(R.string.cancel_text));
+						if (dialog.ShowDialog()) {
+							navigate(gName, shelfId, floorName);
+						}
+
+					} else {
+						Toast.makeText(FavoriteActivity.this,
+								getString(R.string.qrcode_cantfind),
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(FavoriteActivity.this,
+							"ERROR:" + e.getMessage(), Toast.LENGTH_SHORT)
+							.show();
+					e.printStackTrace();
+				}
+				break;
+
+			case MSG_ERR_NETWORKERR:
+				bundle = msg.getData();
+				strMsg = bundle.getString("MSG_ERR");
+				Toast.makeText(FavoriteActivity.this, "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+				break;
+			}
+			super.handleMessage(msg);
+		}
+
+	};
+}

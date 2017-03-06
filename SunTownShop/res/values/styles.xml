@@ -1,0 +1,131 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <!--
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+       
+    </style>
+	
+    Application theme.
+    -->
+    <!--
+    <style name="AppTheme" parent="AppBaseTheme">
+        All customizations that are NOT specific to a particular API-level can go here.
+    </style>
+    -->
+    <style name="popwin_anim_style">
+        <item name="android:windowEnterAnimation">@anim/showpopwin</item>
+        <item name="android:windowExitAnimation">@anim/dismisspopwin</item>
+    </style>
+    
+    <style name="custom_page_loading" parent="@android:style/Widget.ProgressBar.Large">
+        <item name="android:indeterminateDrawable">@drawable/page_loading_anim</item>
+    </style>
+
+    <style name="myaccount_login_action">
+        <item name="android:textSize">16.0sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_width">180.0dip</item>
+        <item name="android:layout_height">40.0dip</item>
+        <item name="android:layout_marginTop">10.0dip</item>
+    </style>
+
+    <style name="myaccount_login_action_login" parent="@style/myaccount_login_action">
+        <item name="android:background">@drawable/btn_bg_red_selector</item>
+    </style>
+
+    <style name="dot_style">
+        <item name="android:layout_width">5dip</item>
+        <item name="android:layout_height">5dip</item>
+        <item name="android:background">@drawable/dot_normal</item>
+        <item name="android:layout_marginLeft">1.5dip</item>
+        <item name="android:layout_marginRight">1.5dip</item>
+    </style>
+    <!-- 防止launchMode设为singleInstance时页面跳转出现黑屏 -->
+    <style name="Theme.NoTitleBar" parent="@android:style/Theme.NoTitleBar">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="roomRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/ratingbar_drawable</item>
+        <item name="android:minHeight">24dip</item>
+        <item name="android:maxHeight">24dip</item>
+    </style>
+    
+    <style name="roomRatingBarNoEdit" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/ratingbar_noedit_drawable</item>
+        <item name="android:minHeight">24dip</item>
+        <item name="android:maxHeight">24dip</item>
+    </style>
+
+    <style name="edit" parent="@android:style/Widget.EditText">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">@drawable/edit_selector</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">150dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:drawableRight">@drawable/cleanup</item>
+    </style>
+
+    <style name="text" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">@drawable/edit_selector</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">150dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:singleLine">false</item>
+    </style>
+
+    <style name="AnimBottom" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/push_bottom_in</item>
+        <item name="android:windowExitAnimation">@anim/push_bottom_out</item>
+    </style>
+
+    <style name="radioButtonDeliver">
+        <item name="android:textColor">@drawable/radiobtn_deliver_textcolor_selector</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/radiobtn_deliver_selector</item>
+        <item name="android:button">@null</item>
+    </style>
+    
+    <style name="radioButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:textColor">@drawable/radiobtn_textcolor_selector</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_weight">1.0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/radiobtn_selector</item>
+        <item name="android:button">@null</item>
+    </style>
+    
+    <style name="radioButtonFloor">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:textColor">@drawable/radiobtn_textcolor_selector</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_weight">1.0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/radiobtn_floor_selector</item>
+        <item name="android:button">@null</item>
+    </style>
+
+    <style name="popwindow_anim_style">
+        <item name="android:windowEnterAnimation">@anim/popshow_anim</item>
+        <!-- 指定显示的动画xml -->
+        <item name="android:windowExitAnimation">@anim/pophidden_anim</item>
+        <!-- 指定消失的动画xml -->
+    </style>
+
+</resources>

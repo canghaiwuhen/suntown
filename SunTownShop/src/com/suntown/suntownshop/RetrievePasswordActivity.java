@@ -1,0 +1,213 @@
+package com.suntown.suntownshop;
+
+import org.json.JSONObject;
+
+import com.suntown.suntownshop.runnable.GetJsonRunnable;
+import com.suntown.suntownshop.utils.FormatValidation;
+import com.suntown.suntownshop.utils.SmsContent;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+/**
+ * 重设密码，接口未完成，后期需要根据接口修改
+ *
+ * @author 钱凯
+ * @version 2015年9月21日 上午9:49:35
+ *
+ */
+public class RetrievePasswordActivity extends Activity implements
+		OnClickListener, TextWatcher {
+	private final static int MSG_GETCHECKCODE = 1;
+	private final static int MSG_ERROR = -1;
+	private final static String URL_GETCHECKCODE = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/checkCodeSend?moblie=";
+	private EditText etMobile;
+	private EditText etCheckCode;
+	private SmsContent smsContent;
+	private TextView tvTips;
+	private String mMobile;
+	private String mCheckCode;
+	private Button btnGetCheckCode;
+	private Button btnNext;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_retrievepassword);
+		etMobile = (EditText) findViewById(R.id.et_telphone);
+		etMobile.addTextChangedListener(this);
+		etCheckCode = (EditText) findViewById(R.id.et_checkcode);
+		etCheckCode.addTextChangedListener(this);
+		tvTips = (TextView) findViewById(R.id.tv_tips);
+		btnGetCheckCode = (Button) findViewById(R.id.btn_checkcode);
+		btnGetCheckCode.setOnClickListener(this);
+		btnNext = (Button)findViewById(R.id.btn_next);
+		btnNext.setOnClickListener(this);
+		smsContent = new SmsContent(this, new Handler(), etCheckCode);
+	}
+
+	public void close(View v) {
+		finish();
+	}
+
+	private void getCheckCode() {
+		String phone = etMobile.getText().toString();
+		if (phone == null || "".equals(phone)) {
+			Toast.makeText(this, "请输入手机号码!", Toast.LENGTH_SHORT).show();
+		} else if (!FormatValidation.isMobileNO(phone)) {
+			Toast.makeText(this, "手机号码不合法!", Toast.LENGTH_SHORT).show();
+		} else {
+
+			// 注册短信变化监听
+			this.getContentResolver().registerContentObserver(
+					Uri.parse("content://sms/"), true, smsContent);
+			mMobile = phone;
+			showProgress(true);
+			GetJsonRunnable getJsonRunnable = new GetJsonRunnable(
+					URL_GETCHECKCODE + phone, MSG_GETCHECKCODE, handler);
+			new Thread(getJsonRunnable).start();
+		}
+	}
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+
+	private int countdown = 60;
+
+	Runnable runnableTimer = new Runnable() {
+		@Override
+		public void run() {
+			countdown--;
+			if (countdown > 0) {
+				btnGetCheckCode.setText(countdown + "秒后重发");
+				handler.postDelayed(this, 1000);
+			} else {
+				btnGetCheckCode.setText(getString(R.string.getcheckcode));
+				btnGetCheckCode.setEnabled(true);
+			}
+		}
+	};
+
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+
+			showProgress(false);
+			Bundle bundle = msg.getData();
+			String strMsg;
+			JSONObject jsonObj;
+			switch (msg.what) {
+			case MSG_GETCHECKCODE:
+				strMsg = bundle.getString("MSG_JSON");
+				try {
+					jsonObj = new JSONObject(strMsg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						tvTips.setText("已发送验证码到手机号码" + mMobile);
+						btnGetCheckCode.setEnabled(false);
+						etCheckCode.requestFocus();
+						countdown = 60;
+						btnGetCheckCode.setText(countdown + "秒后重发");
+						handler.postDelayed(runnableTimer, 1000);
+					} else if (sendState == 1) {
+						tvTips.setText("该手机号码尚未注册,请输入正确的手机号码!");
+					} else {
+						tvTips.setText("验证码发送失败，请稍后重试!");
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(getApplicationContext(),
+							"ERROR:验证码解析错误:" + e.getMessage(),
+							Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
+				}
+
+				break;
+			}
+			super.handleMessage(msg);
+		}
+	};
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.btn_checkcode:
+			getCheckCode();
+			break;
+		case R.id.btn_next:
+			break;
+		}
+	}
+
+	private void checkButton() {
+		mMobile = etMobile.getText().toString();
+		mCheckCode = etCheckCode.getText().toString();
+		if (FormatValidation.isMobileNO(mMobile) && mCheckCode.length() == 6) {
+			btnNext.setEnabled(true);
+		} else {
+			btnNext.setEnabled(false);
+		}
+	}
+
+	@Override
+	public void afterTextChanged(Editable s) {
+		// TODO Auto-generated method stub
+		checkButton();
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

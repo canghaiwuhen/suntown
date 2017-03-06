@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/header_class"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/style_line_bottom_head_divider"
+        android:minHeight="60dp" >
+
+        <LinearLayout
+            android:id="@+id/view_category_back"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/selector_back"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/iv_beacon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/icon_shake_disable" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_head_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/hot_text"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <com.handmark.pulltorefresh.library.PullToRefreshGridView
+            xmlns:ptr="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/gv_goodslist"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/diviline"
+            android:horizontalSpacing="2dp"
+            android:numColumns="3"
+            android:verticalSpacing="2dp"
+            ptr:ptrAnimationStyle="flip"
+            ptr:ptrHeaderBackground="@color/white"
+            ptr:ptrHeaderSubTextColor="@color/black"
+            ptr:ptrHeaderTextColor="@color/black"
+            ptr:ptrListViewExtrasEnabled="false"
+            ptr:ptrMode="pullFromEnd"
+            ptr:ptrRefreshableViewBackground="@color/bg_color"
+            ptr:ptrScrollingWhileRefreshingEnabled="true"
+            ptr:ptrShowIndicator="false" />
+
+        <include
+            android:id="@+id/shaking"
+            layout="@layout/shake_layout" />
+
+        <include
+            android:id="@+id/loading"
+            layout="@layout/loading_layout" />
+    </FrameLayout>
+
+</LinearLayout>

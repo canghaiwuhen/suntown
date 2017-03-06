@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/style_orderpay_item"
+    android:addStatesFromChildren="true"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
+    android:minHeight="80dip"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/iv_confirm_order_item"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:scaleType="fitCenter"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/picture_holder_52x52" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/tv_name_confirm_order_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/goods_name_text" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/tv_spec_confirm_order_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/goods_spec_text" />
+            </LinearLayout>
+
+           
+
+            <RelativeLayout
+                android:layout_width="150dp"
+                android:layout_height="wrap_content" 
+                android:layout_alignParentRight="true">
+
+                <TextView
+                    android:id="@+id/tv_price_confirm_order_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
+                    android:layout_toLeftOf="@+id/tv_quantity_confirm_order_item"
+                    android:text="@string/goods_curprice_text"
+                    android:textColor="@color/red" />
+
+                <TextView
+                    android:id="@+id/tv_quantity_confirm_order_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="15dp"
+                    android:text="@string/goods_buyquantity_text"
+                    android:textColor="@color/red" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

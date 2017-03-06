@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/view_main_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/style_line_bottom_head_divider"
+        android:gravity="center"
+        android:minHeight="60dp"
+        android:orientation="horizontal" >
+		<LinearLayout
+            android:id="@+id/view_main_header_left"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/selector_back"
+            android:gravity="center"
+            android:onClick="close"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel_text"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/toolbar_back_btn"
+                android:visibility="gone" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/view_main_header_center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+			
+            <EditText
+                android:id="@+id/et_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/style_radius_white"
+                android:drawableLeft="@drawable/icon_search_drawleft"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:hint="搜索"
+                android:padding="5dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="17sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_main_header_right"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/selector_back"
+            android:gravity="center"
+            android:onClick="onSearch"
+            android:orientation="vertical" >
+			<TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search_text"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+            <ImageView
+                android:id="@+id/iv_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:src="@drawable/navigation_bar_search_hover" />
+        </LinearLayout>
+
+        
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0.0dip"
+        android:layout_weight="1.0" >
+		<RelativeLayout 
+		    android:id="@+id/view_goodslist"
+		    android:layout_width="match_parent"
+            android:layout_height="match_parent">
+		    <com.suntown.suntownshop.widget.PullUpRefreshListView
+            android:id="@+id/lv_goodslist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:divider="@color/divider_color"
+            android:dividerHeight="1dp"
+            android:footerDividersEnabled="false" />
+		    <ImageView
+                android:id="@+id/iv_route"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:onClick="navigate"
+                android:padding="10dp"
+                android:src="@drawable/icon_goods_route" />
+
+            <TextView
+                android:id="@+id/tv_route_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/iv_route"
+                android:layout_alignTop="@+id/iv_route"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/navigation_bar_cartnumber_bg"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:visibility="gone" />
+		</RelativeLayout>
+        
+			<com.suntown.suntownshop.widget.XCFlowLayout
+                android:id="@+id/flowlayout_keyword"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="@color/white"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp" >
+            </com.suntown.suntownshop.widget.XCFlowLayout>
+
+        <LinearLayout
+            android:id="@+id/view_keyword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bg_color"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/flowlayout_keyword"
+                android:background="@color/white"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="15dp"
+                android:text="搜索历史"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <ListView
+                android:id="@+id/lv_keyword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="1dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:divider="@color/divider_color"
+                android:footerDividersEnabled="false" />
+
+            <TextView
+                android:id="@+id/tv_clear_keywrod"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:onClick="clearHistory"
+                android:background="@color/white"
+                android:text="清空搜索历史"
+                android:textColor="#6390ea"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <include
+            android:id="@+id/loading"
+            layout="@layout/loading_layout"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</LinearLayout>

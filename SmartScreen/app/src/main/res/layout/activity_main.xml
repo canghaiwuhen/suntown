@@ -78,7 +78,8 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_selector">
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
@@ -102,7 +103,8 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_selector">
 
                         <ImageView
                             android:layout_width="40dp"
@@ -127,7 +129,8 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_selector">
 
                         <ImageView
                             android:layout_width="40dp"
@@ -157,7 +160,8 @@
                         android:id="@+id/rl_goods_shelf"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_selector">
 
                         <TextView
                             android:layout_width="wrap_content"

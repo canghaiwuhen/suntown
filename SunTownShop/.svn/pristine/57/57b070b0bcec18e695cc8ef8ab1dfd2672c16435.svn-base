@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:padding="3dp"
+            android:src="@drawable/tab_home_btn" >
+        </ImageView>
+
+        <TextView
+            android:id="@+id/tv_cartnum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:layout_alignTop="@+id/iamgeview"
+			android:layout_alignRight="@+id/imageview"
+			android:layout_marginRight="-10dp"
+			android:visibility="gone"
+			android:textColor="@color/white"
+			android:textSize="10sp"
+			android:gravity="center"
+            android:background="@drawable/navigation_bar_cartnumber_bg" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="首页"
+        android:textColor="@drawable/tab_font_color"
+        android:textSize="12sp" >
+    </TextView>
+
+</LinearLayout>

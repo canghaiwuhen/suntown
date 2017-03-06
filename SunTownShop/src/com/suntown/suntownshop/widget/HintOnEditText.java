@@ -1,0 +1,136 @@
+package com.suntown.suntownshop.widget;
+
+import java.util.ArrayList;
+
+import com.suntown.suntownshop.R;
+import com.suntown.suntownshop.model.Path;
+
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.text.Editable;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.MeasureSpec;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+/**
+ * 提示常驻的"EditText"
+ *
+ * @author 钱凯
+ * @version 2015年6月21日 上午10:20:45
+ *
+ */
+public class HintOnEditText extends LinearLayout {
+	private EditText etMain;
+	private TextView tvHint;
+	private ImageView ivEdit;
+	private LayoutInflater inflater;
+	private LinearLayout view;
+	private boolean isEnabled = true;
+	private boolean isImageOn = true;
+
+	public HintOnEditText(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		// TODO Auto-generated constructor stub
+		TypedArray a = context.obtainStyledAttributes(attrs,
+				R.styleable.HintOnEditText);// context.obtainStyledAttributes(attrs,
+											// R.styleable.HintOnEditText,
+											// defStyle, 0);
+		isImageOn = a.getBoolean(R.styleable.HintOnEditText_image_on, true);
+		String text = a.getString(R.styleable.HintOnEditText_text);
+		String hint = a.getString(R.styleable.HintOnEditText_hint_on);
+		float textSize = a
+				.getDimension(R.styleable.HintOnEditText_textSize, 36) / 2;
+		float hintSize = a
+				.getDimension(R.styleable.HintOnEditText_hintSize, 24) / 2;
+		System.out.println("textSize:" + textSize + " hintSize:" + hintSize);
+		int textColor = a.getColor(R.styleable.HintOnEditText_textColor,
+				context.getResources().getColor(R.color.black));
+		int hintColor = a.getColor(R.styleable.HintOnEditText_hintColor,
+				context.getResources().getColor(R.color.greyfont));
+		a.recycle();
+		inflater = (LayoutInflater) context
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		view = (LinearLayout) inflater.inflate(R.layout.hinton_edittext, this);
+		etMain = (EditText) view.findViewById(R.id.et_main);
+		etMain.setText(text);
+		etMain.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+		etMain.setTextColor(textColor);
+		tvHint = (TextView) view.findViewById(R.id.tv_hint);
+		tvHint.setText(hint);
+		tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, hintSize);
+		tvHint.setTextColor(hintColor);
+		ivEdit = (ImageView) view.findViewById(R.id.iv_edit);
+		etMain.setOnFocusChangeListener(editFocusChangeListener);
+		view.setOnClickListener(onClickListener);
+		ivEdit.setVisibility(isImageOn ? View.VISIBLE : View.GONE);
+	}
+
+	private OnClickListener onClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			etMain.requestFocus();
+			etMain.setSelection(etMain.getText().length());
+
+		}
+	};
+
+	private OnFocusChangeListener editFocusChangeListener = new OnFocusChangeListener() {
+
+		@Override
+		public void onFocusChange(View v, boolean hasFocus) {
+			// TODO Auto-generated method stub
+			if ((hasFocus && isEnabled)) {
+				tvHint.setVisibility(View.GONE);
+				ivEdit.setVisibility(View.GONE);
+			} else {
+				tvHint.setVisibility(View.VISIBLE);
+				if (isImageOn) {
+					ivEdit.setVisibility(View.VISIBLE);
+				}
+			}
+		}
+	};
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+		for (int index = 0; index < getChildCount(); index++) {
+			final View child = getChildAt(index);
+			child.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+		}
+
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
+
+	public Editable getText() {
+		return etMain.getText();
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		// TODO Auto-generated method stub
+		isEnabled = enabled;
+		etMain.setEnabled(enabled);
+	}
+
+	public void setText(CharSequence text) {
+		etMain.setText(text);
+	}
+
+	public void setHintOn(CharSequence text) {
+		tvHint.setText(text);
+	}
+
+	public CharSequence getHintOn() {
+		return tvHint.getText();
+	}
+}

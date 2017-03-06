@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/selector_item" >
+
+    <FrameLayout
+        android:id="@+id/product_list_listview_cell_img_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="10.0dip"
+        android:padding="1.0dip" >
+
+        <ImageView
+            android:id="@+id/product_list_listview_cell_imageview"
+            android:layout_width="96.0dip"
+            android:layout_height="96.0dip"
+            android:src="@drawable/picture_holder_200x200" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/product_list_listview_cell_product_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5.0dip"
+        android:layout_marginRight="10.0dip"
+        android:layout_marginTop="5.0dip"
+        android:layout_toRightOf="@+id/product_list_listview_cell_img_container"
+        android:ellipsize="end"
+        android:lineSpacingExtra="3.0dip"
+        android:maxLines="2"
+        android:textColor="@color/black"
+        android:textSize="16.0sp" />
+
+    <LinearLayout
+        android:id="@+id/product_list_listview_cell_promo_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/product_list_listview_cell_product_name"
+        android:layout_marginBottom="2.0dip"
+        android:layout_marginLeft="3.0dip"
+        android:layout_marginRight="10.0dip"
+        android:visibility="gone"
+        android:layout_toRightOf="@+id/product_list_listview_cell_img_container" >
+
+        <TextView
+            android:id="@+id/product_list_listview_cell_promo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/btn_color"
+            android:textSize="14.0sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/product_list_listview_cell_product_name"
+        android:layout_below="@+id/product_list_listview_cell_promo_container"
+        android:layout_marginRight="10.0dip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"  
+            android:orientation="vertical" >
+			
+                <TextView
+                    android:id="@+id/tv_discount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2.5折" 
+                    android:background="@drawable/icon_discount_bg"
+                    android:textColor="@color/white"
+                    android:textSize="12.0sp" />
+                
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left|bottom"
+                android:layout_gravity="top|left|center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="￥"
+                    android:textColor="@color/goods_price_color"
+                    android:textSize="16.0sp" />
+                <TextView
+                    android:id="@+id/goods_list_curprice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="现价"
+                    android:textColor="@color/goods_price_color"
+                    android:textSize="18.0sp" />
+                <ImageView
+                    android:id="@+id/goods_list_pricetype"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mini_channel_hui"
+                    android:visibility="gone" />
+				<TextView
+                    android:id="@+id/tv_oriprice_symbol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="￥"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/greyfont"
+                    android:textSize="14.0sp" />
+                <TextView
+                    android:id="@+id/product_list_listview_cell_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="原价"  
+                    android:textColor="@color/greyfont"
+                    android:textSize="16.0sp" />
+
+                
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_comment_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left|center"
+                android:textColor="@color/greyfont"
+                android:text="评论：123条"
+                android:textSize="14.0sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_addinrouter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginRight="10dp"
+            android:clickable="true"
+            android:src="@drawable/icon_addin_router" />
+
+        <ImageView
+            android:id="@+id/product_list_listview_cell_btn_cart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:clickable="true"
+            android:src="@drawable/list_cart_h"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</RelativeLayout>

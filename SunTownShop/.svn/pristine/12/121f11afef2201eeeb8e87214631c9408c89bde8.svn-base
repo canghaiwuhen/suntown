@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/view_dialog"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shake_award_bg"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iv_award"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:scaleType="fitCenter" />
+        <TextView 
+            android:id="@+id/tv_award_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/orange"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="恭喜您获得\n【清风2层抽取式面巾纸】1包"/>
+        <TextView 
+            android:id="@+id/tv_award_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/greyfont"
+            android:textSize="14sp"
+            android:text="共50份奖品，您是第38位获奖者"/>
+    </LinearLayout>
+
+</LinearLayout>

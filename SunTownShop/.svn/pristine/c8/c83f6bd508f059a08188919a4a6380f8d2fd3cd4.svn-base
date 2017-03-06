@@ -1,0 +1,102 @@
+package com.suntown.suntownshop.runnable;
+
+import java.io.InputStream;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+
+import com.suntown.suntownshop.utils.InputStreamUtils;
+import com.suntown.suntownshop.utils.XmlParser;
+/**
+ * 网络数据获取Runnable
+ * GET方法
+ *
+ * @author 钱凯
+ * @version 2014年12月20日 下午12:58:39
+ *
+ */
+public class GetJsonRunnable implements Runnable {
+	String url;
+	int msg_complete;
+	int pos = -1;
+	//是否为SOAP协议数据，Webservice过来的数据有SOAP封装，需要提取有效信息
+	boolean isBySoap = true;
+	//附加信息,在成功或出错时返回 
+	String msgPlus = null;
+	Handler handler;
+	private final static int MSG_ERR_NETWORKERR = -1;
+
+	public GetJsonRunnable(String url, int msg, Handler handler) {
+		// TODO Auto-generated constructor stub
+		this.url = url;
+		this.msg_complete = msg;
+		this.handler = handler;
+	}
+	/**
+	 * 有附加消息的Runnable
+	 * @param url
+	 * @param msg
+	 * @param msgPlus 附加消息
+	 * @param handler
+	 */
+	public GetJsonRunnable(String url, int msg,String msgPlus, Handler handler) {
+		// TODO Auto-generated constructor stub
+		this.url = url;
+		this.msg_complete = msg;
+		this.msgPlus = msgPlus;
+		this.handler = handler;
+	}
+	
+	public GetJsonRunnable(String url, int msg, boolean isBySoap,
+			Handler handler) {
+		// TODO Auto-generated constructor stub
+		this.url = url;
+		this.msg_complete = msg;
+		this.handler = handler;
+		this.isBySoap = isBySoap;
+	}
+
+	public GetJsonRunnable(String url, int msg, int pos, Handler handler) {
+		this.url = url;
+		this.msg_complete = msg;
+		this.pos = pos;
+		this.handler = handler;
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		try {
+			InputStream is = InputStreamUtils.getInputStream(url);
+			String result;
+			if (isBySoap) {
+				result = XmlParser.parse(is, "UTF-8", "return");
+			} else {
+				result = InputStreamUtils.InputStreamTOString(is, "UTF-8");
+			}
+			Message msg = new Message();
+			Bundle bundle = new Bundle();
+			bundle.putString("MSG_JSON", result);
+			bundle.putInt("MSG_POS", pos);
+			if(msgPlus!=null){
+				bundle.putString("MSG_PLUS", msgPlus);
+			}
+			msg.what = msg_complete;
+			msg.setData(bundle);
+			handler.sendMessage(msg);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Message msg = new Message();
+			Bundle bundle = new Bundle();
+			bundle.putString("MSG_ERR", e.getMessage());
+			if(msgPlus!=null){
+				bundle.putString("MSG_PLUS", msgPlus);
+			}
+			msg.what = MSG_ERR_NETWORKERR;
+			msg.setData(bundle);
+			handler.sendMessage(msg);
+			e.printStackTrace();
+		}
+	}
+}

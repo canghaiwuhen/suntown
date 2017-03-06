@@ -42,7 +42,7 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/order"/>
+            android:src="@drawable/no_order"/>
         <Button
             android:id="@+id/btn_connDevice"
             android:layout_width="match_parent"

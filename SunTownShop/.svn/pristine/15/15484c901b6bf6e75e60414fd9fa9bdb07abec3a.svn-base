@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:attr="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <RelativeLayout
+        android:id="@+id/confirm_order_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/style_line_bottom_head_divider"
+        android:minHeight="60dp" >
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/selector_back"
+            android:gravity="center"
+            android:onClick="close" >
+
+            <ImageView
+                android:id="@+id/iv_confirm_order_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/toolbar_back_btn" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_register_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/modifyinfo"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:id="@+id/view_modifyinfo_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/selector_back"
+            android:descendantFocusability="blocksDescendants"
+            android:gravity="center_vertical"
+            android:onClick="modify"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" >
+
+            <TextView
+                android:id="@+id/tv_modifyinfo_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_text"
+                android:textColor="@color/white" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/confirm_order_header"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="10dp" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/style_line_bottom"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <com.suntown.suntownshop.widget.HintOnEditText
+                android:id="@+id/et_name"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/style_line_bottom"
+                attr:image_on="false"
+                attr:hintColor="@color/greyfont"
+                attr:hintSize="14.0sp"
+                attr:hint_on="您的姓名"
+                attr:textColor="@color/black"
+                attr:textSize="16.0sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/style_line_bottom"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <com.suntown.suntownshop.widget.HintOnEditText
+                android:id="@+id/et_cardno"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/style_line_bottom"
+                attr:image_on="false"
+                attr:hintColor="@color/greyfont"
+                attr:hintSize="14.0sp"
+                attr:hint_on="身份证号"
+                attr:textColor="@color/black"
+                attr:textSize="16.0sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/style_line_bottom"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="selectSex"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp" >
+
+                <RelativeLayout
+                    android:id="@+id/view_left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/view_right"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true" >
+
+                    <TextView
+                        android:id="@+id/tv_sex"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_above="@+id/tv_hint"
+                        android:layout_alignParentTop="true"
+                        android:background="@null"
+                        android:gravity="center_vertical"
+                        android:singleLine="true"
+                        android:text="男"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tv_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:background="@null"
+                        android:text="性别"
+                        android:textColor="@color/greyfont"
+                        android:textSize="16sp" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/view_right"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center" >
+
+                    <ImageView
+                        android:id="@+id/iv_edit"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/pencil" />
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/style_line_bottom"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <com.suntown.suntownshop.widget.HintOnEditText
+                android:id="@+id/et_age"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/style_line_bottom"
+                attr:image_on="false"
+                attr:hintColor="@color/greyfont"
+                attr:hintSize="14.0sp"
+                attr:hint_on="年龄"
+                attr:textColor="@color/black"
+                attr:textSize="16.0sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/style_line_bottom"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <com.suntown.suntownshop.widget.HintOnEditText
+                android:id="@+id/et_address"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/style_line_bottom"
+                attr:image_on="false"
+                attr:hintColor="@color/greyfont"
+                attr:hintSize="14.0sp"
+                attr:hint_on="地址"
+                attr:textColor="@color/black"
+                attr:textSize="16.0sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_errmsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginTop="2dp"
+            android:text=""
+            android:textColor="@color/red"
+            android:textSize="12dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="15dp"
+            android:descendantFocusability="blocksDescendants" >
+
+            <Button
+                android:id="@+id/btn_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_weight="1"
+                android:background="@color/item_bg"
+                android:onClick="confirm"
+                android:text="保存"
+                android:textColor="@color/white"
+                android:textSize="17sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

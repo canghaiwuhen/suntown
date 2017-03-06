@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/bg_color"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/header_shopcart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/style_line_bottom_head_divider"
+        android:minHeight="60dp" >
+	<LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/selector_back"
+            android:gravity="center"
+            android:onClick="close">
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/toolbar_back_btn" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/selector_back"
+            android:gravity="center_vertical"
+            android:onClick="newAddress"
+            android:descendantFocusability="blocksDescendants"
+            android:id="@+id/view_add"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" >
+
+            <ImageView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_address_add"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_head_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/adress_manage"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.0" >
+
+        <LinearLayout
+            android:id="@+id/layout_show"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
+
+                <com.suntown.suntownshop.widget.SwipeListView
+                    android:id="@+id/lv_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:divider="@color/bg_color"
+                    android:dividerHeight="10dp"
+                    android:footerDividersEnabled="false"
+                    android:scrollbars="vertical" >
+                </com.suntown.suntownshop.widget.SwipeListView>
+            </LinearLayout>
+        </LinearLayout>
+
+        <include
+            android:id="@+id/loading"
+            layout="@layout/loading_layout"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</LinearLayout>

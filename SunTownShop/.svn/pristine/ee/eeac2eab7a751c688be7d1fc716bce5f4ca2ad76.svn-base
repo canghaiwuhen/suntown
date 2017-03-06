@@ -1,0 +1,164 @@
+package com.suntown.suntownshop;
+
+import java.util.HashMap;
+
+import org.json.JSONObject;
+
+import com.suntown.suntownshop.asynctask.PostAsyncTask;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.utils.FormatValidation;
+import com.suntown.suntownshop.utils.XmlParser;
+import com.suntown.suntownshop.widget.ConfirmDialog;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class NicknameModifyActivity extends Activity {
+	private EditText etNickname;
+	private TextView tvErr;
+	private String mNickname;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_nicknamemodify);
+		etNickname = (EditText) findViewById(R.id.et_nickname);
+		tvErr = (TextView) findViewById(R.id.tv_errmsg);
+		SharedPreferences mSharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		mNickname = mSharedPreferences.getString("nickname", "");
+
+		if (mNickname != null && !"".equals(mNickname)) {
+			etNickname.setText(mNickname);
+			etNickname.setSelection(mNickname.length());
+		}
+
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInputFromInputMethod(etNickname.getWindowToken(), 0);
+	}
+
+	public void close(View v) {
+		finish();
+	}
+
+	public void save(View v) {
+		mNickname = etNickname.getText().toString();
+		if (mNickname != null && !"".equals(mNickname)) {
+			mNickname = mNickname.replaceAll("\\s*", "");
+			if (FormatValidation.getWordCount(mNickname) > 20) {
+				Toast.makeText(NicknameModifyActivity.this, "昵称最多为10个汉字或20个字符",
+						Toast.LENGTH_SHORT).show();
+			} else {
+				updateNickname(mNickname);
+			}
+		} else {
+			mNickname = "";
+			ConfirmDialog dialog = new ConfirmDialog(
+					NicknameModifyActivity.this, "确定要清除昵称吗?",
+					getString(R.string.tips_text),
+					getString(R.string.confirm_text),
+					getString(R.string.cancel_text));
+			if (dialog.ShowDialog()) {
+				updateNickname(mNickname);
+			}
+		}
+	}
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(NicknameModifyActivity.this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+			}
+		}
+	}
+
+	private final static String URL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/updatenikename";;
+
+	/**
+	 * 修改昵称
+	 * 
+	 * @param nickname
+	 * @return
+	 */
+	private void updateNickname(String nickname) {
+		SharedPreferences mSharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		String mVoucher = mSharedPreferences.getString("m_voucher", "");
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("token", mVoucher);
+		params.put("nickname", nickname);
+		PostAsyncTask postAsyncTask = new PostAsyncTask(URL, callback);
+		showProgress(true);
+		postAsyncTask.execute(params);
+	}
+
+	private OnCompleteCallback callback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			showProgress(false);
+			// TODO Auto-generated method stub
+			System.out.println(msg);
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						Toast.makeText(NicknameModifyActivity.this, "昵称修改成功",
+								Toast.LENGTH_SHORT);
+
+						SharedPreferences mSharedPreferences = getSharedPreferences(
+								"suntownshop", 0);
+						SharedPreferences.Editor mEditor = mSharedPreferences
+								.edit();
+						mEditor.putString("nickname", mNickname);
+						mEditor.commit();
+						finish();
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(NicknameModifyActivity.this,
+							"昵称修改失败:" + msg, Toast.LENGTH_SHORT);
+					e.printStackTrace();
+				}
+
+			} else {
+				Toast.makeText(NicknameModifyActivity.this, "网络连接错误,请稍后重试...",
+						Toast.LENGTH_SHORT);
+			}
+		}
+
+	};
+}

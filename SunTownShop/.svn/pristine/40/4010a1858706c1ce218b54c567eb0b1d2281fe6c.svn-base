@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:minHeight="80dp"
+    android:padding="5dp" >
+
+    <ImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/avatar" />
+
+    <TextView
+        android:id="@+id/tv_nickname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignTop="@+id/iv_avatar"
+        android:layout_marginLeft="5.0dip"
+        android:layout_toRightOf="@+id/iv_avatar"
+        android:text="昵称"
+        android:textColor="@color/black"
+        android:textSize="16.0sp" />
+
+    <RatingBar
+        android:id="@+id/rb_evarate"
+        style="@style/roomRatingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/iv_avatar"
+        android:layout_marginRight="5dp"
+        android:gravity="center"
+        android:isIndicator="true"
+        android:numStars="5"
+        android:stepSize="1" />
+
+    <TextView
+        android:id="@+id/tv_evatext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_nickname"
+        android:layout_alignLeft="@+id/tv_nickname"
+        android:layout_marginRight="5.0dip"
+        android:layout_toRightOf="@+id/iv_avatar"
+        android:lineSpacingExtra="3.0dip"
+        android:text="评语"
+        android:gravity="left|top"
+        android:textColor="@color/black"
+        android:textSize="16.0sp" />
+
+    <TextView
+        android:id="@+id/tv_evadate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_evatext"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="5dp"
+        android:gravity="bottom"
+        android:singleLine="true"
+        android:text="评价时间"
+        android:textColor="@color/greyfont"
+        android:textSize="12.0sp" />
+
+    <RelativeLayout
+        android:id="@+id/ll_evarate"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/tv_nickname"
+        android:layout_marginBottom="2.0dip"
+        android:layout_marginLeft="5.0dip"
+        android:layout_marginRight="5.0dip"
+        android:layout_toRightOf="@+id/iv_avatar"
+        android:visibility="gone" >
+    </RelativeLayout>
+
+</RelativeLayout>

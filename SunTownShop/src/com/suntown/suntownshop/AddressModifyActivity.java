@@ -1,0 +1,232 @@
+package com.suntown.suntownshop;
+
+import java.util.HashMap;
+
+import org.json.JSONObject;
+
+import com.suntown.suntownshop.asynctask.PostAsyncTask;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.model.Receiver;
+import com.suntown.suntownshop.utils.FormatValidation;
+import com.suntown.suntownshop.utils.XmlParser;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+/**
+ * 收货地址修改页面
+ *
+ * @author 钱凯
+ * @version 2015年6月21日 上午9:12:18
+ *
+ */
+public class AddressModifyActivity extends Activity {
+	private TextView tvTitle;
+	private EditText etName;
+	private EditText etPhone;
+	private EditText etAddress;
+	private CheckBox cbIsDefault;
+	private int id = -1;
+	private String name;
+	private String phone;
+	private String address;
+	private boolean isDefault;
+	private String mUserId;
+	private String mLoginToken;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_addressmodify);
+		SharedPreferences mSharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		mUserId = mSharedPreferences.getString("userId", "");
+		mLoginToken = mSharedPreferences.getString("m_voucher", "");
+		tvTitle = (TextView) findViewById(R.id.tv_head_title);
+		etName = (EditText) findViewById(R.id.et_receiver_name);
+		etPhone = (EditText) findViewById(R.id.et_receiver_phone);
+		etAddress = (EditText) findViewById(R.id.et_receiver_address);
+		cbIsDefault = (CheckBox) findViewById(R.id.cb_isdefault);
+		Intent intent = getIntent();
+		if (intent.hasExtra("id")) {
+			id = intent.getIntExtra("id", -1);
+			name = intent.getStringExtra("name");
+			phone = intent.getStringExtra("phone");
+			address = intent.getStringExtra("address");
+			isDefault = intent.getBooleanExtra("isdefault", false);
+			etName.setText(name);
+			etPhone.setText(phone);
+			etAddress.setText(address);
+			cbIsDefault.setChecked(isDefault);
+			tvTitle.setText("修改收货地址");
+		} else {
+			tvTitle.setText("新增收货地址");
+		}
+
+	}
+
+	public void close(View v) {
+		finish();
+	}
+	/**
+	 * 本地校验输入信息
+	 * @return
+	 */
+	private boolean checkInput() {
+		name = etName.getText().toString();
+		phone = etPhone.getText().toString();
+		address = etAddress.getText().toString();
+		isDefault = cbIsDefault.isChecked();
+		if (name == null || phone == null || address == null || "".equals(name)
+				|| "".equals(phone) || "".equals(address)) {
+			Toast.makeText(AddressModifyActivity.this, "收货人、电话和地址都是必填项!",
+					Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		
+		if(FormatValidation.getWordCount(name)>20){
+			Toast.makeText(AddressModifyActivity.this, "收货人最多输入10个中文字符!",
+					Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		
+		if(FormatValidation.getWordCount(phone)>20){
+			Toast.makeText(AddressModifyActivity.this, "电话号码不能超过20位!",
+					Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		if(!FormatValidation.isPhoneNo(phone)){
+			Toast.makeText(AddressModifyActivity.this, "电话号码格式不正确!",
+					Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		if(FormatValidation.getWordCount(address)>50){
+			Toast.makeText(AddressModifyActivity.this, "地址最多输入50个中文字符!",
+					Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		
+		return true;
+	}
+	/**
+	 * 保存地址
+	 * @param v
+	 */
+	public void save(View v) {
+		if (checkInput()) {
+			showProgress(true);
+			HashMap<String, String> params = new HashMap<String, String>();
+			if (id > 0) {			
+				params.put("memid", mUserId);
+				params.put("logintoken", mLoginToken);
+				params.put("addressId", String.valueOf(id));
+				params.put("address", address);
+				params.put("receiver", name);
+				params.put("phone", phone);
+				params.put("isdefault", String.valueOf(isDefault?1:0));
+				PostAsyncTask postAsyncTask = new PostAsyncTask(URL_MODIFY,
+						callback);
+				postAsyncTask.execute(params);
+			} else {
+				params.put("memid", mUserId);
+				params.put("logintoken", mLoginToken);
+				params.put("address", address);
+				params.put("receiver", name);
+				params.put("phone", phone);
+				params.put("isdefault", String.valueOf(isDefault?1:0));
+				PostAsyncTask postAsyncTask = new PostAsyncTask(URL_ADD,
+						callback);
+				postAsyncTask.execute(params);
+			}
+		}
+	}
+	/**
+	 * 新增收货地址接口地址
+	 */
+	private final static String URL_ADD = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/addAddress";
+	/**
+	 * 修改收货地址接口地址
+	 */
+	private final static String URL_MODIFY = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/updateAddress";
+	/**
+	 * 新增或修改地址回调接口
+	 */
+	private OnCompleteCallback callback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+			showProgress(false);
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						Toast.makeText(getApplicationContext(), "地址保存成功",
+								Toast.LENGTH_SHORT).show();
+						finish();
+					} else if(sendState==2){
+						Toast.makeText(getApplicationContext(), "不能保存相同的地址信息",
+								Toast.LENGTH_SHORT).show();
+					}else {
+						Toast.makeText(getApplicationContext(), "地址保存失败",
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
+	
+	
+	private ProgressDialog mPDialog;
+	/**
+	 * 进度条Dialog
+	 * @param show
+	 */
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(AddressModifyActivity.this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+}

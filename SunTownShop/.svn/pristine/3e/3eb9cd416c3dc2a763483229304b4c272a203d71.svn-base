@@ -1,0 +1,215 @@
+package com.suntown.suntownshop.adapter;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.suntown.suntownshop.Constants;
+import com.suntown.suntownshop.PrepareToBuyActivity;
+import com.suntown.suntownshop.R;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.model.Coupon;
+import com.suntown.suntownshop.model.Goods;
+import com.suntown.suntownshop.model.ParcelableGoods;
+import com.suntown.suntownshop.utils.JsonBuilder;
+import com.suntown.suntownshop.utils.JsonParser;
+import com.suntown.suntownshop.utils.XmlParser;
+import com.suntown.suntownshop.widget.ConfirmDialog;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.LinearLayout.LayoutParams;
+
+/**
+ * 预购清单商品适配器
+ *
+ * @author 钱凯
+ * @version 2015年5月26日 下午2:05:25
+ *
+ */
+public class PrepareToBuyAdapter extends BaseAdapter {
+	private Context mContext;
+	private ArrayList<ParcelableGoods> list;
+	private ArrayList<ParcelableGoods> checkList = new ArrayList<ParcelableGoods>();
+	private boolean mIsVip;
+	private int mRightWidth;
+	private OnGoodsActionListener listener;
+	private boolean isManDos = true;
+	/**
+	 * imageloader相关
+	 */
+	DisplayImageOptions options;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+
+	private void initOptions() {
+		options = new DisplayImageOptions.Builder()
+				.showImageOnLoading(R.drawable.picture_loading_200x200)
+				.showImageForEmptyUri(R.drawable.picture_holder_200x200)
+				.showImageOnFail(R.drawable.picture_holder_200x200)
+				.cacheInMemory(true).cacheOnDisk(true).build();
+	}
+
+	public PrepareToBuyAdapter(Context context,
+			ArrayList<ParcelableGoods> list, boolean isVip, int rightWidth,
+			OnGoodsActionListener listener) {
+		this.mContext = context;
+		this.list = list;
+		this.mIsVip = isVip;
+		this.mRightWidth = rightWidth;
+		this.listener = listener;
+		checkList.addAll(list);
+		listener.onCheckedChanged(checkList.size());
+		initOptions();
+	}
+
+	/**
+	 * 获取选中的商品列表
+	 * 
+	 * @return
+	 */
+	public ArrayList<ParcelableGoods> getCheckedList() {
+		return checkList;
+	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return list.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		// TODO Auto-generated method stub
+		return list.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		// TODO Auto-generated method stub
+		return position;
+	}
+
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+		// TODO Auto-generated method stub
+		ViewHolder viewHolder;
+		if (convertView == null) {
+			viewHolder = new ViewHolder();
+			convertView = LayoutInflater.from(mContext).inflate(
+					R.layout.prepare_list_item, null);
+			viewHolder.ivMain = (ImageView) convertView
+					.findViewById(R.id.iv_main);
+			viewHolder.tvName = (TextView) convertView
+					.findViewById(R.id.tv_name);
+			viewHolder.tvEva = (TextView) convertView.findViewById(R.id.tv_eva);
+			viewHolder.tvPrice = (TextView) convertView
+					.findViewById(R.id.tv_price);
+			viewHolder.cb = (CheckBox) convertView
+					.findViewById(R.id.cb_prepare);
+			viewHolder.item_left = (RelativeLayout) convertView
+					.findViewById(R.id.item_left);
+			viewHolder.item_right = (RelativeLayout) convertView
+					.findViewById(R.id.item_right);
+			LinearLayout.LayoutParams lp1 = new LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			viewHolder.item_left.setLayoutParams(lp1);
+			LinearLayout.LayoutParams lp2 = new LayoutParams(mRightWidth,
+					LayoutParams.MATCH_PARENT);
+			viewHolder.item_right.setLayoutParams(lp2);
+			convertView.setTag(viewHolder);
+		} else {
+			viewHolder = (ViewHolder) convertView.getTag();
+		}
+		// 还原拉动过的View进行
+		if (convertView.getScrollX() > 0) {
+			convertView.scrollTo(0, 0);
+		}
+		final ParcelableGoods goods = list.get(position);
+		isManDos = false;
+		if (checkList.contains(goods)) {
+
+			viewHolder.cb.setChecked(true);
+			System.out.println("checked----->" + goods.getBarCode());
+		} else {
+			viewHolder.cb.setChecked(false);
+		}
+		isManDos = true;
+		viewHolder.cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isManDos) {
+					if (isChecked) {
+						if (!checkList.contains(goods)) {
+							checkList.add(goods);
+						}
+					} else {
+						checkList.remove(goods);
+					}
+				}
+				listener.onCheckedChanged(checkList.size());
+			}
+		});
+		String imgPath = goods.getImgPath();
+		if (imgPath != null && imgPath.length() > 0) {
+			imageLoader.displayImage("http://" + imgPath, viewHolder.ivMain,
+					options);
+		} else {
+			viewHolder.ivMain
+					.setImageResource(R.drawable.picture_noimg_200x200);
+		}
+		viewHolder.tvName.setText(goods.getName());
+		viewHolder.tvPrice.setText("￥"
+				+ String.format("%.2f", goods.getCurPrice(mIsVip)));
+		double eva = goods.getEvaluate();
+		if (eva < 0) {
+			eva = 5.0;
+		}
+		viewHolder.tvEva.setText(String.format("%.1f", eva));
+		viewHolder.item_right.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				listener.onDelete(position);
+			}
+		});
+		return convertView;
+	}
+
+	public interface OnGoodsActionListener {
+		public void onDelete(int index);
+
+		public void onCheckedChanged(int count);
+	}
+
+	static class ViewHolder {
+		ImageView ivMain;
+		TextView tvName;
+		TextView tvEva;
+		TextView tvPrice;
+		RelativeLayout item_left;
+		RelativeLayout item_right;
+		CheckBox cb;
+	}
+}

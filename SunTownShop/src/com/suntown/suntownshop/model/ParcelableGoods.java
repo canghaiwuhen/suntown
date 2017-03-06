@@ -1,0 +1,140 @@
+package com.suntown.suntownshop.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+/**
+ * 序列化的商品类，主要用于各Activity之间传递商品信息
+ *
+ * @author 钱凯
+ * @version 2015年6月21日 上午10:00:44
+ *
+ */
+public class ParcelableGoods extends Goods implements Parcelable {
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	public ParcelableGoods(){
+		
+	}
+	
+	public ParcelableGoods(Goods goods){
+		setBarCode(goods.getBarCode());
+		setGCode(goods.getGCode());
+		setName(goods.getName());
+		setKind(goods.getKind());
+		setUnit(goods.getUnit());
+		setOriPrice(goods.getOriPrice());
+		setMemPrice(goods.getMemPrice());
+		setUptPrice(goods.getUptPrice());
+		setSpec(goods.getSpec());
+		setGClass(goods.getGClass());
+		setProvider(goods.getProvider());
+		setBrand(goods.getBrand());
+		setOrigin(goods.getOrigin());
+		setImgPath(goods.getImgPath());
+		setPriceType(goods.getPriceType());	
+		setDeliverType(goods.getDeliverType());
+		setEvaluate(goods.getEvaluate());
+		setShelfId(goods.getShelfId());
+		setFloorNo(goods.getFloorNo());
+		setFloorName(goods.getFloorName());
+	}
+	
+	public ParcelableGoods(String barCode,String name,String sfid,String floorName){
+		setBarCode(barCode);
+		setName(name);
+		setShelfId(sfid);
+		setFloorName(floorName);
+	}
+	
+	public ParcelableGoods(String barCode, String gCode, String gName, String kind,
+			String unit, String oriPrice, String memPrice, String uptPrice,
+			String spec, String gClass, String provider, String brand,
+			String origin, String imgPath, int type,int deliverType,double evaluate,String shelfId,String floorNo,String floorName){
+		setBarCode(barCode);
+		setGCode(gCode);
+		setName(gName);
+		setKind(kind);
+		setUnit(unit);
+		setOriPrice(oriPrice);
+		setMemPrice(memPrice);
+		setUptPrice(uptPrice);
+		setSpec(spec);
+		setGClass(gClass);
+		setProvider(provider);
+		setBrand(brand);
+		setOrigin(origin);
+		setImgPath(imgPath);
+		setPriceType(type);	
+		setDeliverType(deliverType);
+		setEvaluate(evaluate);
+		setShelfId(shelfId);
+		setFloorNo(floorNo);
+		setFloorName(floorName);
+	}
+	
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		// TODO Auto-generated method stub
+		dest.writeString(getBarCode());
+		dest.writeString(getBrand());
+		dest.writeString(getGClass());
+		dest.writeString(getGCode());
+		dest.writeString(getImgPath());
+		dest.writeString(getKind());
+		dest.writeString(getMemPrice());
+		dest.writeString(getName());
+		dest.writeString(getOrigin());
+		dest.writeString(getOriPrice());
+		dest.writeString(getProvider());
+		dest.writeString(getSpec());
+		dest.writeString(getUnit());
+		dest.writeString(getUptPrice());
+		dest.writeInt(getPriceType());
+		dest.writeInt(getDeliverType());
+		dest.writeDouble(getEvaluate());
+		dest.writeString(getShelfId());
+		dest.writeString(getFloorNo());
+		dest.writeString(getFloorName());
+	}
+	
+	public final static Parcelable.Creator<Goods> CREATOR = new Creator<Goods>() {
+		
+		@Override
+		public Goods[] newArray(int size) {
+			// TODO Auto-generated method stub
+			return new Goods[size];
+		}
+		
+		@Override
+		public Goods createFromParcel(Parcel source) {
+			// TODO Auto-generated method stub
+			ParcelableGoods goods = new ParcelableGoods();
+			goods.setBarCode(source.readString());
+			goods.setBrand(source.readString());
+			goods.setGClass(source.readString());
+			goods.setGCode(source.readString());
+			goods.setImgPath(source.readString());
+			goods.setKind(source.readString());
+			goods.setMemPrice(source.readString());
+			goods.setName(source.readString());
+			goods.setOrigin(source.readString());
+			goods.setOriPrice(source.readString());
+			goods.setProvider(source.readString());
+			goods.setSpec(source.readString());
+			goods.setUnit(source.readString());
+			goods.setUptPrice(source.readString());
+			goods.setPriceType(source.readInt());
+			goods.setDeliverType(source.readInt());
+			goods.setEvaluate(source.readDouble());
+			goods.setShelfId(source.readString());
+			goods.setFloorNo(source.readString());
+			goods.setFloorName(source.readString());
+			return goods;
+		}
+	};
+}

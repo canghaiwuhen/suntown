@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/bg_color"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/header_shopcart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/style_line_bottom_head_divider"
+        android:minHeight="60dp" >
+	<LinearLayout
+            android:id="@+id/view_scan"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/selector_back"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:onClick="onScan">
+
+            <ImageView
+                android:id="@+id/iv_scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/scan" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/view_shopcart_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/selector_back"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants"
+            android:paddingLeft="20dp"
+            android:visibility="gone"
+            android:paddingRight="20dp" >
+
+            <TextView
+                android:id="@+id/btn_shopcart_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_text"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_shopcart_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/shopcart_text"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.0" >
+
+        <LinearLayout
+            android:id="@+id/layout_show"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
+				<RelativeLayout 
+				    android:id="@+id/view_cartad"
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content"
+				    android:paddingBottom="5dp"
+				    >
+				    <ImageView android:id="@+id/iv_cartad"
+				        android:layout_width="match_parent"
+				        android:layout_height="wrap_content"
+				        />
+				    <ImageView android:id="@+id/iv_cartad_close"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_marginRight="5dp"
+				        android:layout_marginTop="5dp"
+				        android:src="@drawable/icon_shopcartad_close"
+				        android:layout_alignParentTop="true"
+				        android:layout_alignParentRight="true"/>
+				</RelativeLayout>
+                <com.suntown.suntownshop.widget.SwipeListView
+                    android:id="@+id/lv_shopcart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:divider="@color/bg_color"
+                    android:dividerHeight="1px"
+                    android:footerDividersEnabled="false"
+                    android:scrollbars="vertical" >
+                </com.suntown.suntownshop.widget.SwipeListView>
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/footer_shopcart"
+                android:layout_width="match_parent"
+                android:layout_height="50dip"
+                android:layout_alignParentBottom="true"
+                android:background="@color/white"
+                android:gravity="center"
+                android:minHeight="50dip"
+                 >
+				<CheckBox
+                        android:id="@+id/cb_chopcart_checkall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="15dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentLeft="true"
+                        android:button="@drawable/selector_checkbox_coupon_item" />
+                
+
+                    
+
+                    <TextView
+                        android:id="@+id/tv_shopcart_checkall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/checkall_text"
+                        android:visibility="gone"
+                        android:textColor="@color/black" />
+               
+
+                
+
+                    <TextView
+                        android:id="@+id/tv_shopcart_amount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf="@+id/cb_chopcart_checkall"
+                        android:text="@string/amount_text"
+                        android:textColor="@color/pink" />
+                
+
+                
+
+                    <TextView
+                        android:id="@+id/tv_shopcart_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/tv_shopcart_amount"
+                        android:text="@string/amount_text"
+                        android:textColor="@color/pink" />
+                
+				<Button
+                        android:id="@+id/btn_shopcart_addtoprepare"
+                        android:layout_width="90dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="right"
+                        android:layout_marginRight="10dp"
+                        android:layout_toLeftOf="@+id/btn_shopcart_checkout"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/selector_btn_pink"
+                        android:text="加入预购清单"
+                        android:visibility="gone"
+                        android:textColor="@color/white" />
+                
+                <Button
+                        android:id="@+id/btn_shopcart_checkout"
+                        android:layout_width="90dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="right"
+                        android:layout_marginRight="10dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/selector_btn_orange"
+                        android:text="@string/shopcart_checkout_text"
+                        android:textColor="@color/white" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <include
+            android:id="@+id/empty_chopcart"
+            layout="@layout/empty_layout"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</LinearLayout>

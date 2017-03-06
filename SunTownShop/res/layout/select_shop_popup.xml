@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:padding="10dp"
+    android:orientation="vertical" >
+<!-- 
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:background="@null"
+        android:padding="10dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="超市选择"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+    </LinearLayout> -->
+
+    <ListView
+        android:id="@+id/lv_shop"
+        android:layout_width="match_parent"
+        android:background="@null"
+        android:scrollbars="none"
+        android:layout_height="match_parent"
+        android:divider="@color/divider_color"
+        android:dividerHeight="0.5dp" >
+    </ListView>
+
+</LinearLayout>

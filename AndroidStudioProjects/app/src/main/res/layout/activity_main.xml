@@ -237,13 +237,7 @@
                 android:layout_gravity="center_horizontal"
                 android:scaleType="center"
                 android:id="@+id/relativeLayout">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_gravity="center_horizontal"
-                    android:scaleType="center"
-                    android:src="@drawable/my" />
+
                 <TextView
                     android:id="@+id/tv_fm_num"
                     android:layout_width="20dp"
@@ -255,6 +249,16 @@
                     android:layout_marginLeft="@dimen/dp40"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="center"
+                    android:src="@drawable/my"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/imageView3" />
             </RelativeLayout>
 
                 <TextView

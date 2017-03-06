@@ -98,30 +98,31 @@ public class InputAndOutputActivity extends BaseActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
-                showDialog();
+//                showDialog();
+                finish();
                 break;
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-//            showDialog();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+////            showDialog();
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 
-    private void showDialog() {
-        new SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
-                .setTitleText("提示")
-                .setContentText("您还没有提交数据，是否确认退出")
-                .setCancelText("取消")
-                .setConfirmText("确定")
-                .showCancelButton(true)
-                .setCancelClickListener(sDialog -> sDialog.dismiss()).setConfirmClickListener(sDialog ->{finish(); sDialog.dismiss();})
-                .show();
-    }
+//    private void showDialog() {
+//        new SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
+//                .setTitleText("提示")
+//                .setContentText("您还没有提交数据，是否确认退出")
+//                .setCancelText("取消")
+//                .setConfirmText("确定")
+//                .showCancelButton(true)
+//                .setCancelClickListener(sDialog -> sDialog.dismiss()).setConfirmClickListener(sDialog ->{finish(); sDialog.dismiss();})
+//                .show();
+//    }
 
     private class TabPageIndicatorAdapter extends FragmentPagerAdapter {
         public TabPageIndicatorAdapter(FragmentManager fm) {

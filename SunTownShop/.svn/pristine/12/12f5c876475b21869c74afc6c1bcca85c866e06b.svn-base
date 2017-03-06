@@ -1,0 +1,387 @@
+package com.suntown.suntownshop;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.suntown.suntownshop.asynctask.PostAsyncTask;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.imageshow.ImagePagerActivity;
+import com.suntown.suntownshop.model.Path;
+import com.suntown.suntownshop.utils.ImageUtil;
+import com.suntown.suntownshop.utils.JsonParser;
+import com.suntown.suntownshop.utils.XmlParser;
+import com.suntown.suntownshop.widget.ConfirmDialog;
+import com.suntown.suntownshop.widget.PathContainer;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.Gallery;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+
+public class RefundDetailActivity extends Activity {
+	private Gallery gallery;
+	private ArrayList<String> list;
+	private TextView tvRefundReason;
+	private TextView tvRefundStatus;
+	private TextView tvRefuseReason;
+	private TextView tvPhotoPrompt;
+	private Button btnCancel;
+	private View viewMain;
+	private View loading;
+	private String mUserId;
+	private String mLoginToken;
+	private String orderNo;
+	String refundReason;
+	String refuseReason;
+	int refundStatus;
+	
+	private final static String URL_CANCEL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/cancelReback";
+	/**
+	 * imageloader相关
+	 */
+	DisplayImageOptions options;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+
+	private void initOptions() {
+		options = new DisplayImageOptions.Builder()
+				.showImageOnLoading(R.drawable.picture_loading_200x200)
+				.showImageForEmptyUri(R.drawable.picture_noimg_200x200)
+				.showImageOnFail(R.drawable.picture_holder_200x200)
+				.cacheInMemory(true).cacheOnDisk(true)
+				// .considerExifParams(true)
+				// .displayer(new SimpleBitmapDisplayer())
+				.build();
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_refund_detail);
+		initOptions();
+		gallery = (Gallery) findViewById(R.id.photo_gallery);
+		tvRefundReason = (TextView) findViewById(R.id.tv_refund_reason);
+		tvRefundStatus = (TextView) findViewById(R.id.tv_refund_status);
+		tvRefuseReason = (TextView) findViewById(R.id.tv_refund_reason);
+		tvPhotoPrompt = (TextView) findViewById(R.id.photoPrompt);
+		btnCancel = (Button) findViewById(R.id.btn_cancel);
+		viewMain = findViewById(R.id.view_main);
+		loading = findViewById(R.id.loading);
+		SharedPreferences mSharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		mUserId = mSharedPreferences.getString("userId", "");
+		mLoginToken = mSharedPreferences.getString("m_voucher", "");
+		boolean isLogin = mSharedPreferences.getBoolean("islogin", false);
+		Intent intent = getIntent();
+		if (!isLogin || !intent.hasExtra("orderno")) {
+			intent = new Intent(this, LoginActivity.class);
+			startActivity(intent);
+			finish();
+		} else {
+			orderNo = intent.getStringExtra("orderno");
+			init();
+		}
+	}
+
+	private void init() {
+		loading.setVisibility(View.VISIBLE);
+		viewMain.setVisibility(View.GONE);
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("formno", orderNo);
+		params.put("memid", mUserId);
+		params.put("logintoken", mLoginToken);
+		PostAsyncTask postAsyncTask = new PostAsyncTask(URL, callback);
+		postAsyncTask.execute(params);
+	}
+
+	private final static String URL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/getReback";
+
+	private OnCompleteCallback callback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						// 取得退货数据，开始解析
+						JSONArray jsonArray = jsonObj.getJSONArray("INFO");
+						refundStatus = jsonObj.getInt("TYPE");
+						jsonObj = (JSONObject) jsonArray.opt(0);
+						refundReason = jsonObj.getString("REBACKTXT");
+						tvRefundReason.setText(refundReason);
+						refuseReason = jsonObj.getString("REFUSERESON");
+						if (refundStatus == 4) {
+							tvRefundStatus
+									.setText(getString(R.string.refund_done_text));
+							btnCancel.setVisibility(View.GONE);
+						} else if (refundStatus == 5) {
+							tvRefundStatus
+									.setText(getString(R.string.refund_refuse_text));
+							tvRefuseReason.setVisibility(View.VISIBLE);
+							tvRefuseReason.setText(refuseReason);
+							btnCancel.setVisibility(View.VISIBLE);
+							btnCancel.setText("重新申请退货");
+						} else {
+							btnCancel.setVisibility(View.VISIBLE);
+						}
+						jsonArray = jsonObj.getJSONArray("IMGURL");
+						if (jsonArray.length() > 0) {
+							list = new ArrayList<String>();
+							String url;
+							for (int i = 0; i < jsonArray.length(); i++) {
+								jsonObj = (JSONObject) jsonArray.get(i);
+								url = jsonObj.getString("IMAGEPATH");
+								list.add(url);
+							}
+							gallery.setAdapter(photoAdapter);
+							gallery.setOnItemClickListener(onImageClick);
+							String strPhotoPrompt = getString(R.string.photo_prompt_detail);
+							tvPhotoPrompt.setText(String.format(strPhotoPrompt,
+									list.size()));
+						} else {
+							gallery.setVisibility(View.GONE);
+							tvPhotoPrompt.setVisibility(View.GONE);
+						}
+						loading.setVisibility(View.GONE);
+						viewMain.setVisibility(View.VISIBLE);
+					} else if (sendState == 1) {
+						Toast.makeText(getApplicationContext(),
+								"登录状态已过期，请重新登录!", Toast.LENGTH_SHORT).show();
+						finish();
+					} else {
+						Toast.makeText(getApplicationContext(),
+								"订单状态错误，请稍后重试...", Toast.LENGTH_SHORT).show();
+						finish();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+					System.out.println(e.getMessage());
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+
+		}
+	};
+
+	private class ViewHolder {
+		View addFrame;
+		ImageView addImage;
+		View showFrame;
+		ImageView itemImage;
+		ImageView closeImg;
+	}
+
+	private BaseAdapter photoAdapter = new BaseAdapter() {
+
+		@Override
+		public View getView(final int position, View convertView,
+				ViewGroup parent) {
+			// TODO Auto-generated method stub
+			ViewHolder viewHolder;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(RefundDetailActivity.this)
+						.inflate(R.layout.photo_grid_item, null);
+				viewHolder = new ViewHolder();
+				viewHolder.addFrame = convertView.findViewById(R.id.addFrame);
+				viewHolder.addImage = (ImageView) convertView
+						.findViewById(R.id.addImage);
+				viewHolder.showFrame = convertView.findViewById(R.id.showFrame);
+				viewHolder.itemImage = (ImageView) convertView
+						.findViewById(R.id.itemImage);
+				viewHolder.closeImg = (ImageView) convertView
+						.findViewById(R.id.closeImg);
+				convertView.setTag(viewHolder);
+			} else {
+				viewHolder = (ViewHolder) convertView.getTag();
+			}
+
+			viewHolder.addFrame.setVisibility(View.GONE);
+			viewHolder.showFrame.setVisibility(View.VISIBLE);
+			String url = list.get(position);
+			if (url != null && !"".equals(url)) {
+				if (url.indexOf("http://") < 0) {
+					url = "http://" + url;
+				}
+				imageLoader.displayImage(url, viewHolder.itemImage);
+			}
+			viewHolder.closeImg.setVisibility(View.GONE);
+
+			return convertView;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			return list.get(position);
+		}
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return list.size();
+		}
+	};
+
+	private OnItemClickListener onImageClick = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int position,
+				long arg3) {
+			// TODO Auto-generated method stub
+
+			int len = list.size();
+			String[] urls = new String[len];
+			String path;
+			for (int i = 0; i < len; i++) {
+				path = list.get(i);
+				if (path.indexOf("http://") < 0) {
+					path = "http://" + path;
+				}
+				urls[i] = path;
+			}
+
+			Intent intent = new Intent(RefundDetailActivity.this,
+					ImagePagerActivity.class);
+
+			intent.putExtra(ImagePagerActivity.EXTRA_IMAGE_URLS, urls);
+			intent.putExtra(ImagePagerActivity.EXTRA_IMAGE_INDEX, position);
+
+			startActivity(intent);
+
+		}
+	};
+
+	private void showRefundPath() {
+		// ArrayList<Order> list = maps.get(Integer.valueOf(orderType));
+		Intent intent = new Intent(this, RefundDetailActivity.class);
+		Bundle b = new Bundle();
+		b.putString("orderno", orderNo);
+		intent.putExtras(b);
+		startActivity(intent);
+		finish();
+	}
+
+	public void cancelOrRefund(View v) {
+		ConfirmDialog dialog = new ConfirmDialog(this,
+				"确定撤销退货申请吗?",
+				getString(R.string.tips_text),
+				getString(R.string.confirm_text),
+				getString(R.string.cancel_text));
+		if (dialog.ShowDialog()) {
+			showProgress(true);
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("formno", orderNo);
+			params.put("memid", mUserId);
+			params.put("logintoken", mLoginToken);
+			PostAsyncTask postAsyncTask = new PostAsyncTask(URL_CANCEL, callbackCancel);
+			postAsyncTask.execute(params);
+		}
+	}
+
+	private OnCompleteCallback callbackCancel = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+			showProgress(false);
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						Toast.makeText(getApplicationContext(),
+								"撤销退货申请成功!", Toast.LENGTH_SHORT).show();
+						finish();
+					} else if (sendState == 1) {
+						Toast.makeText(getApplicationContext(),
+								"登录状态已过期，请重新登录!", Toast.LENGTH_SHORT).show();
+						finish();
+					} else {
+						Toast.makeText(getApplicationContext(),
+								"订单状态错误，请稍后重试...", Toast.LENGTH_SHORT).show();
+						finish();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+					System.out.println(e.getMessage());
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+
+		}
+	};
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+	public void close(View v) {
+		finish();
+	}
+}

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector_item"
+    android:padding="10dp" >
+
+    <LinearLayout
+        android:id="@+id/product_list_listview_cell_img_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:padding="5.0dip" >
+
+        <ImageView
+            android:id="@+id/iv_main"
+            android:layout_width="96.0dip"
+            android:layout_height="96.0dip"
+            android:src="@drawable/picture_holder_200x200" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5.0dip"
+        android:layout_marginRight="10.0dip"
+        android:layout_marginTop="5.0dip"
+        android:layout_toRightOf="@+id/product_list_listview_cell_img_container"
+        android:ellipsize="end"
+        android:lineSpacingExtra="3.0dip"
+        android:maxLines="2"
+        android:text="名称"
+        android:textColor="@color/black"
+        android:textSize="16.0sp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/product_list_listview_cell_img_container"
+        android:layout_alignLeft="@+id/tv_name"
+        android:layout_marginRight="10.0dip"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp" >
+
+        <TextView
+            android:id="@+id/tv_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left|center"
+            android:textColor="@color/goods_price_color"
+            android:text="价格"
+            android:textSize="16.0sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/ll_rating_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/product_list_listview_cell_img_container"
+        android:background="@drawable/style_line_top_black"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp" >
+
+        <TextView
+            android:id="@+id/tv_evahint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:paddingLeft="5dp"
+            android:text="商品评价"
+            android:textColor="@color/black"
+            android:textSize="16.0sp" />
+
+        <RatingBar
+            android:id="@+id/rb_evarate"
+            style="@style/roomRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_evahint"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:numStars="5"
+            android:stepSize="1" />
+        
+        <TextView
+            android:id="@+id/tv_evadate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="2015-07-27 12:05:12"
+            android:visibility="gone"
+            android:textColor="@color/greyfont"
+            android:textSize="12.0sp" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/et_evatext"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@+id/ll_rating_container"
+        android:layout_margin="5dp"
+        android:gravity="top|left"
+        android:hint="@string/evatext_hint"
+        android:maxLength="1000"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/tv_evatext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_rating_container"
+        android:layout_margin="5dp"
+        android:gravity="top|left"
+        android:textColor="@color/greyfont"
+        android:textSize="15sp"
+        android:visibility="gone" />
+
+</RelativeLayout>

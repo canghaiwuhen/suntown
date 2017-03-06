@@ -1,0 +1,868 @@
+package com.suntown.suntownshop;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.suntown.suntownshop.adapter.ShopCartAdapter;
+import com.suntown.suntownshop.adapter.ShopCartAdapter.onRightItemClickListener;
+import com.suntown.suntownshop.asynctask.PostAsyncTask;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.db.ShopCartDb;
+import com.suntown.suntownshop.model.CartGoods;
+import com.suntown.suntownshop.utils.FormatValidation;
+import com.suntown.suntownshop.utils.JsonBuilder;
+import com.suntown.suntownshop.utils.Md5Manager;
+import com.suntown.suntownshop.utils.MyMath;
+import com.suntown.suntownshop.utils.XmlParser;
+import com.suntown.suntownshop.widget.ConfirmDialog;
+import com.suntown.suntownshop.widget.SlipButton;
+import com.suntown.suntownshop.widget.SlipButton.OnChangedListener;
+import com.suntown.suntownshop.widget.SwipeListView;
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.opengl.Visibility;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.text.style.BulletSpan;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class FragmentPage4 extends Fragment {
+	private LayoutInflater inflater;
+	private LinkedHashMap<String, CartGoods> data = new LinkedHashMap<String, CartGoods>();
+	ListView listview;
+	CheckBox cb_all;
+	TextView btnEdit;
+	LinearLayout viewEditBtn;
+	Button btnCheckout;
+	View view;
+	boolean isOnEdit = true;
+	boolean isManDoes = true;
+	private LinkedHashMap<String, CartGoods> checkGoods = new LinkedHashMap<String, CartGoods>();
+	private BaseAdapter adapter;
+	private SwipeListView mSwipeListView;
+	private ShopCartAdapter shopCartAdapter;
+	private int mRightWidth = 0;
+	private View viewShow;
+	private View viewEmpty;
+	double mAmount = 0.0;
+	private String userId;
+	private boolean mIsVip = false;
+	/**
+	 * imageloader相关
+	 */
+	DisplayImageOptions options;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+
+	private void initOptions() {
+		options = new DisplayImageOptions.Builder()
+				.showImageOnLoading(R.drawable.picture_loading_200x200)
+				.showImageForEmptyUri(R.drawable.picture_holder_200x200)
+				.showImageOnFail(R.drawable.picture_holder_200x200)
+				.cacheInMemory(true).cacheOnDisk(true).build();
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		initOptions();
+		this.inflater = inflater;
+		view = inflater.inflate(R.layout.fragment_4, null);
+		SharedPreferences mSharedPreferences = getActivity()
+				.getSharedPreferences("suntownshop", 0);
+		userId = mSharedPreferences.getString("userId", "");
+		mIsVip = mSharedPreferences.getBoolean("isvip", false);
+		mSwipeListView = (SwipeListView) view.findViewById(R.id.lv_shopcart);
+		cb_all = (CheckBox) view.findViewById(R.id.cb_chopcart_checkall);
+		btnEdit = (TextView) view.findViewById(R.id.btn_shopcart_edit);
+		viewEditBtn = (LinearLayout) view.findViewById(R.id.view_shopcart_edit);
+		btnCheckout = (Button) view.findViewById(R.id.btn_shopcart_checkout);
+		viewShow = view.findViewById(R.id.layout_show);
+		viewEmpty = view.findViewById(R.id.empty_chopcart);
+		ImageView ivEmpty = (ImageView) view.findViewById(R.id.iv_emptyimg);
+		ivEmpty.setImageResource(R.drawable.shopcart_empty);
+		TextView tvEmpty = (TextView) view.findViewById(R.id.tv_emptymsg);
+		tvEmpty.setText(getString(R.string.shopcart_empty_msg));
+		return view;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+
+		super.onCreate(savedInstanceState);
+
+	}
+
+	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		initViews();
+		flushCart();
+		super.onResume();
+
+	}
+
+	private void flushCart() {
+		try {
+			if (!data.isEmpty()) {
+				String strJson = JsonBuilder.makeBarcodes(data);
+				if (strJson != null && !"".equals(strJson)) {
+					showProgress(true);
+					System.out.println(strJson);
+					HashMap<String, String> params = new HashMap<String, String>();
+					params.put("strMsg", strJson);
+					PostAsyncTask postAsyncTask = new PostAsyncTask(URL,
+							callback);
+					postAsyncTask.execute(params);
+				}
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private final static String URL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/checkPrice";
+
+	private OnCompleteCallback callback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+			if(getActivity()==null||getActivity().isFinishing()){
+				return;
+			}
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					System.out.println(msg);
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						JSONArray jsonArray = jsonObj.getJSONArray("RECORDS");
+						boolean isCheanged = false;
+						for (int i = 0; i < jsonArray.length(); i++) {
+							jsonObj = (JSONObject) jsonArray.opt(i);
+							String barCode = jsonObj.getString("BARCODE");
+							String gOriPrice = jsonObj.getString("ORIPRICE");
+							String gMemPrice = jsonObj.getString("MEMPRICE");
+							String gUptPrice = jsonObj.getString("UPTPRICE");
+							int priceType = jsonObj.getInt("PRICETYPE");
+							double curPrice = MyMath.getCurPrice(gOriPrice,
+									gMemPrice, gUptPrice, mIsVip, priceType);
+							CartGoods goods = data.get(barCode);
+							if (curPrice == 0) {
+								ShopCartDb scdb = new ShopCartDb(getActivity(),
+										userId);
+								scdb.deleteGoods(barCode);
+								scdb.Close();
+								data.remove(barCode);
+								if (checkGoods.containsKey(barCode)) {
+									checkGoods.remove(barCode);
+								}
+								isCheanged = true;
+							} else if (curPrice != goods.getPrice()) {
+								goods.setPriceState(curPrice > goods.getPrice() ? CartGoods.PRICE_STATE_UP
+										: CartGoods.PRICE_STATE_DOWN);
+								goods.setPrice(curPrice);
+								goods.setChanged(true);
+								ShopCartDb scdb = new ShopCartDb(getActivity(),
+										userId);
+								scdb.updateGoods(barCode, curPrice);
+								scdb.Close();
+								if (checkGoods.containsKey(barCode)) {
+									CartGoods goods2 = checkGoods.get(barCode);
+									goods2.setPrice(curPrice);
+								}
+								isCheanged = true;
+							} else {
+								goods.setChanged(false);
+								goods.setPriceState(CartGoods.PRICE_STATE_NOCHANGE);
+							}
+						}
+
+						if (isCheanged) {
+							adapter.notifyDataSetChanged();
+							calculate();
+
+						}
+
+					} else {
+						Toast.makeText(getActivity(), "同步购物车失败，请重试!",
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getActivity(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getActivity(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+			showProgress(false);
+		}
+	};
+
+	private final static String URL_BUILDORDER = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/bulidOrder";
+
+	private OnCompleteCallback buildOrderCallback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+			if(getActivity()==null||getActivity().isFinishing()){
+				return;
+			}
+			boolean isFlush = false;
+			showProgress(false);
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					jsonObj = new JSONObject(msg);
+					System.out.println("buildOrder------>" + msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						String orderNo = jsonObj.getString("FORMNO");
+						try {
+
+							Set<Entry<String, CartGoods>> sets = checkGoods
+									.entrySet();
+							ShopCartDb scdb = new ShopCartDb(getActivity(),
+									userId);
+							scdb.clearStateAll();
+							for (Entry<String, CartGoods> entry : sets) {
+								String barCode = entry.getKey();
+								scdb.changeState(barCode, true);
+							}
+							scdb.Close();
+							try {
+								Intent intent = new Intent(getActivity(),
+										OrderPayActivity.class);
+								Bundle b = new Bundle();
+								b.putDouble("amount", mAmount);
+								b.putString("orderno", orderNo);
+								intent.putExtras(b);
+								startActivity(intent);
+
+							} catch (Exception e) {
+								// TODO: handle exception
+								Toast.makeText(getActivity(), e.getMessage(),
+										Toast.LENGTH_LONG).show();
+							}
+
+						} catch (Exception e) {
+							// TODO: handle exception
+							Toast.makeText(getActivity(), e.getMessage(),
+									Toast.LENGTH_LONG).show();
+						}
+						Toast.makeText(getActivity(), "生成订单成功!",
+								Toast.LENGTH_SHORT).show();
+					} else if (sendState == -1) {
+						isFlush = true;
+						Toast.makeText(getActivity(), "价格发生变化，请重试!",
+								Toast.LENGTH_SHORT).show();
+					} else {
+						isFlush = true;
+						Toast.makeText(getActivity(), "生成订单失败，请重试!",
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getActivity(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getActivity(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+
+			if (isFlush) {
+				flushCart();
+			}
+		}
+	};
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(getActivity());
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+
+	public void initViews() {
+		if (btnEdit != null && viewEditBtn != null) {
+			if (isOnEdit) {
+				btnEdit.setText(getString(R.string.confirm_text));
+			} else {
+				btnEdit.setText(getString(R.string.edit_text));
+			}
+			viewEditBtn.setOnClickListener(mEditClick);
+			// btnEdit.setOnClickListener(mEditClick);
+		}
+		if (btnCheckout != null) {
+			btnCheckout.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					SharedPreferences sharedPreferences = getActivity()
+							.getSharedPreferences("suntownshop", 0);
+					boolean isLogin = sharedPreferences.getBoolean("islogin",
+							false);
+					String userId = sharedPreferences.getString("userId", "");
+					String username = sharedPreferences.getString("username",
+							"");
+					String password = sharedPreferences.getString("password",
+							"");
+					if (!isLogin || "".equalsIgnoreCase(userId)) {
+						Intent intent = new Intent(getActivity(),
+								LoginActivity.class);
+						startActivity(intent);
+						return;
+					}
+
+					buildOrder(userId);
+				}
+			});
+		}
+		ShopCartDb scdb = new ShopCartDb(getActivity(), userId);
+		data = scdb.getAllByMap();
+		scdb.Close();
+		initCheckAll(true);
+		isManDoes = false;
+		if (cb_all != null) {
+			cb_all.setChecked(false);
+			cb_all.setOnCheckedChangeListener(mCheckAllClick);
+		}
+		isManDoes = true;
+		initAdapter();
+		calculate();
+	}
+
+	private boolean buildOrder(String userId) {
+		Set<Entry<String, CartGoods>> sets = checkGoods
+				.entrySet();
+		ShopCartDb scdb = new ShopCartDb(getActivity(),
+				userId);
+		scdb.clearStateAll();
+		for (Entry<String, CartGoods> entry : sets) {
+			String barCode = entry.getKey();
+			scdb.changeState(barCode, true);
+		}
+		scdb.Close();
+		Intent intent = new Intent(getActivity(), OrderConfirmActivity.class);
+		intent.putExtra("amount", mAmount);
+		startActivity(intent);
+		return true;
+	}
+
+	static class ViewHolder {
+		RelativeLayout item_left;
+		RelativeLayout item_right;
+
+		TextView tv_name;
+		TextView tv_psec;
+		TextView tv_price;
+		TextView tv_quantity;
+		ImageView imgView;
+		ImageView ivDownUp;
+		CheckBox cb;
+		RelativeLayout editForm;
+		LinearLayout showForm;
+
+		EditText etQuantity;
+
+		Button btnAdd;
+		Button btnSub;
+		Button btnDel;
+
+		RadioGroup rgDeliver;
+	}
+
+	private void initAdapter() {
+		mRightWidth = mSwipeListView.getRightViewWidth();
+		adapter = new BaseAdapter() {
+
+			/* (non-Javadoc)
+			 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+			 */
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				// TODO Auto-generated method stub
+				ViewHolder holder;
+				if (convertView == null) {
+					convertView = LayoutInflater.from(getActivity()).inflate(
+							R.layout.shopcart_item, null);
+					holder = new ViewHolder();
+
+					holder.item_left = (RelativeLayout) convertView
+							.findViewById(R.id.item_left);
+					holder.item_right = (RelativeLayout) convertView
+							.findViewById(R.id.item_right);
+					LinearLayout.LayoutParams lp1 = new LayoutParams(
+							LayoutParams.MATCH_PARENT,
+							LayoutParams.MATCH_PARENT);
+					holder.item_left.setLayoutParams(lp1);
+					LinearLayout.LayoutParams lp2 = new LayoutParams(
+							mRightWidth, LayoutParams.MATCH_PARENT);
+					holder.item_right.setLayoutParams(lp2);
+
+					holder.tv_name = (TextView) convertView
+							.findViewById(R.id.tv_name_shopcart_item);
+					holder.tv_psec = (TextView) convertView
+							.findViewById(R.id.tv_spec_shopcart_item);
+					holder.tv_price = (TextView) convertView
+							.findViewById(R.id.tv_price_shopcart_item);
+					holder.tv_quantity = (TextView) convertView
+							.findViewById(R.id.tv_quantity_shopcart_item);
+					holder.imgView = (ImageView) convertView
+							.findViewById(R.id.iv_shopcart_item);
+					holder.ivDownUp = (ImageView) convertView
+							.findViewById(R.id.iv_down_up);
+					holder.cb = (CheckBox) convertView
+							.findViewById(R.id.cb_chopcart_item);
+					holder.editForm = (RelativeLayout) convertView
+							.findViewById(R.id.shopcart_item_editform);
+					holder.showForm = (LinearLayout) convertView
+							.findViewById(R.id.shopcart_item_quantityform);
+
+					holder.etQuantity = (EditText) convertView
+							.findViewById(R.id.et_quantity_chopcart_item);
+
+					holder.btnAdd = (Button) convertView
+							.findViewById(R.id.btn_add_shopcart_item);
+					holder.btnSub = (Button) convertView
+							.findViewById(R.id.btn_sub_shopcart_item);
+					holder.btnDel = (Button) convertView
+							.findViewById(R.id.btn_del_shopcart_item);
+					holder.rgDeliver = (RadioGroup) convertView
+							.findViewById(R.id.rg_deliver);
+					convertView.setTag(holder);
+				} else {
+					holder = (ViewHolder) convertView.getTag();
+				}
+
+				if (convertView.getScrollX() > 0) {
+					convertView.scrollTo(0, 0);
+				}
+
+				OnItemClick itemClick = new OnItemClick(position);
+				convertView.setOnClickListener(itemClick);
+				holder.item_right
+						.setOnClickListener(new OnEditViewClick(position,
+								OnEditViewClick.ACTION_DEL, holder.etQuantity));
+				holder.btnAdd.setOnClickListener(new OnEditViewClick(position,
+						OnEditViewClick.ACTION_ADD, holder.etQuantity));
+				holder.btnSub.setOnClickListener(new OnEditViewClick(position,
+						OnEditViewClick.ACTION_SUB, holder.etQuantity));
+				holder.btnDel.setOnClickListener(new OnEditViewClick(position,
+						OnEditViewClick.ACTION_DEL, holder.etQuantity));
+				holder.rgDeliver.setOnCheckedChangeListener(new OnDeliverChange(position));
+
+				OnItemCheckedChangeListener cbOnChecked = new OnItemCheckedChangeListener(
+						position);
+				holder.cb.setOnCheckedChangeListener(cbOnChecked);
+				List<Entry<String, CartGoods>> list = new ArrayList<Entry<String, CartGoods>>(
+						data.entrySet());
+				CartGoods goods = list.get(position).getValue();
+				String barCode = goods.getBarCode();
+
+				holder.cb.setChecked(checkGoods.containsKey(barCode));
+
+				//holder.editForm.setVisibility(isOnEdit ? View.VISIBLE
+				//		: View.GONE);
+				//holder.showForm.setVisibility(isOnEdit ? View.GONE
+				//		: View.VISIBLE);
+				String imgPath = goods.getImagePath();
+				if (imgPath != null && imgPath.length() > 0) {
+					// Toast.makeText(getActivity(), imgPath,
+					// Toast.LENGTH_SHORT).show();
+					imageLoader.displayImage("http://" + imgPath,
+							holder.imgView, options);
+				} else {
+					holder.imgView
+							.setImageResource(R.drawable.picture_noimg_200x200);
+				}
+				
+				if (goods.getDeliverType() == CartGoods.DEVILER_TYPE_SELF) {
+					holder.rgDeliver.check(R.id.rd_deliver_self);
+				} else {
+					holder.rgDeliver.check(R.id.rd_deliver_market);
+				}
+				
+				holder.tv_name.setText(goods.getName());
+				holder.tv_psec.setText(inflater.getContext().getString(
+						R.string.goods_spec_text)
+						+ goods.getSpec());
+				if (goods.getPriceState() == CartGoods.PRICE_STATE_UP) {
+					holder.ivDownUp.setImageResource(R.drawable.up);
+					holder.ivDownUp.setVisibility(View.VISIBLE);
+					// holder.tv_price.setTextColor(Color.rgb(0, 255, 0));
+				} else if (goods.getPriceState() == CartGoods.PRICE_STATE_DOWN) {
+					holder.ivDownUp.setImageResource(R.drawable.down);
+					holder.ivDownUp.setVisibility(View.VISIBLE);
+					// holder.tv_price.setTextColor(Color.rgb(0, 0, 255));
+				} else {
+					holder.ivDownUp.setVisibility(View.INVISIBLE);
+					// holder.tv_price.setTextColor(Color.rgb(255, 0, 0));
+				}
+				holder.tv_price.setText("￥"
+						+ String.format("%.2f", goods.getPrice()));
+				holder.tv_quantity.setText("x" + goods.getQuantity());
+				holder.etQuantity.setText(goods.getQuantity() + "");
+				// calculate();
+				return convertView;
+			}
+
+			@Override
+			public long getItemId(int position) {
+				// TODO Auto-generated method stub
+				return position;
+			}
+
+			@Override
+			public Object getItem(int position) {
+				// TODO Auto-generated method stub
+				List<Entry<String, CartGoods>> list = new ArrayList<Entry<String, CartGoods>>(
+						data.entrySet());
+				return list.get(position).getValue();
+			}
+
+			@Override
+			public int getCount() {
+				// TODO Auto-generated method stub
+
+				return data.size();
+			}
+		};
+		mSwipeListView.setAdapter(adapter);
+		// listview.setAdapter(adapter);
+
+	}
+
+	private OnCheckedChangeListener mCheckAllClick = new OnCheckedChangeListener() {
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			// TODO Auto-generated method stub
+			try {
+				if (isManDoes) {
+					initCheckAll(isChecked);
+					adapter.notifyDataSetChanged();
+					calculate();
+				}
+			} catch (Exception e) {
+				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG)
+						.show();
+				e.printStackTrace();
+			}
+		}
+
+	};
+
+	private void initCheckAll(boolean isChecked) {
+		checkGoods.clear();
+		int count = data.size();
+		if (isChecked) {
+
+			Set<Entry<String, CartGoods>> sets = data.entrySet();
+			for (Entry<String, CartGoods> entry : sets) {
+				CartGoods goods = entry.getValue();
+				checkGoods.put(goods.getBarCode(), goods);
+			}
+
+		}
+	}
+
+	private OnClickListener mEditClick = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			if (isOnEdit) {
+				isOnEdit = false;
+				btnEdit.setText(getString(R.string.edit_text));
+			} else {
+				isOnEdit = true;
+				btnEdit.setText(getString(R.string.confirm_text));
+			}
+			adapter.notifyDataSetChanged();
+		}
+	};
+
+	private class OnItemClick implements OnClickListener {
+		private int index;
+
+		public OnItemClick(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			List<Entry<String, CartGoods>> list = new ArrayList<Entry<String, CartGoods>>(
+					data.entrySet());
+
+			CartGoods goods = list.get(index).getValue();
+			String barCode = goods.getBarCode();
+			showGoodsDetail(barCode);
+		}
+
+	}
+
+	/**
+	 * 根据条形码跳转到商品详情页
+	 * 
+	 * @param barCode
+	 */
+	private void showGoodsDetail(String barCode) {
+		Intent intent = new Intent(getActivity(), GoodsDetailActivity.class);
+		Bundle b = new Bundle();
+		b.putString("barCode", barCode);
+		intent.putExtras(b);
+		startActivity(intent);
+	}
+
+	private class OnDeliverChange implements RadioGroup.OnCheckedChangeListener {
+		private int index;
+
+		public OnDeliverChange(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public void onCheckedChanged(RadioGroup group, int checkedId) {
+			// TODO Auto-generated method stub
+			List<Entry<String, CartGoods>> list = new ArrayList<Entry<String, CartGoods>>(
+					data.entrySet());
+			CartGoods goods = list.get(index).getValue();
+			int deliver = checkedId==R.id.rd_deliver_self ? 0 : 1;
+			if (deliver != goods.getDeliverType()) {
+				ShopCartDb scdb = new ShopCartDb(getActivity(), userId);
+				if (scdb.updateDeliver(goods.getBarCode(), deliver)) {
+					goods.setDeliverType(deliver);
+				}
+				scdb.Close();
+			}
+		}
+
+	}
+
+	private class OnEditViewClick implements OnClickListener {
+		private final static int ACTION_ADD = 1;
+		private final static int ACTION_SUB = 2;
+		private final static int ACTION_DEL = 3;
+		private int action;
+		private int index;
+		private EditText editText;
+
+		public OnEditViewClick(int index, int action, EditText editText) {
+			this.index = index;
+			this.action = action;
+			this.editText = editText;
+		}
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			List<Entry<String, CartGoods>> list = new ArrayList<Entry<String, CartGoods>>(
+					data.entrySet());
+
+			CartGoods goods = list.get(index).getValue();
+			switch (action) {
+			case ACTION_ADD:
+				ChangeQuantity(1, editText, goods);
+
+				break;
+			case ACTION_SUB:
+				ChangeQuantity(-1, editText, goods);
+				break;
+			case ACTION_DEL:
+				ConfirmDialog dialog = new ConfirmDialog(getActivity(),
+						getString(R.string.msg_delete_confirm_text),
+						getString(R.string.tips_text),
+						getString(R.string.confirm_text),
+						getString(R.string.cancel_text));
+				if (dialog.ShowDialog()) {
+
+					String barCode = goods.getBarCode();
+					if (checkGoods.containsKey(barCode)) {
+						checkGoods.remove(barCode);
+					}
+					data.remove(barCode);
+					ShopCartDb scdb = new ShopCartDb(getActivity(), userId);
+					scdb.deleteGoods(barCode);
+					scdb.Close();
+					if (data.isEmpty()) {
+						isOnEdit = false;
+						btnEdit.setText(getString(R.string.edit_text));
+						calculate();
+					}
+					adapter.notifyDataSetChanged();
+					isManDoes = false;
+					cb_all.setChecked((checkGoods.size() == data.size())
+							&& (checkGoods.size() > 0));
+					isManDoes = true;
+				}
+				break;
+			}
+			calculate();
+		}
+
+	}
+
+	private void ChangeQuantity(int num, EditText et, CartGoods goods) {
+		String text = et.getText().toString();
+		int curNum = 1;
+		if(FormatValidation.isNumeric(text)){
+			curNum = (text == null || text.length() <= 0) ? 1 : Integer
+					.parseInt(text);
+		}
+		curNum = curNum + num;
+		if(curNum>99){
+			curNum = 99;
+		}else if(curNum<1){
+			curNum = 1;
+		}
+		et.setText(curNum + "");
+		if (curNum != goods.getQuantity()) {
+			goods.setQuantity(curNum);
+			if (checkGoods.containsKey(goods.getBarCode())) {
+				checkGoods.get(goods.getBarCode()).setQuantity(curNum);
+			}
+			ShopCartDb scdb = new ShopCartDb(getActivity(), userId);
+			scdb.updateGoods(goods.getBarCode(), curNum);
+			scdb.Close();
+		}
+
+	}
+
+	private class OnItemCheckedChangeListener implements
+			OnCheckedChangeListener {
+		private int index;
+
+		public OnItemCheckedChangeListener(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			// TODO Auto-generated method stub
+			List<Entry<String, CartGoods>> list = new ArrayList<Entry<String, CartGoods>>(
+					data.entrySet());
+
+			CartGoods goods = list.get(index).getValue();
+
+			if (isChecked) {
+				if (!checkGoods.containsKey(goods.getBarCode())) {
+					checkGoods.put(goods.getBarCode(), goods);
+				}
+			} else {
+				checkGoods.remove(goods.getBarCode());
+			}
+			isManDoes = false;
+			cb_all.setChecked((checkGoods.size() == data.size())
+					&& (checkGoods.size() > 0));
+			isManDoes = true;
+			calculate();
+		}
+
+	}
+
+	private void calculate() {
+		int count = checkGoods.size();
+		mAmount = 0;
+		Set<Entry<String, CartGoods>> sets = checkGoods.entrySet();
+		for (Entry<String, CartGoods> entry : sets) {
+			CartGoods goods = entry.getValue();
+			mAmount = mAmount + goods.getPrice() * goods.getQuantity();
+		}
+
+		btnCheckout.setText(this.getString(R.string.shopcart_checkout_text)
+				+ "(" + count + ")");
+		TextView tv = (TextView) view.findViewById(R.id.tv_shopcart_count);
+		tv.setText("￥" + String.format("%.2f", mAmount));
+		cb_all.setEnabled(data.size() > 0 ? true : false);
+		viewShow.setVisibility(data.size() > 0 ? View.VISIBLE : View.GONE);
+		viewEmpty.setVisibility(data.size() > 0 ? View.GONE : View.VISIBLE);
+		//viewEditBtn.setVisibility(data.size() > 0 ? View.VISIBLE : View.GONE);
+		btnCheckout.setEnabled(checkGoods.size() > 0 ? true : false);
+	}
+
+}

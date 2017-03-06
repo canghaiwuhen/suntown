@@ -126,7 +126,13 @@ public class WaitFragment extends Fragment {
             }, 3000); // 5秒后发送消息，停止刷新
         });
 
-        startDevice.setOnClickListener(v -> startActivity(new Intent(getActivity(), DeviceListActivity.class)));
+        startDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+                startActivity(new Intent(getActivity(), DeviceListActivity.class));
+            }
+        });
 //        getUserInfo(ssid, memid);
         requestData(memid);
         new Handler().postDelayed(() -> llLoad.setVisibility(View.GONE), 2000);

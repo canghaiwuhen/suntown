@@ -7,6 +7,7 @@
     android:background="@color/colorWhite"
     android:fitsSystemWindows="true"
     tools:context="com.suntown.activity.AddressCenterActivity">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -27,22 +28,27 @@
             android:layout_centerVertical="true"
             android:src="@drawable/back_01"
             android:background="@drawable/back_blue_selector"/>
-        <TextView
-            android:id="@+id/tv_manage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="管理"
-            android:textColor="@color/colorRed"
-            android:textSize="@dimen/textSize"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="@dimen/padding"
-            android:layout_centerVertical="true" />
+
         <View
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"
             android:background="@color/colorLine"
             android:layout_height="2dp"/>
+
+        <TextView
+            android:id="@+id/tv_manage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="管理"
+            android:textColor="@color/colorWhite"
+            android:padding="@dimen/dp_10"
+            android:textSize="@dimen/textSize"
+            android:background="@drawable/back_blue_selector"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/lv_address"
         android:layout_width="match_parent"

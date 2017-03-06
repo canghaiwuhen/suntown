@@ -1,0 +1,218 @@
+package com.suntown.suntownshop;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.suntown.suntownshop.adapter.GoodsEvaluateAdapter;
+import com.suntown.suntownshop.asynctask.PostAsyncTask;
+import com.suntown.suntownshop.asynctask.PostAsyncTask.OnCompleteCallback;
+import com.suntown.suntownshop.model.Order;
+import com.suntown.suntownshop.model.OrderGoods;
+import com.suntown.suntownshop.utils.JsonBuilder;
+import com.suntown.suntownshop.utils.JsonParser;
+import com.suntown.suntownshop.utils.XmlParser;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+/**
+ * Order Evaluate Activity
+ *
+ * @author 钱凯
+ * @version 2015年4月21日 上午8:26:41
+ *
+ */
+public class EvaluateActivity extends Activity {
+	private Order mOrder;
+	private ArrayList<OrderGoods> goods;
+	private ListView listView;
+	private GoodsEvaluateAdapter adapter;
+	private View loading;
+	private View viewMain;
+	private String mUserId;
+	private String mLoginToken;
+	private Button btnSubmit;
+	private TextView tvTitle;
+	private boolean isEditable = false;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_evaluate);
+		Intent intent = getIntent();
+		listView = (ListView) findViewById(R.id.lv_eva);
+		loading = findViewById(R.id.loading);
+		viewMain = findViewById(R.id.view_main);
+		btnSubmit = (Button)findViewById(R.id.btn_submit);
+		loading.setVisibility(View.VISIBLE);
+		viewMain.setVisibility(View.GONE);
+		tvTitle = (TextView)findViewById(R.id.tv_head_title);
+		SharedPreferences mSharedPreferences = getSharedPreferences(
+				"suntownshop", 0);
+		mUserId = mSharedPreferences.getString("userId", "");
+		mLoginToken = mSharedPreferences.getString("m_voucher", "");
+		
+		if (intent.hasExtra("orderno")) {
+			Bundle b = intent.getExtras();
+			String orderNo = b.getString("orderno");
+			isEditable = b.getBoolean("status");
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("formno", orderNo);
+			PostAsyncTask postAsyncTask = new PostAsyncTask(URL, callback);
+			postAsyncTask.execute(params);
+		} else {
+			Toast.makeText(this, getString(R.string.orderno_err),
+					Toast.LENGTH_SHORT).show();
+			finish();
+		}
+		if(!isEditable){
+			btnSubmit.setVisibility(View.GONE);
+			tvTitle.setText("订单评价");
+		}
+		
+
+	}
+
+	private final static String URL = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/getHistoryOrderDetail";
+
+	private OnCompleteCallback callback = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+			// showProgress(false);
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					System.out.println(msg);
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						// 取得订单数据，开始解析
+						mOrder = JsonParser.orderParse(jsonObj);
+						goods = mOrder.getOrderGoods();
+						adapter = new GoodsEvaluateAdapter(
+								EvaluateActivity.this, goods,isEditable);
+						listView.setAdapter(adapter);
+						loading.setVisibility(View.GONE);
+						viewMain.setVisibility(View.VISIBLE);
+					} else {
+						Toast.makeText(getApplicationContext(), "该订单不存在或已取消!",
+								Toast.LENGTH_SHORT).show();
+						finish();
+					}
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+
+		}
+	};
+
+	private final static String URL_UPDATE_EVALUATE = Constants.DOMAIN_NAME
+			+ "axis2/services/sunteslwebservice/comment";
+
+	private OnCompleteCallback callbackEvaluate = new OnCompleteCallback() {
+
+		@Override
+		public void onComplete(boolean isOk, String msg) {
+			// TODO Auto-generated method stub
+			showProgress(false);
+			if (isOk) {
+				JSONObject jsonObj;
+				try {
+					msg = XmlParser.parse(msg, "UTF-8", "return");
+					jsonObj = new JSONObject(msg);
+					int sendState = jsonObj.getInt("RESULT");
+					if (sendState == 0) {
+						Toast.makeText(getApplicationContext(), "评价发表成功",
+								Toast.LENGTH_SHORT).show();
+						finish();
+					} else {
+						Toast.makeText(getApplicationContext(),
+								"评价发表失败，请稍后重试...", Toast.LENGTH_SHORT).show();
+
+					}
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "服务器返回错误，请稍后重试...",
+							Toast.LENGTH_SHORT).show();
+
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "连接超时，请稍后重试...",
+						Toast.LENGTH_SHORT).show();
+			}
+
+		}
+	};
+
+	public void close(View v) {
+		finish();
+	}
+
+	public void submit(View v){
+		try {
+			String strJson = JsonBuilder.makeEvaluateJson(mOrder, mUserId, mLoginToken);
+			System.out.println(strJson);
+			showProgress(true);
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("strMsg", strJson);
+			PostAsyncTask postAsyncTask = new PostAsyncTask(URL_UPDATE_EVALUATE, callbackEvaluate);
+			postAsyncTask.execute(params);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+		
+	}
+
+	private ProgressDialog mPDialog;
+
+	public void showProgress(final boolean show) {
+		if (show) {
+			mPDialog = new ProgressDialog(EvaluateActivity.this);
+			// 实例化
+			mPDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			// 设置进度条风格，风格为圆形，旋转的
+			// pDialog.setTitle("Google");
+			// 设置ProgressDialog 标题
+			mPDialog.setMessage(getString(R.string.wait_a_minute));
+			// 设置ProgressDialog 提示信息
+			// pDialog.setIcon(R.drawable.ic_launcher);
+			// 设置ProgressDialog 标题图标
+			// mypDialog.setButton();
+			// 设置ProgressDialog 的一个Button
+			mPDialog.setIndeterminate(false);
+			// 设置ProgressDialog 的进度条是否不明确
+			mPDialog.setCancelable(false);
+			// 设置ProgressDialog 是否可以按退回按键取消
+			mPDialog.show();
+		} else {
+			if (mPDialog != null && mPDialog.isShowing()) {
+				mPDialog.dismiss();
+				mPDialog = null;
+			}
+		}
+	}
+}

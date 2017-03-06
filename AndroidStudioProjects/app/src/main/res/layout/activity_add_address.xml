@@ -20,19 +20,22 @@
             android:id="@+id/tv_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/padding"
             android:layout_centerVertical="true"
             android:textSize="@dimen/textSize"
-            android:text="取消"/>
+            android:text="取消"
+            android:padding="@dimen/dp_10"
+            android:textColor="@color/colorWhite"
+            android:background="@drawable/back_blue_selector"/>
         <TextView
             android:id="@+id/tv_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="保存"
-            android:textColor="@color/colorRed"
             android:textSize="@dimen/textSize"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="@dimen/padding"
+            android:padding="@dimen/dp_10"
+            android:textColor="@color/colorWhite"
+            android:background="@drawable/back_blue_selector"
             android:layout_centerVertical="true" />
         <View
             android:layout_width="match_parent"

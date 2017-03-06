@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="@color/white" >
+
+    <RelativeLayout
+        android:id="@+id/rv_lt"
+        android:layout_width="30dp"
+        android:layout_height="20dp"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_horizontal" >
+
+        <LinearLayout
+            android:id="@+id/ll_lt"
+            android:orientation="vertical"
+            android:layout_width="2dp"
+            android:layout_height="fill_parent"
+            android:background="@color/grey_line" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rv_lb"
+        android:layout_width="30dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/rv_lt"
+        android:gravity="center_horizontal" >
+
+        <LinearLayout
+            android:layout_width="2dp"
+            android:layout_height="fill_parent"
+            android:layout_centerHorizontal="true"
+            android:background="@color/grey_line" />
+
+        <ImageView
+            android:id="@+id/iv_c"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/circle_grey" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignTop="@+id/rv_lb"
+        android:layout_toRightOf="@+id/rv_lb"
+        android:background="@drawable/style_line_bottom"
+        android:orientation="vertical"
+        android:paddingRight="10dp" >
+
+        <TextView
+            android:id="@+id/tv_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="退货记录"
+            android:textColor="@color/greyfont"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2015-04-30 15:30:13"
+            android:textColor="@color/greyfont"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</RelativeLayout>

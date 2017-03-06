@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <!-- xmlns:myns="http://schemas.android.com/apk/res/com.suntown.suntownshop" -->
+
+    <RelativeLayout
+        android:id="@+id/header_class"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/style_line_bottom_head_divider"
+        android:minHeight="60dp" >
+
+        <LinearLayout
+            android:id="@+id/view_category_back"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/selector_back"
+            android:gravity="center"
+            android:onClick="close" >
+
+            <ImageView
+                android:id="@+id/iv_category_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/toolbar_back_btn" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_head_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/class_text"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <RelativeLayout
+            android:id="@+id/view_main"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/bg_color" >
+
+            <com.handmark.pulltorefresh.library.PullToRefreshGridView
+                xmlns:ptr="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/gv_goodslist"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@color/diviline"
+                android:horizontalSpacing="2dp"
+                android:numColumns="3"
+                android:verticalSpacing="2dp"
+                android:visibility="gone"
+                ptr:ptrAnimationStyle="flip"
+                ptr:ptrHeaderBackground="@color/white"
+                ptr:ptrHeaderSubTextColor="@color/black"
+                ptr:ptrHeaderTextColor="@color/black"
+                ptr:ptrListViewExtrasEnabled="false"
+                ptr:ptrMode="pullFromEnd"
+                ptr:ptrRefreshableViewBackground="@color/bg_color"
+                ptr:ptrScrollingWhileRefreshingEnabled="true"
+                ptr:ptrShowIndicator="false" />
+
+            <RelativeLayout
+                android:id="@+id/view_menu"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="1dp"
+                android:background="#f2f2f2" >
+
+                <LinearLayout
+                    android:id="@+id/view_class"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toLeftOf="@+id/view_diviline"
+                    android:gravity="center"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:id="@+id/tv_class"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="选择分类"
+                        android:textColor="@color/item_text_normal"
+                        android:textSize="18sp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:src="@drawable/icon_solid_arrow_down" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/view_diviline"
+                    android:layout_width="2dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    android:background="@color/diviline" >
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/view_orderby"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@+id/view_diviline"
+                    android:gravity="center"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:id="@+id/tv_orderby"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="默认排序"
+                        android:textColor="@color/item_text_normal"
+                        android:textSize="18sp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:src="@drawable/icon_solid_arrow_down" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <com.suntown.suntownshop.widget.PullUpRefreshListView
+                android:id="@+id/lv_category_goodslist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/view_menu"
+                android:layout_weight="1"
+                android:divider="@color/bg_color"
+                android:dividerHeight="1px"
+                android:footerDividersEnabled="false" />
+
+            <ImageView
+                android:id="@+id/iv_route"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:onClick="navigate"
+                android:padding="10dp"
+                android:src="@drawable/icon_goods_route" />
+
+            <TextView
+                android:id="@+id/tv_route_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/iv_route"
+                android:layout_alignTop="@+id/iv_route"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/navigation_bar_cartnumber_bg"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <include
+            android:id="@+id/loading"
+            layout="@layout/loading_layout" />
+    </FrameLayout>
+
+</LinearLayout>

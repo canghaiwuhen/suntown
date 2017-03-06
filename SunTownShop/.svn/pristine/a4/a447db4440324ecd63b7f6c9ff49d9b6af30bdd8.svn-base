@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="swipelistviewstyle">
+        <attr name="right_width" format="dimension"></attr>
+    </declare-styleable>
+    <declare-styleable name="refreshableviewstyle">
+        <attr name="type" format="integer" />
+    </declare-styleable>
+	<declare-styleable name="CircleImageView">
+        <attr name="border_width" format="dimension" />
+        <attr name="border_color" format="color" />
+    </declare-styleable>
+    <declare-styleable	name="HintOnEditText">
+        <attr name="text" format="string"/>
+        <attr name="hint_on" format="string"/>
+        <attr name="image_on" format="boolean" />
+        <attr name="textSize" format="dimension"/>
+        <attr name="hintSize" format="dimension" />
+        <attr name="textColor" format="color" />
+        <attr name="hintColor" format="color" />
+    </declare-styleable>
+    <declare-styleable name="SlipButtonStyle">
+        <attr name="images_on" format="reference" />
+        <attr name="images_off" format="reference" />
+        <attr name="split_button" format="reference" />
+    </declare-styleable>
+</resources>

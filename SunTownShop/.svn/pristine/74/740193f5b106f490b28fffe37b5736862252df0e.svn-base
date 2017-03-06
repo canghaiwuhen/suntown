@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@color/white"
+    android:gravity="center_vertical"
+    android:padding="5dp" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingLeft="5dp"
+        android:paddingRight="10dp" >
+
+        <CheckBox
+            android:id="@+id/cb_use"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:button="@drawable/selector_checkbox_coupon_item" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/view_left"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/coupon_bg_left"
+         >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/tv_amount"
+            android:layout_toRightOf="@+id/tv_amount"
+            android:text="元"
+            android:textColor="@color/green"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="100"
+            android:layout_centerInParent="true"
+            android:textColor="@color/green"
+            android:textSize="24sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/view_right"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/coupon_bg_right"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_coupon_line" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_marginLeft="5dp">
+
+            <TextView
+                android:id="@+id/tv_extent_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="使用范围:"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+            <TextView 
+                android:id="@+id/tv_extent"
+                android:layout_toRightOf="@+id/tv_extent_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全场满500使用"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/tv_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_extent_label"
+                android:text="有 效 期:"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+            <TextView 
+                android:id="@+id/tv_date"
+                android:layout_alignTop="@+id/tv_date_label"
+                android:layout_toRightOf="@+id/tv_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2015.02.15-2015.12.31"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>
